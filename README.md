@@ -5,6 +5,11 @@
 - https://cs.wikipedia.org/wiki/Simple_Network_Management_Protocol
 - https://www.samuraj-cz.com/clanek/snmp-simple-network-management-protocol/
 
+## O Syslogu
+- https://www.crowdstrike.com/guides/syslog-logging/
+- https://stackify.com/syslog-101/
+- https://graylog.org/post/what-is-syslog-and-how-does-it-work/
+
 ## Knihovna SNMP pro C#
 - 1)
 -   https://www.nuget.org/packages/SnmpSharpNet#readme-body-tab
