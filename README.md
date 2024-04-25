@@ -1,16 +1,16 @@
 # NetDeviceManager
 
 ## About SNMP
-- https://mwtsolutions.eu/cs/clanky/reseni-monitorovani-snmp/?utm_term=&utm_campaign=CS-DSA-articles&utm_source=adwords&utm_medium=ppc&hsa_acc=4516776325&hsa_cam=14947508358&hsa_grp=126777980365&hsa_ad=555124919512&hsa_src=g&hsa_tgt=dsa-1681546153832&hsa_kw=&hsa_mt=&hsa_net=adwords&hsa_ver=3&gad_source=1&gclid=CjwKCAjw5ImwBhBtEiwAFHDZx7K3RoqzhqKVtuwXcY8hiu0Gi-OE4JyDJslRFgWatfdYv4FpV2lKEBoClx4QAvD_BwE
-- https://cs.wikipedia.org/wiki/Simple_Network_Management_Protocol
-- https://www.samuraj-cz.com/clanek/snmp-simple-network-management-protocol/
-- https://www.netreo.com/blog/snmp-traps-definition-types-examples-best-practices/
-- https://github.com/cisco/cisco-mibs/blob/main/v2/CISCO-C2900-MIB.my
+- What SNMP is: https://mwtsolutions.eu/cs/clanky/reseni-monitorovani-snmp/?utm_term=&utm_campaign=CS-DSA-articles&utm_source=adwords&utm_medium=ppc&hsa_acc=4516776325&hsa_cam=14947508358&hsa_grp=126777980365&hsa_ad=555124919512&hsa_src=g&hsa_tgt=dsa-1681546153832&hsa_kw=&hsa_mt=&hsa_net=adwords&hsa_ver=3&gad_source=1&gclid=CjwKCAjw5ImwBhBtEiwAFHDZx7K3RoqzhqKVtuwXcY8hiu0Gi-OE4JyDJslRFgWatfdYv4FpV2lKEBoClx4QAvD_BwE
+- What SNMP is: https://cs.wikipedia.org/wiki/Simple_Network_Management_Protocol
+- What SNMP is: https://www.samuraj-cz.com/clanek/snmp-simple-network-management-protocol/
+- What SNMP traps are: https://www.netreo.com/blog/snmp-traps-definition-types-examples-best-practices/
+- MIB: https://github.com/cisco/cisco-mibs/blob/main/v2/CISCO-C2900-MIB.my
 
 ## About Syslogu
-- https://www.crowdstrike.com/guides/syslog-logging/
-- https://stackify.com/syslog-101/
-- https://graylog.org/post/what-is-syslog-and-how-does-it-work/
+- What Syslog is: https://www.crowdstrike.com/guides/syslog-logging/
+- What Syslog is: https://stackify.com/syslog-101/
+- What Syslog is: https://graylog.org/post/what-is-syslog-and-how-does-it-work/
 
 ## Cisco Catalyst 2950 Settings
 - Factory reset: https://itskillbuilding.com/cisco/device-management/reset-cisco-switch-factory-defaults/
