@@ -29,3 +29,5 @@
 -   https://docs.lextudio.com/sharpsnmplib/tutorials/v3-operations
 
 - https://www.c-sharpcorner.com/article/snmp-trap-listener-using-snmp-library/
+- https://www.codeproject.com/articles/468892/an-introduction-to-sharpsnmp-an-open-source-snmp?fid=1791335&df=90&mpp=25&sort=Position&view=Normal&spc=Relaxed&prof=True&fr=26
+- https://www.nuget.org/packages/Lextm.SharpSnmpLib
