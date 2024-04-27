@@ -6,6 +6,7 @@
 - What SNMP is: https://www.samuraj-cz.com/clanek/snmp-simple-network-management-protocol/
 - What SNMP traps are: https://www.netreo.com/blog/snmp-traps-definition-types-examples-best-practices/
 - MIB: https://github.com/cisco/cisco-mibs/blob/main/v2/CISCO-C2900-MIB.my
+- OID: https://www.dpstele.com/apps/snmp/oids.php
 
 ## About Syslogu
 - What Syslog is: https://www.crowdstrike.com/guides/syslog-logging/
