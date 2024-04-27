@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetDeviceManager.Database", "NetDeviceManager.Database\NetDeviceManager.Database.csproj", "{64592F96-3A46-4F86-803F-BB5B87694F2D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetDeviceManager.Lib.GlobalConstantsAndEnums", "NetDeviceManager.Lib.GlobalConstantsAndEnums\NetDeviceManager.Lib.GlobalConstantsAndEnums.csproj", "{5DA3D546-9DA6-4DFA-97C4-B5C48D02E0DC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetDeviceManager.Web", "NetDeviceManager.Web\NetDeviceManager.Web.csproj", "{EEAE8980-73A0-45EA-9253-CF3A1F0BA2AD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{64592F96-3A46-4F86-803F-BB5B87694F2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64592F96-3A46-4F86-803F-BB5B87694F2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64592F96-3A46-4F86-803F-BB5B87694F2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64592F96-3A46-4F86-803F-BB5B87694F2D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5DA3D546-9DA6-4DFA-97C4-B5C48D02E0DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5DA3D546-9DA6-4DFA-97C4-B5C48D02E0DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5DA3D546-9DA6-4DFA-97C4-B5C48D02E0DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5DA3D546-9DA6-4DFA-97C4-B5C48D02E0DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EEAE8980-73A0-45EA-9253-CF3A1F0BA2AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EEAE8980-73A0-45EA-9253-CF3A1F0BA2AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EEAE8980-73A0-45EA-9253-CF3A1F0BA2AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EEAE8980-73A0-45EA-9253-CF3A1F0BA2AD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

@@ -8,7 +8,7 @@
 - MIB: https://github.com/cisco/cisco-mibs/blob/main/v2/CISCO-C2900-MIB.my
 - OID: https://www.dpstele.com/apps/snmp/oids.php
 
-## About Syslogu
+## About Syslog
 - What Syslog is: https://www.crowdstrike.com/guides/syslog-logging/
 - What Syslog is: https://stackify.com/syslog-101/
 - What Syslog is: https://graylog.org/post/what-is-syslog-and-how-does-it-work/
@@ -32,3 +32,8 @@
 - https://www.c-sharpcorner.com/article/snmp-trap-listener-using-snmp-library/
 - https://www.codeproject.com/articles/468892/an-introduction-to-sharpsnmp-an-open-source-snmp?fid=1791335&df=90&mpp=25&sort=Position&view=Normal&spc=Relaxed&prof=True&fr=26
 - https://www.nuget.org/packages/Lextm.SharpSnmpLib
+
+## Web
+- How to make design: https://thewhitelabelagency.com/best-resolution-for-web-design/
+- Design in Figma: https://www.figma.com/file/lxeBbT1rmo3OwivrzSfVLN/NetDeviceManager?type=design&node-id=0%3A1&mode=design&t=o8PdbUcIOWJaL8KB-1
+- 
