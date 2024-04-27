@@ -6,6 +6,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetDeviceManager.Lib.Global
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetDeviceManager.Web", "NetDeviceManager.Web\NetDeviceManager.Web.csproj", "{EEAE8980-73A0-45EA-9253-CF3A1F0BA2AD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetDeviceManager.Api", "NetDeviceManager.Api\NetDeviceManager.Api.csproj", "{D17619EA-7CC8-43D5-A0D3-6E1241EF8867}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetDeviceManager.ScheduledSnmpAgent", "NetDeviceManager.ScheduledSnmpAgent\NetDeviceManager.ScheduledSnmpAgent.csproj", "{7481C1A1-C5B8-46B9-A445-7BBAD322DF66}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +28,13 @@ Global
 		{EEAE8980-73A0-45EA-9253-CF3A1F0BA2AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EEAE8980-73A0-45EA-9253-CF3A1F0BA2AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EEAE8980-73A0-45EA-9253-CF3A1F0BA2AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D17619EA-7CC8-43D5-A0D3-6E1241EF8867}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D17619EA-7CC8-43D5-A0D3-6E1241EF8867}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D17619EA-7CC8-43D5-A0D3-6E1241EF8867}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D17619EA-7CC8-43D5-A0D3-6E1241EF8867}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7481C1A1-C5B8-46B9-A445-7BBAD322DF66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7481C1A1-C5B8-46B9-A445-7BBAD322DF66}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7481C1A1-C5B8-46B9-A445-7BBAD322DF66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7481C1A1-C5B8-46B9-A445-7BBAD322DF66}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
