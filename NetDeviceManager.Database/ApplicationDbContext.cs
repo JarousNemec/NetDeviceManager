@@ -18,7 +18,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     
     public DbSet<PhysicalDevice> PhysicalDevices { get; set; }
     public DbSet<SnmpSensor> SnmpSensors { get; set; }
-    public DbSet<PhysicalDeviceReadInterval> PhysicalDevicesReadIntervals { get; set; }
+    public DbSet<PhysicalDeviceReadJob> PhysicalDevicesReadJobs { get; set; }
     public DbSet<SnmpSensorInPhysicalDevice> SensorsInPhysicalDevices { get; set; }
     
     public DbSet<SnmpSensorRecord> SnmpSensorRecords { get; set; }

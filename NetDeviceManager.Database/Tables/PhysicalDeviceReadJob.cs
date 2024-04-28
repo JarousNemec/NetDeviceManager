@@ -1,6 +1,6 @@
 ﻿namespace NetDeviceManager.Database.Tables;
 
-public class PhysicalDeviceReadInterval
+public class PhysicalDeviceReadJob
 {
     public Guid Id { get; set; }
 

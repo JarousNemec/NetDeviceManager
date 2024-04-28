@@ -43,6 +43,7 @@
 - What is cron: https://www.hostingy.net/co-je-to-cron-a-k-cemu-se-pouziva/
 - What is cron: https://en.wikipedia.org/wiki/Cron
 - C# nuget for job scheduler: https://positiwise.medium.com/using-fluentscheduler-with-c-for-task-scheduling-4cb886abc0a3
+- How to make job in FluentScheduler: https://docs.particular.net/samples/scheduling/fluentscheduler/
 
 ## Microservice architecture 
 - How to make microservice architecture with db: https://medium.com/@akshatsharma0610/microservice-database-management-c01ba9849a88
