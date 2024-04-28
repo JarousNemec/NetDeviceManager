@@ -10,6 +10,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetDeviceManager.Api", "Net
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetDeviceManager.ScheduledSnmpAgent", "NetDeviceManager.ScheduledSnmpAgent\NetDeviceManager.ScheduledSnmpAgent.csproj", "{7481C1A1-C5B8-46B9-A445-7BBAD322DF66}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docker", "Docker", "{B403E6BE-B55E-48D3-8CE5-C4203EE5747B}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.yml = docker-compose.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using NetDeviceManager.Database.Identity;
 using NetDeviceManager.Database.Tables;
 
 namespace NetDeviceManager.Database;
 
-public class ApplicationDbContext : IdentityDbContext<ApiUser>
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+    : IdentityDbContext<IdentityUser>(options)
 {
     public DbSet<Brand> Brands { get; set; }
     public DbSet<Community> Communities { get; set; }
@@ -25,9 +27,4 @@ public class ApplicationDbContext : IdentityDbContext<ApiUser>
     public DbSet<Tag> Tags { get; set; }
     public DbSet<Ticket> Tickets { get; set; }
     public DbSet<TagOnPhysicalDevice> TagsOnPhysicalDevices { get; set; }
-    
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-        : base(options)
-    {
-    }
 }

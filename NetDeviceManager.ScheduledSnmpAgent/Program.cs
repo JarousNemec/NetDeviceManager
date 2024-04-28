@@ -1,18 +1,32 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NetDeviceManager.Database;
 using NetDeviceManager.ScheduledSnmpAgent;
 
 Console.WriteLine("Initializing...");
-Setup();
+HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
+
+var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+var confBuilder = new ConfigurationBuilder()
+    .AddJsonFile($"appsettings.json", true, true)
+    .AddJsonFile($"appsettings.{environmentName}.json", true, true)
+    .AddEnvironmentVariables();
+var configuration = confBuilder.Build();
+var connectionString = configuration.GetConnectionString("DefaultConnection");
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(connectionString));
+
+builder.Services.AddSingleton<Scheduler>();
+
+// builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 Console.WriteLine("Initialized!");
 
-void Setup()
-{
-    var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-    var builder = new ConfigurationBuilder()
-        .AddJsonFile($"appsettings.json", true, true)
-        .AddJsonFile($"appsettings.{environmentName}.json", true, true)
-        .AddEnvironmentVariables();
-    var configuration = builder.Build();
-    var myConnString= configuration.GetConnectionString("DefaultConnection");
-}
+var app = builder.Build();
+var scheduler = app.Services.GetRequiredService<Scheduler>();
+scheduler.Schedule();
+Console.WriteLine("Running...");
+
+app.Run();

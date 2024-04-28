@@ -8,6 +8,7 @@
 - What SNMP traps are: https://www.netreo.com/blog/snmp-traps-definition-types-examples-best-practices/
 - MIB: https://github.com/cisco/cisco-mibs/blob/main/v2/CISCO-C2900-MIB.my
 - OID: https://www.dpstele.com/apps/snmp/oids.php
+- Global Library with MIBs: https://www.circitor.fr/Mibs/Mibs.php
 
 ## About Syslog
 - What Syslog is: https://www.crowdstrike.com/guides/syslog-logging/
@@ -46,3 +47,12 @@
 ## Microservice architecture 
 - How to make microservice architecture with db: https://medium.com/@akshatsharma0610/microservice-database-management-c01ba9849a88
 - How to make microservice architecture with db: https://www.baeldung.com/cs/microservices-db-design
+
+## DI
+- How to add DI to console app: https://www.c-sharpcorner.com/article/using-dependency-injection-in-net-console-apps/
+- How to add DI to console app: https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection-usage
+- How to add DI: https://jasonterando.medium.com/net-core-console-applications-with-dependency-injection-234eac5a4040
+
+## EF
+- How to add EF: https://www.tektutorialshub.com/entity-framework-core/ef-core-console-application/
+- How to add EF to console app: https://medium.com/@robrich22/setup-entity-framework-core-in-console-application-code-first-ad130b53a539

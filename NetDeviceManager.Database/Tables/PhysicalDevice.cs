@@ -16,9 +16,6 @@ public class PhysicalDevice
     public Guid? CredentialsId { get; set; }
     public virtual CredentialsData? Credentials { get; set; }
     
-    public Guid ReadIntervalId { get; set;}
-    public virtual PhysicalDeviceReadInterval ReadInterval { get; set; }
-    
     public virtual IEnumerable<SnmpSensorInPhysicalDevice> SensorsInDevice { get; set; }
     
     public virtual IEnumerable<TagOnPhysicalDevice> TagsOnDevice { get; set; }

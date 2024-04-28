@@ -1,0 +1,30 @@
+﻿version: "3.7"
+
+services:
+#  automation:
+#    restart: always
+#    build:
+#      context: .
+#      dockerfile: ./LightAutomation/Dockerfile
+#    volumes:
+#      - "automation-storage:/app/data"
+#    ports:
+#      - "8888:80"
+  
+  database:
+    image: postgres
+    restart: always
+    volumes:
+      - "db-storage:/var/lib/postgresql/data"
+    environment:
+      POSTGRES_USER: manager
+      POSTGRES_PASSWORD: Heslo1234.
+      POSTGRES_DB: ManagerData
+    ports:
+      - "6060:5432"
+
+volumes:
+#  automation-storage:
+#    driver: local
+  db-storage:
+    driver: local
