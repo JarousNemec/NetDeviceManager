@@ -22,7 +22,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="FluentScheduler" Version="5.3.0" />
+      <PackageReference Include="Lextm.SharpSnmpLib" Version="12.5.3-alpha.2" />
+      <PackageReference Include="Lextm.SharpSnmpLib.Extensions" Version="10.0.0" />
+      <PackageReference Include="Lextm.SharpSnmpLib.MibParser" Version="1.0.1" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.4" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.4" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.4">
@@ -34,10 +36,10 @@
       <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-      <PackageReference Include="NCrontab" Version="3.3.3" />
-      <PackageReference Include="NCrontab.Scheduler" Version="2.0.13-pre" />
-      <PackageReference Include="NCrontab.Scheduler.AspNetCore" Version="2.0.13-pre" />
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.2" />
+      <PackageReference Include="Quartz" Version="3.8.1" />
+      <PackageReference Include="Quartz.Extensions.DependencyInjection" Version="3.8.1" />
+      <PackageReference Include="Quartz.Jobs" Version="3.8.1" />
     </ItemGroup>
 
     <ItemGroup>

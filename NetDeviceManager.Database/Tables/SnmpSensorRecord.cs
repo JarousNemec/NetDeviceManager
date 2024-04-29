@@ -7,5 +7,5 @@ public class SnmpSensorRecord
     public long CapturedTime { get; set; }
 
     public Guid SensorInPhysicalDeviceId { get; set; }
-    public virtual SnmpSensorInPhysicalDevice SensorInPhysicalPhysicalDevice { get; set; }
+    public virtual SnmpSensorInPhysicalDevice SensorInPhysicalDevice { get; set; }
 }

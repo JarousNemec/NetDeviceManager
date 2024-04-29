@@ -1,5 +1,4 @@
-﻿using FluentScheduler;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -13,7 +12,7 @@ HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 var confBuilder = new ConfigurationBuilder()
     .AddJsonFile($"appsettings.json", true, true)
-    .AddJsonFile($"appsettings.{environmentName}.json", true, true)
+    .AddJsonFile($"appsettings.development.json", true, true)
     .AddEnvironmentVariables();
 var configuration = confBuilder.Build();
 var connectionString = configuration.GetConnectionString("DefaultConnection");

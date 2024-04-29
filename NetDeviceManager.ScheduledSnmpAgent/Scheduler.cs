@@ -1,9 +1,12 @@
 ﻿using NetDeviceManager.Database;
 using System.Timers;
-using FluentScheduler;
+using Microsoft.EntityFrameworkCore;
 using NetDeviceManager.Database.Tables;
 using NetDeviceManager.ScheduledSnmpAgent.Jobs;
-using NCrontab;
+using Quartz;
+using Quartz.Impl;
+using Quartz.Impl.Matchers;
+using Quartz.Logging;
 using Timer = System.Timers.Timer;
 
 namespace NetDeviceManager.ScheduledSnmpAgent;
@@ -12,6 +15,8 @@ public class Scheduler
 {
     private readonly ApplicationDbContext _database;
     private readonly Timer _timer;
+    private readonly IScheduler _scheduler;
+    private const string SNMP_READERS_GROUPNAME = "readers";
 
     public Scheduler(ApplicationDbContext database, Timer timer)
     {
@@ -20,6 +25,9 @@ public class Scheduler
         _timer.Interval = 10000;
         _timer.Elapsed += TimerOnElapsed;
         _timer.Start();
+
+        _scheduler = StdSchedulerFactory.GetDefaultScheduler().Result;
+        _scheduler.Start();
     }
 
     private void TimerOnElapsed(object? sender, ElapsedEventArgs e)
@@ -28,24 +36,40 @@ public class Scheduler
         Schedule();
     }
 
-    public void Schedule()
+    public async void Schedule()
     {
-        var intervals = _database.PhysicalDevicesReadJobs.ToList();
-        var runningSchedulers = JobManager.RunningSchedules.ToList();
-        foreach (var jobInterval in intervals)
+        var registeredJobs = _database.PhysicalDevicesReadJobs.Include(x => x.PhysicalDevice).ToList();
+        var jobKeys = _scheduler.GetJobKeys(GroupMatcher<JobKey>.GroupEquals(SNMP_READERS_GROUPNAME)).Result;
+        foreach (var registeredJob in registeredJobs)
         {
-            if (runningSchedulers.All(x => x.Name != jobInterval.Id.ToString()))
+            if (jobKeys.All(x => x.Name != registeredJob.Id.ToString()))
             {
-                // JobManager.AddJob(
-                //     new ReadDeviceSensorsJob("1",new List<SnmpSensor>(), new PhysicalDevice()),
-                //     schedule =>
-                //     {
-                //         jobInterval.SchedulerCron;
-                //         schedule.WithName(jobInterval.Id.ToString());
-                //     });
-                // Schedule job = new Schedule(() => new ReadDeviceSensorsJob("1",new List<SnmpSensor>(), new PhysicalDevice()));
-                // var schedule = new JobStartInfo().StartTime = 
-                // JobManager.AddJob<ReadDeviceSensorsJob>(,schedule);
+                var sensorsInPhysicalDevice = _database.SensorsInPhysicalDevices
+                    .Where(x => x.PhysicalDeviceId == registeredJob.PhysicalDeviceId).Include(x => x.SnmpSensor).Include(x => x.SnmpSensor.Community)
+                    .ToList();
+                if (!sensorsInPhysicalDevice.Any())
+                {
+                    return;
+                }
+                
+                
+                string id = registeredJob.Id.ToString();
+                PhysicalDevice physicalDevice = registeredJob.PhysicalDevice;
+
+                IJobDetail job = JobBuilder.Create<ReadDeviceSensorsJob>()
+                    .WithIdentity($"{id}", SNMP_READERS_GROUPNAME).Build();
+                    
+                job.JobDataMap.Put("id", id);
+                job.JobDataMap.Put("physicalDevice", physicalDevice);
+                job.JobDataMap.Put("sensors", sensorsInPhysicalDevice);
+                job.JobDataMap.Put("database", _database);
+                
+                ITrigger trigger = TriggerBuilder.Create()
+                    .WithIdentity($"T_{id}", SNMP_READERS_GROUPNAME)
+                    .StartNow()
+                    .WithCronSchedule(registeredJob.SchedulerCron)
+                    .Build();
+                await _scheduler.ScheduleJob(job, trigger);
             }
         }
     }
