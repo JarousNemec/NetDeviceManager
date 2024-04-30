@@ -10,6 +10,7 @@
 - MIB: https://github.com/cisco/cisco-mibs/blob/main/v2/CISCO-C2900-MIB.my
 - OID: https://www.dpstele.com/apps/snmp/oids.php
 - Global Library with MIBs: https://www.circitor.fr/Mibs/Mibs.php
+- How to make Snmp V3 operation: https://nitinmanju.medium.com/configure-network-devices-using-the-snmp-protocol-with-c-and-net-1124c5ea8827
 
 ## About Syslog
 - What Syslog is: 
@@ -66,8 +67,19 @@
   - https://www.c-sharpcorner.com/article/using-dependency-injection-in-net-console-apps/
   - https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection-usage
   - https://jasonterando.medium.com/net-core-console-applications-with-dependency-injection-234eac5a4040
+- How to add DI to Quartz scheduler:
+  - https://dev.to/bohdanstupak1/dependency-injection-for-quartz-net-in-net-core-3oh7
 
 ## EF
 - How to add EF: 
   - https://www.tektutorialshub.com/entity-framework-core/ef-core-console-application/
   - https://medium.com/@robrich22/setup-entity-framework-core-in-console-application-code-first-ad130b53a539
+
+
+## Unit tests
+- Testing service with EF:
+  - https://learn.microsoft.com/en-us/ef/ef6/fundamentals/testing/mocking
+  - https://code-maze.com/ef-core-mock-dbcontext/
+- Testing service that uses Snmp protocol:
+  - https://stackoverflow.com/questions/19422126/unit-integration-test-ssh-connection-snmp-etc-in-c-sharp
+  - 

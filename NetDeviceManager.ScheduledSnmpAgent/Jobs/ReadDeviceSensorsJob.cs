@@ -1,8 +1,8 @@
-﻿using System.Net;
-using Lextm.SharpSnmpLib;
-using Lextm.SharpSnmpLib.Messaging;
-using NetDeviceManager.Database;
-using NetDeviceManager.Database.Tables;
+﻿using NetDeviceManager.Database.Tables;
+using NetDeviceManager.Lib.Snmp.Interfaces;
+using NetDeviceManager.Lib.Snmp.Utils;
+using NetDeviceManager.ScheduledSnmpAgent.Interfaces;
+using NetDeviceManager.ScheduledSnmpAgent.Utils;
 using Quartz;
 
 namespace NetDeviceManager.ScheduledSnmpAgent.Jobs;
@@ -12,59 +12,45 @@ public class ReadDeviceSensorsJob : IJob
     private List<SnmpSensorInPhysicalDevice> _sensors;
     private PhysicalDevice _device;
     private string? _id;
-    private ApplicationDbContext _database;
+    private readonly IDatabaseService _database;
+    private readonly ISnmpService _snmpService;
 
-    // public ReadDeviceSensorsJob()
-    // {
-    //     _database = database;
-    // }
+    public ReadDeviceSensorsJob(IDatabaseService database, ISnmpService snmpService)
+    {
+        _database = database;
+        _snmpService = snmpService;
+    }
+    
+    public Task Execute(IJobExecutionContext context)
+    {
+        InitializeJob(context);
 
-    public async Task Execute(IJobExecutionContext context)
+        foreach (var sensor in _sensors)
+        {
+            //todo: add auth to db and everywhere else
+            var snmpVersion = SnmpUtils.GetVersionCode(sensor.SnmpSensor.SnmpVersion);
+            var results = _snmpService.GetSensorValue(snmpVersion, _device.IpAddress, _device.Port,
+                sensor.SnmpSensor.Community.CommunityStringValue, sensor.SnmpSensor.Oid);
+            foreach (var item in results)
+            {
+                Console.WriteLine($"ID: {item.Id} Data: {item.Data.ToString()}");
+                _database.InsertNewSnmpRecord(Guid.NewGuid(), item.Data.ToString(), DateTime.Now.Ticks, sensor.Id);
+            }
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private void InitializeJob(IJobExecutionContext context)
     {
         var dataMap = context.MergedJobDataMap;
+
         _id = (string)dataMap["id"];
         _device = (PhysicalDevice)dataMap["physicalDevice"];
         _sensors = (List<SnmpSensorInPhysicalDevice>)dataMap["sensors"];
-        _database = (ApplicationDbContext)dataMap["database"];
-         Console.Out.WriteLine($"{_id} - ({DateTime.Now}) - Job started....");
-         Console.Out.WriteLine($"{_id} - ({DateTime.Now}) - Device name: {_device.Name}");
-         Console.Out.WriteLine($"{_id} - ({DateTime.Now}) - Sensors count: {_sensors.Count()}");
-        var snmpVersion = VersionCode.V2;
-        foreach (var sensor in _sensors)
-        {
-            switch (sensor.SnmpSensor.SnmpVersion)
-            {
-                case "1":
-                    snmpVersion = VersionCode.V1;
-                    break;
-                case "2":
-                    snmpVersion = VersionCode.V2;
-                    break;
-                case "3":
-                    snmpVersion = VersionCode.V3;
-                    break;
-            }
 
-            var result = Messenger.Get(snmpVersion,
-                new IPEndPoint(IPAddress.Parse(sensor.PhysicalDevice.IpAddress), int.Parse(sensor.PhysicalDevice.Port)),
-                new OctetString(sensor.SnmpSensor.Community.CommunityStringValue),
-                new List<Variable>
-                { new Variable(new ObjectIdentifier(sensor.SnmpSensor.Oid)) }, //1.3.6.1.2.1.1.3.0 for uptime
-                10000);
-
-            foreach (var item in result)
-            {
-                Console.WriteLine($"ID: {item.Id} Data: {item.Data.ToString()}");
-                var record = new SnmpSensorRecord()
-                {
-                    Id = Guid.NewGuid(),
-                    Value = item.Data.ToString(),
-                    CapturedTime = DateTime.Now.Ticks,
-                    SensorInPhysicalDeviceId = sensor.Id
-                };
-                _database.SnmpSensorRecords.Add(record);
-                await _database.SaveChangesAsync();
-            }
-        }
+        Console.Out.WriteLine($"{_id} - ({DateTime.Now}) - Job started....");
+        Console.Out.WriteLine($"Device name: {_device.Name}");
+        Console.Out.WriteLine($"Sensors count: {_sensors.Count()}");
     }
 }

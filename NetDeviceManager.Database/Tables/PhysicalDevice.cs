@@ -7,7 +7,7 @@ public class PhysicalDevice
     public string? Description { get; set; }
     public string IpAddress { get; set; }
     public string? MacAddress { get; set; }
-    public string Port { get; set; }
+    public int Port { get; set; }
     
     public Guid DeviceId { get; set; }
     public virtual Device Device { get; set; }
