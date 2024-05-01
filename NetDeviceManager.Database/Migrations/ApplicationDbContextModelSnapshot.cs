@@ -17,7 +17,7 @@ namespace NetDeviceManager.Database.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.3")
+                .HasAnnotation("ProductVersion", "8.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -71,70 +71,6 @@ namespace NetDeviceManager.Database.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetRoleClaims", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
-
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("text");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
-
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasDatabaseName("UserNameIndex");
-
-                    b.ToTable("AspNetUsers", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -222,77 +158,77 @@ namespace NetDeviceManager.Database.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("NetDeviceManager.Database.Tables.Brand", b =>
+            modelBuilder.Entity("NetDeviceManager.Database.Identity.ApplicationUser", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Description")
+                    b.Property<string>("Id")
                         .HasColumnType("text");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ApiKey")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Surname")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Brands");
-                });
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
 
-            modelBuilder.Entity("NetDeviceManager.Database.Tables.Community", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex");
 
-                    b.Property<string>("CommunityStringValue")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Type")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Communities");
-                });
-
-            modelBuilder.Entity("NetDeviceManager.Database.Tables.CredentialsData", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ConnString")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Key")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Password")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Username")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("CredentialsDatas");
+                    b.ToTable("AspNetUsers", (string)null);
                 });
 
             modelBuilder.Entity("NetDeviceManager.Database.Tables.Device", b =>
@@ -301,8 +237,9 @@ namespace NetDeviceManager.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("BrandId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("Brand")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
@@ -319,8 +256,6 @@ namespace NetDeviceManager.Database.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BrandId");
 
                     b.HasIndex("IconId");
 
@@ -349,13 +284,71 @@ namespace NetDeviceManager.Database.Migrations
                     b.ToTable("DeviceIcons");
                 });
 
-            modelBuilder.Entity("NetDeviceManager.Database.Tables.PhysicalDevice", b =>
+            modelBuilder.Entity("NetDeviceManager.Database.Tables.LoginProfile", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("CredentialsId")
+                    b.Property<string>("AuthenticationPassword")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ConnString")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Key")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Password")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PrivacyPassword")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SecurityName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Username")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LoginProfiles");
+                });
+
+            modelBuilder.Entity("NetDeviceManager.Database.Tables.OidIntegerLabel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Oid")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("OidIntegerLabels");
+                });
+
+            modelBuilder.Entity("NetDeviceManager.Database.Tables.PhysicalDevice", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Description")
@@ -368,8 +361,8 @@ namespace NetDeviceManager.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("LoginType")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("LoginProfileId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("MacAddress")
                         .HasColumnType("text");
@@ -378,36 +371,82 @@ namespace NetDeviceManager.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Port")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("CredentialsId");
-
                     b.HasIndex("DeviceId");
+
+                    b.HasIndex("LoginProfileId");
 
                     b.ToTable("PhysicalDevices");
                 });
 
-            modelBuilder.Entity("NetDeviceManager.Database.Tables.PhysicalDeviceReadJob", b =>
+            modelBuilder.Entity("NetDeviceManager.Database.Tables.PhysicalDeviceHasPort", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("DeviceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("PortId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeviceId");
+
+                    b.HasIndex("PortId");
+
+                    b.ToTable("PhysicalDevicesHasPorts");
+                });
+
+            modelBuilder.Entity("NetDeviceManager.Database.Tables.Port", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Protocol")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Ports");
+                });
+
+            modelBuilder.Entity("NetDeviceManager.Database.Tables.SchedulerJob", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Cron")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<Guid>("PhysicalDeviceId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("SchedulerCron")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.HasIndex("PhysicalDeviceId");
 
-                    b.ToTable("PhysicalDevicesReadJobs");
+                    b.ToTable("SchedulerJobs");
                 });
 
             modelBuilder.Entity("NetDeviceManager.Database.Tables.SnmpSensor", b =>
@@ -416,8 +455,9 @@ namespace NetDeviceManager.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("CommunityId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("CommunityString")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
@@ -430,13 +470,10 @@ namespace NetDeviceManager.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("SnmpVersion")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("SnmpVersion")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CommunityId");
 
                     b.ToTable("SnmpSensors");
                 });
@@ -459,7 +496,7 @@ namespace NetDeviceManager.Database.Migrations
 
                     b.HasIndex("SnmpSensorId");
 
-                    b.ToTable("SensorsInPhysicalDevices");
+                    b.ToTable("SnmpSensorsInPhysicalDevices");
                 });
 
             modelBuilder.Entity("NetDeviceManager.Database.Tables.SnmpSensorRecord", b =>
@@ -470,6 +507,10 @@ namespace NetDeviceManager.Database.Migrations
 
                     b.Property<long>("CapturedTime")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("ItemId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<Guid>("SensorInPhysicalDeviceId")
                         .HasColumnType("uuid");
@@ -619,7 +660,7 @@ namespace NetDeviceManager.Database.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("NetDeviceManager.Database.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -628,7 +669,7 @@ namespace NetDeviceManager.Database.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("NetDeviceManager.Database.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -643,7 +684,7 @@ namespace NetDeviceManager.Database.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("NetDeviceManager.Database.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -652,7 +693,7 @@ namespace NetDeviceManager.Database.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("NetDeviceManager.Database.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -661,41 +702,54 @@ namespace NetDeviceManager.Database.Migrations
 
             modelBuilder.Entity("NetDeviceManager.Database.Tables.Device", b =>
                 {
-                    b.HasOne("NetDeviceManager.Database.Tables.Brand", "Brand")
-                        .WithMany()
-                        .HasForeignKey("BrandId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("NetDeviceManager.Database.Tables.DeviceIcon", "Icon")
                         .WithMany()
                         .HasForeignKey("IconId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Brand");
-
                     b.Navigation("Icon");
                 });
 
             modelBuilder.Entity("NetDeviceManager.Database.Tables.PhysicalDevice", b =>
                 {
-                    b.HasOne("NetDeviceManager.Database.Tables.CredentialsData", "Credentials")
-                        .WithMany()
-                        .HasForeignKey("CredentialsId");
-
                     b.HasOne("NetDeviceManager.Database.Tables.Device", "Device")
                         .WithMany()
                         .HasForeignKey("DeviceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Credentials");
+                    b.HasOne("NetDeviceManager.Database.Tables.LoginProfile", "LoginProfile")
+                        .WithMany()
+                        .HasForeignKey("LoginProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Device");
+
+                    b.Navigation("LoginProfile");
                 });
 
-            modelBuilder.Entity("NetDeviceManager.Database.Tables.PhysicalDeviceReadJob", b =>
+            modelBuilder.Entity("NetDeviceManager.Database.Tables.PhysicalDeviceHasPort", b =>
+                {
+                    b.HasOne("NetDeviceManager.Database.Tables.PhysicalDevice", "Device")
+                        .WithMany("PortsInDevice")
+                        .HasForeignKey("DeviceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NetDeviceManager.Database.Tables.Port", "Port")
+                        .WithMany()
+                        .HasForeignKey("PortId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Device");
+
+                    b.Navigation("Port");
+                });
+
+            modelBuilder.Entity("NetDeviceManager.Database.Tables.SchedulerJob", b =>
                 {
                     b.HasOne("NetDeviceManager.Database.Tables.PhysicalDevice", "PhysicalDevice")
                         .WithMany()
@@ -704,17 +758,6 @@ namespace NetDeviceManager.Database.Migrations
                         .IsRequired();
 
                     b.Navigation("PhysicalDevice");
-                });
-
-            modelBuilder.Entity("NetDeviceManager.Database.Tables.SnmpSensor", b =>
-                {
-                    b.HasOne("NetDeviceManager.Database.Tables.Community", "Community")
-                        .WithMany()
-                        .HasForeignKey("CommunityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Community");
                 });
 
             modelBuilder.Entity("NetDeviceManager.Database.Tables.SnmpSensorInPhysicalDevice", b =>
@@ -781,7 +824,7 @@ namespace NetDeviceManager.Database.Migrations
                         .WithMany()
                         .HasForeignKey("DeviceId");
 
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
+                    b.HasOne("NetDeviceManager.Database.Identity.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -794,6 +837,8 @@ namespace NetDeviceManager.Database.Migrations
 
             modelBuilder.Entity("NetDeviceManager.Database.Tables.PhysicalDevice", b =>
                 {
+                    b.Navigation("PortsInDevice");
+
                     b.Navigation("SensorsInDevice");
 
                     b.Navigation("TagsOnDevice");

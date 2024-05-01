@@ -9,13 +9,13 @@ namespace NetDeviceManager.Lib.Snmp.Services;
 public class SnmpService : ISnmpService
 {
     private const int MESSANGER_GET_TIMEOUT = 10000;
-    public List<Variable>? GetSensorValue(VersionCode version, string ip, int port, string community, string oid, string authPass = "", string privacyPass = "", string username = "")
+    public List<Variable>? GetSensorValue(VersionCode version, string ip, int port, string community, string oid, string authPass = "", string privacyPass = "", string securityName = "")
     {
         if (version != VersionCode.V3)
             return ReadSensorV1V2(version, ip, port, community, oid);
-        if (string.IsNullOrEmpty(authPass) || string.IsNullOrEmpty(privacyPass) || string.IsNullOrEmpty(username))
+        if (string.IsNullOrEmpty(authPass) || string.IsNullOrEmpty(privacyPass) || string.IsNullOrEmpty(securityName))
             return null;
-        return ReadSensorV3(ip, port, oid, authPass, privacyPass, username);
+        return ReadSensorV3(ip, port, oid, authPass, privacyPass, securityName);
     }
 
     private List<Variable> ReadSensorV1V2(VersionCode version, string ip, int port, string community, string oid)

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NetDeviceManager.Database.Tables;
+using NetDeviceManager.Lib.GlobalConstantsAndEnums;
 using NetDeviceManager.Lib.Snmp.Interfaces;
 using NetDeviceManager.Lib.Snmp.Services;
 using NetDeviceManager.ScheduledSnmpAgent.Factories;
@@ -86,18 +87,24 @@ public class Scheduler
             .GetJobKeys(GroupMatcher<JobKey>.GroupEquals(readersGroup)).Result;
         foreach (var registeredJob in registeredJobs)
         {
-            if (jobKeys.All(x => x.Name != registeredJob.Id.ToString()))
+            if (jobKeys.All(x => x.Name != registeredJob.Id.ToString()) && registeredJob.Type == SchedulerJobType.SNMPGET)
             {
+                var port = _database.GetPortInPhysicalDevices(registeredJob.PhysicalDeviceId).FirstOrDefault(x=> x.Port.Protocol == CommunicationProtocol.SNMP).Port.Number;
+                var loginProfile = _database.GetPhysicalDeviceLoginProfile(registeredJob.PhysicalDevice.LoginProfileId);
+                if (port < 1)
+                {
+                    continue;
+                }
                 string id = registeredJob.Id.ToString();
 
                 var sensorsInPhysicalDevice = _database.GetSensorsOfPhysicalDevice(registeredJob.PhysicalDeviceId);
-
+                
                 if (sensorsInPhysicalDevice.Any())
                 {
                     var job = SchedulerUtil.CreateReadDeviceSensorJob(id, registeredJob.PhysicalDevice,
-                        sensorsInPhysicalDevice,
+                        sensorsInPhysicalDevice,port, loginProfile,
                         readersGroup);
-                    var trigger = SchedulerUtil.CreateJobTrigger(id, registeredJob.SchedulerCron,
+                    var trigger = SchedulerUtil.CreateJobTrigger(id, registeredJob.Cron,
                         readersGroup);
 
                     await _scheduler.ScheduleJob(job, trigger);

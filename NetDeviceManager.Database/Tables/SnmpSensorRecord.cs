@@ -3,6 +3,8 @@
 public class SnmpSensorRecord
 {
     public Guid Id { get; set; }
+    
+    public string ItemId { get; set; }
     public string Value { get; set; }
     public long CapturedTime { get; set; }
 

@@ -6,10 +6,8 @@ public class Device
     public string Name { get; set; }
     public string Model { get; set; }
     public string? Description { get; set; }
+    public string Brand { get; set; }
     
     public Guid IconId { get; set; }
     public virtual DeviceIcon Icon { get; set; }
-    
-    public Guid BrandId { get; set; }
-    public virtual Brand Brand { get; set; }
 }

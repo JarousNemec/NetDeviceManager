@@ -31,6 +31,9 @@ namespace NetDeviceManager.Database.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
+                    ApiKey = table.Column<string>(type: "text", nullable: true),
+                    Name = table.Column<string>(type: "text", nullable: true),
+                    Surname = table.Column<string>(type: "text", nullable: true),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -52,34 +55,6 @@ namespace NetDeviceManager.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Brands",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Brands", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Communities",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: true),
-                    Type = table.Column<string>(type: "text", nullable: true),
-                    CommunityStringValue = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Communities", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "CredentialsDatas",
                 columns: table => new
                 {
@@ -89,7 +64,10 @@ namespace NetDeviceManager.Database.Migrations
                     Username = table.Column<string>(type: "text", nullable: true),
                     Password = table.Column<string>(type: "text", nullable: true),
                     ConnString = table.Column<string>(type: "text", nullable: true),
-                    Key = table.Column<string>(type: "text", nullable: true)
+                    Key = table.Column<string>(type: "text", nullable: true),
+                    SecurityName = table.Column<string>(type: "text", nullable: true),
+                    AuthenticationPassword = table.Column<string>(type: "text", nullable: true),
+                    PrivacyPassword = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -108,6 +86,52 @@ namespace NetDeviceManager.Database.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_DeviceIcons", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OidIntegerLabels",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Oid = table.Column<string>(type: "text", nullable: false),
+                    Number = table.Column<int>(type: "integer", nullable: false),
+                    Label = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OidIntegerLabels", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Ports",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false),
+                    Number = table.Column<int>(type: "integer", nullable: false),
+                    Protocol = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Ports", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SnmpSensors",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: true),
+                    Oid = table.Column<string>(type: "text", nullable: false),
+                    SnmpVersion = table.Column<int>(type: "integer", nullable: false),
+                    CommunityId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CommunityString = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SnmpSensors", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -231,28 +255,6 @@ namespace NetDeviceManager.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "SnmpSensors",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: true),
-                    Oid = table.Column<string>(type: "text", nullable: false),
-                    SnmpVersion = table.Column<string>(type: "text", nullable: false),
-                    CommunityId = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SnmpSensors", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_SnmpSensors_Communities_CommunityId",
-                        column: x => x.CommunityId,
-                        principalTable: "Communities",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Devices",
                 columns: table => new
                 {
@@ -260,18 +262,12 @@ namespace NetDeviceManager.Database.Migrations
                     Name = table.Column<string>(type: "text", nullable: false),
                     Model = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: true),
-                    IconId = table.Column<Guid>(type: "uuid", nullable: false),
-                    BrandId = table.Column<Guid>(type: "uuid", nullable: false)
+                    Brand = table.Column<string>(type: "text", nullable: false),
+                    IconId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Devices", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Devices_Brands_BrandId",
-                        column: x => x.BrandId,
-                        principalTable: "Brands",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Devices_DeviceIcons_IconId",
                         column: x => x.IconId,
@@ -289,19 +285,18 @@ namespace NetDeviceManager.Database.Migrations
                     Description = table.Column<string>(type: "text", nullable: true),
                     IpAddress = table.Column<string>(type: "text", nullable: false),
                     MacAddress = table.Column<string>(type: "text", nullable: true),
-                    Port = table.Column<string>(type: "text", nullable: false),
                     DeviceId = table.Column<Guid>(type: "uuid", nullable: false),
-                    LoginType = table.Column<int>(type: "integer", nullable: false),
-                    CredentialsId = table.Column<Guid>(type: "uuid", nullable: true)
+                    LoginProfileId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PhysicalDevices", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_PhysicalDevices_CredentialsDatas_CredentialsId",
-                        column: x => x.CredentialsId,
+                        name: "FK_PhysicalDevices_CredentialsDatas_LoginProfileId",
+                        column: x => x.LoginProfileId,
                         principalTable: "CredentialsDatas",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_PhysicalDevices_Devices_DeviceId",
                         column: x => x.DeviceId,
@@ -311,18 +306,44 @@ namespace NetDeviceManager.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PhysicalDevicesReadIntervals",
+                name: "PhysicalDevicesHasPorts",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    SchedulerCron = table.Column<string>(type: "text", nullable: false),
+                    PortId = table.Column<Guid>(type: "uuid", nullable: false),
+                    DeviceId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PhysicalDevicesHasPorts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PhysicalDevicesHasPorts_PhysicalDevices_DeviceId",
+                        column: x => x.DeviceId,
+                        principalTable: "PhysicalDevices",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PhysicalDevicesHasPorts_Ports_PortId",
+                        column: x => x.PortId,
+                        principalTable: "Ports",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SchedulerJobs",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Cron = table.Column<string>(type: "text", nullable: false),
+                    Type = table.Column<int>(type: "integer", nullable: false),
                     PhysicalDeviceId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PhysicalDevicesReadIntervals", x => x.Id);
+                    table.PrimaryKey("PK_SchedulerJobs", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_PhysicalDevicesReadIntervals_PhysicalDevices_PhysicalDevice~",
+                        name: "FK_SchedulerJobs_PhysicalDevices_PhysicalDeviceId",
                         column: x => x.PhysicalDeviceId,
                         principalTable: "PhysicalDevices",
                         principalColumn: "Id",
@@ -330,7 +351,7 @@ namespace NetDeviceManager.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "SensorsInPhysicalDevices",
+                name: "SnmpSensorsInPhysicalDevices",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -339,15 +360,15 @@ namespace NetDeviceManager.Database.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SensorsInPhysicalDevices", x => x.Id);
+                    table.PrimaryKey("PK_SnmpSensorsInPhysicalDevices", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SensorsInPhysicalDevices_PhysicalDevices_PhysicalDeviceId",
+                        name: "FK_SnmpSensorsInPhysicalDevices_PhysicalDevices_PhysicalDevice~",
                         column: x => x.PhysicalDeviceId,
                         principalTable: "PhysicalDevices",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_SensorsInPhysicalDevices_SnmpSensors_SnmpSensorId",
+                        name: "FK_SnmpSensorsInPhysicalDevices_SnmpSensors_SnmpSensorId",
                         column: x => x.SnmpSensorId,
                         principalTable: "SnmpSensors",
                         principalColumn: "Id",
@@ -437,18 +458,18 @@ namespace NetDeviceManager.Database.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ItemId = table.Column<string>(type: "text", nullable: false),
                     Value = table.Column<string>(type: "text", nullable: false),
                     CapturedTime = table.Column<long>(type: "bigint", nullable: false),
-                    SensorInPhysicalDeviceId = table.Column<Guid>(type: "uuid", nullable: false),
-                    SensorInPhysicalPhysicalDeviceId = table.Column<Guid>(type: "uuid", nullable: false)
+                    SensorInPhysicalDeviceId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SnmpSensorRecords", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SnmpSensorRecords_SensorsInPhysicalDevices_SensorInPhysical~",
-                        column: x => x.SensorInPhysicalPhysicalDeviceId,
-                        principalTable: "SensorsInPhysicalDevices",
+                        name: "FK_SnmpSensorRecords_SnmpSensorsInPhysicalDevices_SensorInPhys~",
+                        column: x => x.SensorInPhysicalDeviceId,
+                        principalTable: "SnmpSensorsInPhysicalDevices",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -491,19 +512,9 @@ namespace NetDeviceManager.Database.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Devices_BrandId",
-                table: "Devices",
-                column: "BrandId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Devices_IconId",
                 table: "Devices",
                 column: "IconId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PhysicalDevices_CredentialsId",
-                table: "PhysicalDevices",
-                column: "CredentialsId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PhysicalDevices_DeviceId",
@@ -511,29 +522,39 @@ namespace NetDeviceManager.Database.Migrations
                 column: "DeviceId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PhysicalDevicesReadIntervals_PhysicalDeviceId",
-                table: "PhysicalDevicesReadIntervals",
+                name: "IX_PhysicalDevices_LoginProfileId",
+                table: "PhysicalDevices",
+                column: "LoginProfileId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PhysicalDevicesHasPorts_DeviceId",
+                table: "PhysicalDevicesHasPorts",
+                column: "DeviceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PhysicalDevicesHasPorts_PortId",
+                table: "PhysicalDevicesHasPorts",
+                column: "PortId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SchedulerJobs_PhysicalDeviceId",
+                table: "SchedulerJobs",
                 column: "PhysicalDeviceId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SensorsInPhysicalDevices_PhysicalDeviceId",
-                table: "SensorsInPhysicalDevices",
-                column: "PhysicalDeviceId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SensorsInPhysicalDevices_SnmpSensorId",
-                table: "SensorsInPhysicalDevices",
-                column: "SnmpSensorId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SnmpSensorRecords_SensorInPhysicalPhysicalDeviceId",
+                name: "IX_SnmpSensorRecords_SensorInPhysicalDeviceId",
                 table: "SnmpSensorRecords",
-                column: "SensorInPhysicalPhysicalDeviceId");
+                column: "SensorInPhysicalDeviceId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SnmpSensors_CommunityId",
-                table: "SnmpSensors",
-                column: "CommunityId");
+                name: "IX_SnmpSensorsInPhysicalDevices_PhysicalDeviceId",
+                table: "SnmpSensorsInPhysicalDevices",
+                column: "PhysicalDeviceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SnmpSensorsInPhysicalDevices_SnmpSensorId",
+                table: "SnmpSensorsInPhysicalDevices",
+                column: "SnmpSensorId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SyslogRecords_PhysicalDeviceId",
@@ -580,7 +601,13 @@ namespace NetDeviceManager.Database.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "PhysicalDevicesReadIntervals");
+                name: "OidIntegerLabels");
+
+            migrationBuilder.DropTable(
+                name: "PhysicalDevicesHasPorts");
+
+            migrationBuilder.DropTable(
+                name: "SchedulerJobs");
 
             migrationBuilder.DropTable(
                 name: "SnmpSensorRecords");
@@ -598,7 +625,10 @@ namespace NetDeviceManager.Database.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "SensorsInPhysicalDevices");
+                name: "Ports");
+
+            migrationBuilder.DropTable(
+                name: "SnmpSensorsInPhysicalDevices");
 
             migrationBuilder.DropTable(
                 name: "Tags");
@@ -617,12 +647,6 @@ namespace NetDeviceManager.Database.Migrations
 
             migrationBuilder.DropTable(
                 name: "Devices");
-
-            migrationBuilder.DropTable(
-                name: "Communities");
-
-            migrationBuilder.DropTable(
-                name: "Brands");
 
             migrationBuilder.DropTable(
                 name: "DeviceIcons");

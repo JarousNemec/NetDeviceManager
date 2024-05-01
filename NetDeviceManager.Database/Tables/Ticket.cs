@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using NetDeviceManager.Database.Identity;
 
 namespace NetDeviceManager.Database.Tables;
 
@@ -14,5 +15,5 @@ public class Ticket
     public virtual PhysicalDevice? Device { get; set; }
 
     public string UserId { get; set; }
-    public virtual IdentityUser User { get; set; }
+    public virtual ApplicationUser User { get; set; }
 }

@@ -1,4 +1,6 @@
-﻿namespace NetDeviceManager.Database.Tables;
+﻿using Lextm.SharpSnmpLib;
+
+namespace NetDeviceManager.Database.Tables;
 
 public class SnmpSensor
 {
@@ -6,10 +8,8 @@ public class SnmpSensor
     public string Name { get; set; }
     public string? Description { get; set; }
     public string Oid { get; set; }
-    public string SnmpVersion { get; set; }
-
-    public Guid CommunityId { get; set; }
-    public virtual Community Community { get; set; }
+    public VersionCode SnmpVersion { get; set; }
+    public string CommunityString { get; set; }
     
     public virtual IEnumerable<SnmpSensorInPhysicalDevice> SnmpSensorInDevices { get; set; }
 }

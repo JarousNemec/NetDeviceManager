@@ -20,17 +20,26 @@ public class DatabaseService(ApplicationDbContext database) : IDatabaseService
         await database.SaveChangesAsync();
     }
 
-    public List<PhysicalDeviceReadJob> GetSnmpReadJobs()
+    public List<SchedulerJob> GetSnmpReadJobs()
     {
-        return database.PhysicalDevicesReadJobs.Include(x => x.PhysicalDevice).ToList();
+        return database.SchedulerJobs.Include(x => x.PhysicalDevice).ToList();
     }
 
     public List<SnmpSensorInPhysicalDevice> GetSensorsOfPhysicalDevice(Guid physicalDeviceId)
     {
-        return database.SensorsInPhysicalDevices
+        return database.SnmpSensorsInPhysicalDevices
             .Where(x => x.PhysicalDeviceId == physicalDeviceId)
             .Include(x => x.SnmpSensor)
-            .Include(x => x.SnmpSensor.Community)
             .ToList();
+    }
+
+    public List<PhysicalDeviceHasPort> GetPortInPhysicalDevices(Guid deviceId)
+    {
+        return database.PhysicalDevicesHasPorts.Where(x => x.DeviceId == deviceId).Include(x => x.Port).ToList();
+    }
+
+    public LoginProfile GetPhysicalDeviceLoginProfile(Guid id)
+    {
+        return database.LoginProfiles.FirstOrDefault(x => x.Id == id);
     }
 }

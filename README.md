@@ -74,6 +74,9 @@
 - How to add EF: 
   - https://www.tektutorialshub.com/entity-framework-core/ef-core-console-application/
   - https://medium.com/@robrich22/setup-entity-framework-core-in-console-application-code-first-ad130b53a539
+- Naming conventions:
+  - https://riptutorial.com/efcore-naming-conventions/learn/100002/use-naming-conventions
+  - https://www.sqlshack.com/learn-sql-naming-conventions/
 
 
 ## Unit tests
