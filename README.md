@@ -11,6 +11,7 @@
 - OID: https://www.dpstele.com/apps/snmp/oids.php
 - Global Library with MIBs: https://www.circitor.fr/Mibs/Mibs.php
 - How to make Snmp V3 operation: https://nitinmanju.medium.com/configure-network-devices-using-the-snmp-protocol-with-c-and-net-1124c5ea8827
+- How to discover device: https://docs.lextudio.com/sharpsnmplib/tutorials/device-discovery
 
 ## About Syslog
 - What Syslog is: 
