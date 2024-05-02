@@ -7,26 +7,18 @@
         <Nullable>enable</Nullable>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
-
     <ItemGroup>
       <Content Include="..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
-      <Content Update="appsettings.Development.json">
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </Content>
-      <Content Include="bin\Debug\net8.0\appsettings.Development.json" />
-      <Content Include="bin\Debug\net8.0\appsettings.json" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="Lextm.SharpSnmpLib" Version="12.5.3-alpha.2" />
       <PackageReference Include="Lextm.SharpSnmpLib.MibParser" Version="1.0.1" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.4" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.4" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.4">
+      <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
@@ -40,11 +32,16 @@
       <PackageReference Include="Quartz" Version="3.8.1" />
       <PackageReference Include="Quartz.Extensions.DependencyInjection" Version="3.8.1" />
       <PackageReference Include="Quartz.Jobs" Version="3.8.1" />
+      <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\NetDeviceManager.Database\NetDeviceManager.Database.csproj" />
       <ProjectReference Include="..\NetDeviceManager.Lib.Snmp\NetDeviceManager.Lib.Snmp.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="bin\Debug\net8.0\" />
     </ItemGroup>
 
 </Project>

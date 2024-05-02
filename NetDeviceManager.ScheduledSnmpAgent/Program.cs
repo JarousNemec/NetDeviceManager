@@ -16,7 +16,7 @@ using Timer = System.Timers.Timer;
 Console.WriteLine("Initializing...");
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
-var connectionString = ConfigurationHelper.GetConfigurationString("DefaultConnection");
+var connectionString = ConfigurationHelper.GetConfigurationString();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
 

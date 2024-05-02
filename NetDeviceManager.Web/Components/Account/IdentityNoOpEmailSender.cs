@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using NetDeviceManager.Web.Data;
+using NetDeviceManager.Database.Identity;
 
 namespace NetDeviceManager.Web.Components.Account;
 

@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Identity;
-using NetDeviceManager.Web.Data;
+using NetDeviceManager.Database.Identity;
 
 namespace NetDeviceManager.Web.Components.Account;
 

@@ -37,7 +37,7 @@ public class Scheduler
     private void SetupScheduler()
     {
         _scheduler = StdSchedulerFactory.GetDefaultScheduler().Result;
-        var connectionString = ConfigurationHelper.GetConfigurationString("DefaultConnection");
+        var connectionString = ConfigurationHelper.GetConfigurationString();
         var serviceProvider = SetupServiceCollection(connectionString);
         _scheduler.JobFactory = new DIJobFactory(serviceProvider);
         _scheduler.Start();

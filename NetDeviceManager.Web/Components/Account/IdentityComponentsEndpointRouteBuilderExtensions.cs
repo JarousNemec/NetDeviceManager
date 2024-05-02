@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
+using NetDeviceManager.Database.Identity;
 using NetDeviceManager.Web.Components.Account.Pages;
 using NetDeviceManager.Web.Components.Account.Pages.Manage;
-using NetDeviceManager.Web.Data;
 
 namespace Microsoft.AspNetCore.Routing;
 

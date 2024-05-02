@@ -1,6 +1,6 @@
 ﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
-EXPOSE 80
+EXPOSE 8080
 EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
@@ -9,6 +9,7 @@ COPY ["NetDeviceManager.Web/NetDeviceManager.Web.csproj", "NetDeviceManager.Web/
 RUN dotnet restore "NetDeviceManager.Web/NetDeviceManager.Web.csproj"
 COPY . .
 WORKDIR "/src/NetDeviceManager.Web"
+
 RUN dotnet build "NetDeviceManager.Web.csproj" -c Release -o /app/build
 
 FROM build AS publish
