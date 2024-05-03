@@ -4,53 +4,108 @@
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Identity
 @using NetDeviceManager.Database.Identity
+@using NetDeviceManager.Web.Components.Logos
 
 @inject SignInManager<ApplicationUser> SignInManager
 @inject ILogger<Login> Logger
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
-<link href="/css/global-styles.css" rel="stylesheet" />
+<link href="/css/global-styles.css" rel="stylesheet"/>
 
 <PageTitle>Log in</PageTitle>
-
-    <div class="login-form">
-            <StatusMessage Message="@errorMessage"/>
-            <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
-                <DataAnnotationsValidator/>
-                <ValidationSummary class="text-danger" role="alert"/>
-                <div>
-                    <InputText @bind-Value="Input.Username" class="form-control" autocomplete="username" aria-required="true" placeholder="username..."/>
-                    <label for="username" class="form-label">Username</label>
-                    <ValidationMessage For="() => Input.Username" class="text-danger"/>
-                </div>
-                <div>
-                    <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password..."/>
-                    <label for="password" class="form-label">Password</label>
-                    <ValidationMessage For="() => Input.Password" class="text-danger"/>
-                </div>
-                <div class="checkbox mb-3">
-                    <label class="form-label">
-                        <InputCheckbox @bind-Value="Input.RememberMe" class="darker-border-checkbox form-check-input"/>
-                        Remember me?
-                    </label>
-                </div>
-                <div>
-                    <button type="submit" class="login-btn btn-primary">Log in</button>
-                </div>
-            </EditForm>
+<StatusMessage Message="@errorMessage"/>
+<EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login" class="login-form">
+    <BigLogo/>
+    <DataAnnotationsValidator/>
+    <ValidationSummary class="text-danger" role="alert"/>
+    <div style="margin-top: 90px">
+        <div class="login-labelinput">
+            <label for="username" class="login-label">Username</label>
+            <InputText @bind-Value="Input.Username" class="login-input" autocomplete="username" aria-required="true"
+                       placeholder="Enter your username..."/>
+            <ValidationMessage For="() => Input.Username" class="text-danger"/>
+        </div>
+        <div class="login-labelinput" style="margin-top: 50px">
+            <label for="password" class="login-label">Password</label>
+            <InputText type="password" @bind-Value="Input.Password" class="login-input" autocomplete="current-password"
+                       aria-required="true" placeholder="Enter your password..."/>
+            <ValidationMessage For="() => Input.Password" class="text-danger"/>
+        </div>
     </div>
+    <div style="display: flex; flex-direction: column; align-items: center;">
+        <label class="login-checkbox">
+            <InputCheckbox @bind-Value="Input.RememberMe" class="darker-border-checkbox form-check-input"/>
+            Remember me?
+        </label>
+        <button type="submit" class="login-btn">Log in</button>
+    </div>
+</EditForm>
+
+<style>
+    .login-form {
+        border-style: solid;
+        border-color: black;
+        border-width: 3px;
+        border-radius: 15px;
+        width: 690px;
+        height: 800px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: flex; flex-direction: column; align-items: center;
+        padding-top: 70px;
+        padding-bottom: 70px;
+        
+    }
+    .login-input{
+        width: 470px;
+        height: 60px;
+        border: 3px solid black;
+        border-radius: 15px;
+        background: #F0F0F0;
+        font-size: 20px;
+        font-family: SFMono-Regular, sans-serif;
+        padding-left: 10px;
+    }
+    
+    .login-labelinput{
+        display: flex;
+        flex-direction: column;
+    }
+    .login-checkbox{
+        font-size: 20px;
+        font-family: SFMono-Regular, sans-serif;
+        margin-top: 30px;
+    }
+    
+    .login-label{
+        font-size: 24px;
+        font-family: SFMono-Regular, sans-serif;
+        margin-bottom: 5px;
+    }
+
+    .login-btn {
+        width: 310px;
+        height: 55px;
+        border-radius: 25px;
+        font-size: 20px;
+        font-family: SFMono-Regular, sans-serif;
+        color: #FFFFFF;
+        background-color: #0081C6;
+        border-color: #0081C6;
+        margin-top: 75px;
+    }
+</style>
 
 @code {
     private string? errorMessage;
 
-    [CascadingParameter]
-    private HttpContext HttpContext { get; set; } = default!;
+    [CascadingParameter] private HttpContext HttpContext { get; set; } = default!;
 
-    [SupplyParameterFromForm]
-    private InputModel Input { get; set; } = new();
+    [SupplyParameterFromForm] private InputModel Input { get; set; } = new();
 
-    [SupplyParameterFromQuery]
-    private string? ReturnUrl { get; set; }
+    [SupplyParameterFromQuery] private string? ReturnUrl { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -76,16 +131,13 @@
 
     private sealed class InputModel
     {
-        [Required]
-        [DataType(DataType.Text)]
-        public string Username { get; set; } = "";
+        [Required] [DataType(DataType.Text)] public string Username { get; set; } = "";
 
         [Required]
         [DataType(DataType.Password)]
         public string Password { get; set; } = "";
 
-        [Display(Name = "Remember me?")]
-        public bool RememberMe { get; set; }
+        [Display(Name = "Remember me?")] public bool RememberMe { get; set; }
     }
 
 }
