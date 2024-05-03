@@ -1,14 +1,7 @@
 using System.Security.Claims;
-using System.Text.Json;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Primitives;
 using NetDeviceManager.Database.Identity;
-using NetDeviceManager.Web.Components.Account.Pages;
-using NetDeviceManager.Web.Components.Account.Pages.Manage;
 
 namespace Microsoft.AspNetCore.Routing;
 
@@ -27,7 +20,7 @@ internal static class IdentityComponentsEndpointRouteBuilderExtensions
             [FromForm] string returnUrl) =>
         {
             await signInManager.SignOutAsync();
-            return TypedResults.LocalRedirect($"/");
+            return TypedResults.LocalRedirect($"~/{returnUrl}");
         });
 
         return accountGroup;
