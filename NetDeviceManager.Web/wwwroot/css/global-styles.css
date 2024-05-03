@@ -1,0 +1,9 @@
+﻿a, .btn-link {
+    color: #0081C6;
+}
+
+.btn-primary {
+    color: #FFFFFF;
+    background-color: #0081C6;
+    border-color: #0081C6;
+}
