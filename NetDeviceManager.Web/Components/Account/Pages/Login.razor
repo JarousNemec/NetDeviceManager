@@ -10,6 +10,8 @@
 @inject ILogger<Login> Logger
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
+
+@layout AccountLayout
 <link href="/css/global-styles.css" rel="stylesheet"/>
 
 <PageTitle>Log in</PageTitle>
@@ -34,7 +36,7 @@
     </div>
     <div style="display: flex; flex-direction: column; align-items: center;">
         <label class="login-checkbox">
-            <InputCheckbox @bind-Value="Input.RememberMe" class="darker-border-checkbox form-check-input"/>
+            <InputCheckbox @bind-Value="Input.RememberMe" class="login-checkbox-input"/>
             Remember me?
         </label>
         <button type="submit" class="login-btn">Log in</button>
@@ -77,6 +79,11 @@
         font-size: 20px;
         font-family: SFMono-Regular, sans-serif;
         margin-top: 30px;
+    }
+    .login-checkbox-input{
+        border: 3px solid black;
+        border-radius: 15px;
+        background: #F0F0F0;
     }
     
     .login-label{

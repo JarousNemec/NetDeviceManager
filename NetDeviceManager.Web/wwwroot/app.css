@@ -3,7 +3,7 @@ html, body {
 }
 
 a, .btn-link {
-    color: #006bb7;
+    color: #1b6ec2;
 }
 
 .btn-primary {
@@ -48,4 +48,9 @@ h1:focus {
 
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
+}
+
+.to-row{
+    display: flex;
+    align-items: center;
 }

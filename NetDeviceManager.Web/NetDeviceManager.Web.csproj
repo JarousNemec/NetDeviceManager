@@ -34,4 +34,9 @@
       <Folder Include="Components\Public\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="wwwroot\bootstrappp\bootstrap.min.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\bootstrappp\bootstrap.min.css.map" />
+    </ItemGroup>
+
 </Project>
