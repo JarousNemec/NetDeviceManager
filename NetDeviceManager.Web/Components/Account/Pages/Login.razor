@@ -22,24 +22,24 @@
     <ValidationSummary class="text-danger" role="alert"/>
     <div style="margin-top: 90px">
         <div class="login-labelinput">
-            <label for="username" class="login-label">Username</label>
-            <InputText @bind-Value="Input.Username" class="login-input" autocomplete="username" aria-required="true"
+            <label for="username" class="login-label font-24">Username</label>
+            <InputText @bind-Value="Input.Username" class="login-input font-20" autocomplete="username" aria-required="true"
                        placeholder="Enter your username..."/>
             <ValidationMessage For="() => Input.Username" class="text-danger"/>
         </div>
         <div class="login-labelinput" style="margin-top: 50px">
-            <label for="password" class="login-label">Password</label>
-            <InputText type="password" @bind-Value="Input.Password" class="login-input" autocomplete="current-password"
+            <label for="password" class="login-label font-24">Password</label>
+            <InputText type="password" @bind-Value="Input.Password" class="login-input font-20" autocomplete="current-password"
                        aria-required="true" placeholder="Enter your password..."/>
             <ValidationMessage For="() => Input.Password" class="text-danger"/>
         </div>
     </div>
     <div style="display: flex; flex-direction: column; align-items: center;">
-        <label class="login-checkbox">
+        <label class="login-checkbox font-20">
             <InputCheckbox @bind-Value="Input.RememberMe" class="login-checkbox-input"/>
             Remember me?
         </label>
-        <button type="submit" class="login-btn">Log in</button>
+        <button type="submit" class="login-btn font-20">Log in</button>
     </div>
 </EditForm>
 
@@ -50,7 +50,7 @@
         border-width: 3px;
         border-radius: 15px;
         width: 690px;
-        height: 800px;
+        height: 900px;
         position: absolute;
         top: 50%;
         left: 50%;
@@ -66,8 +66,6 @@
         border: 3px solid black;
         border-radius: 15px;
         background: #F0F0F0;
-        font-size: 20px;
-        font-family: SFMono-Regular, sans-serif;
         padding-left: 10px;
     }
     
@@ -76,8 +74,6 @@
         flex-direction: column;
     }
     .login-checkbox{
-        font-size: 20px;
-        font-family: SFMono-Regular, sans-serif;
         margin-top: 30px;
     }
     .login-checkbox-input{
@@ -87,8 +83,6 @@
     }
     
     .login-label{
-        font-size: 24px;
-        font-family: SFMono-Regular, sans-serif;
         margin-bottom: 5px;
     }
 
@@ -96,8 +90,6 @@
         width: 310px;
         height: 55px;
         border-radius: 25px;
-        font-size: 20px;
-        font-family: SFMono-Regular, sans-serif;
         color: #FFFFFF;
         background-color: #0081C6;
         border-color: #0081C6;

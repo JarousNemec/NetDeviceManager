@@ -1,52 +1,61 @@
 ﻿@using NetDeviceManager.Web.Components.Logos
 @implements IDisposable
-
+@rendermode InteractiveServer
 @inject NavigationManager NavigationManager
 <AuthorizeView>
     <Authorized>
         <div class="to-row nav-bar">
             <div class="to-row ">
-                <SmallLogo/>
-                <div class="nav-link @(_selected == "" ? "active":"")" @onclick="@(() => { SetSelectedLink("");})">
+                <div style="margin-right: 15px">
+                    <SmallLogo/>
+                </div>
+                <div class="nav-link @(_selected == "" ? "active" : "")" onclick="@(() => { SetSelectedLink(""); })">
                     <a href="" Match="NavLinkMatch.All" class="nav-link-item">
                         Home
                     </a>
                 </div>
 
-                <div class="nav-link @(_selected == "map" ? "active":"")" @onclick="@(() => { SetSelectedLink("map");})">
+                <div class="nav-link @(_selected == "map" ? "active" : "")" onclick="@(() => { SetSelectedLink("map"); })">
                     <a href="map" class="nav-link-item">
                         Map
                     </a>
                 </div>
 
-                <div class="nav-link @(_selected == "events" ? "active":"")" @onclick="@(() => { SetSelectedLink("events");})">
+                <div class="nav-link @(_selected == "events" ? "active" : "")" onclick="@(() => { SetSelectedLink("events"); })">
                     <a href="events" class="nav-link-item">
                         Events
                     </a>
                 </div>
 
-                <div class="nav-link @(_selected == "devices" ? "active":"")" @onclick="@(() => { SetSelectedLink("devices");})">
+                <div class="nav-link @(_selected == "devices" ? "active" : "")" onclick="@(() => { SetSelectedLink("devices"); })">
                     <a href="devices" class="nav-link-item">
                         Devices
                     </a>
                 </div>
-                <div class="nav-link @(_selected == "reports" ? "active":"")" @onclick="@(() => { SetSelectedLink("reports");})">
+                <div class="nav-link @(_selected == "reports" ? "active" : "")" onclick="@(() => { SetSelectedLink("reports"); })">
                     <a href="reports" class="nav-link-item">
                         Reports
                     </a>
                 </div>
-                <div class="nav-link @(_selected == "monitoring" ? "active":"")" @onclick="@(() => { SetSelectedLink("monitoring");})">
+                <div class="nav-link @(_selected == "monitoring" ? "active" : "")" onclick="@(() => { SetSelectedLink("monitoring"); })">
                     <a href="monitoring" class="nav-link-item">
                         Monitoring
                     </a>
                 </div>
-                <div class="nav-link @(_selected == "mibs" ? "active":"")" @onclick="@(() => { SetSelectedLink("mibs");})">
-                    <a href="mibs" class="nav-link-item">
-                        MIBs
-                    </a>
+                <div class="nav-link-dropdown" onclick="@(() => { SetSelectedLink("mibs"); })">
+                    <Dropdown>
+                        <DropdownToggleButton Color="ButtonColor.None"><span class="font-18">MIBs</span></DropdownToggleButton>
+                        <DropdownMenu>
+                            <DropdownItem Target="Target.Blank" To="https://www.circitor.fr/Mibs/Mibs.php" Type="ButtonType.Link"><span class="font-18">Circitor</span></DropdownItem>
+                            <DropdownItem Target="Target.Blank" To="https://github.com/hsnodgrass/snmp_mib_archive/tree/master/snmp_mib_archive" Type="ButtonType.Link"><span class="font-18">Github - hsnodgrass</span></DropdownItem>
+                            <DropdownItem Target="Target.Blank" To="https://github.com/kcsinclair/mibs" Type="ButtonType.Link"><span class="font-18">Github - kcsinclair</span></DropdownItem>
+                            <DropdownItem Target="Target.Blank" To="http://www.snmplink.org/resource/mib/#5" Type="ButtonType.Link"><span class="font-18">SnmpLink</span></DropdownItem>
+                            <DropdownItem Target="Target.Blank" To="https://bestmonitoringtools.com/snmp-mib-download-any-mib-from-any-vendor/" Type="ButtonType.Link"><span class="font-18">BestMonitoringTools</span></DropdownItem>
+                        </DropdownMenu>
+                    </Dropdown>
                 </div>
-                <div class="nav-link @(_selected == "settings" ? "active":"")" @onclick="@(() => { SetSelectedLink("settings");})">
-                    <a href="settings" class="nav-link-item" >
+                <div class="nav-link @(_selected == "settings" ? "active" : "")" onclick="@(() => { SetSelectedLink("settings"); })">
+                    <a href="settings" class="nav-link-item">
                         Settings
                     </a>
                 </div>
@@ -70,8 +79,9 @@
     private void SetSelectedLink(string link)
     {
         _selected = link;
+        StateHasChanged();
     }
-    
+
     private string? currentUrl;
 
     protected override void OnInitialized()
