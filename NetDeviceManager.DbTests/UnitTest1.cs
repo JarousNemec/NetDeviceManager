@@ -95,18 +95,12 @@ public class Tests
                 Id = Guid.NewGuid(),
                 Index = i,
                 Value = (r.Next(0, 2000)<200?2:1).ToString(),
-                CapturedTime = GetTimestamp(recordTime.AddMinutes(-10*i)),
+                CapturedTime = DateTime.Now.AddMinutes(-10*i),
                 SensorInPhysicalDeviceId = snmpSensorInPhysicalDeviceId
             });
         }
 
         return result;
-    }
-
-    private long GetTimestamp(DateTime time)
-    {
-        DateTimeOffset dto = new DateTimeOffset(time);
-        return dto.ToUnixTimeSeconds();
     }
 
     private SnmpSensorRecord GetSnmpRecord(Guid snmpSensorInPhysicalDeviceId)
@@ -117,7 +111,7 @@ public class Tests
             Id = Guid.NewGuid(),
             Index = 0,
             Value = r.Next(1, 50).ToString(),
-            CapturedTime = GetTimestamp(DateTime.Now),
+            CapturedTime = DateTime.Now,
             SensorInPhysicalDeviceId = snmpSensorInPhysicalDeviceId
         };
     }

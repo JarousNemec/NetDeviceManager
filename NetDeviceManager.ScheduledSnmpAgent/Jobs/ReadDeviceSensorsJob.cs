@@ -31,11 +31,12 @@ public class ReadDeviceSensorsJob : IJob
         foreach (var sensor in _sensors)
         {
             var results = _snmpService.GetSensorValue(sensor, _login, _device, _port);
+            var time = DateTime.Now;
             foreach (var result in results)
             {
                 var record = new SnmpSensorRecord();
                 record.Value = result.Value;
-                record.CapturedTime = DateTime.Now.Ticks;
+                record.CapturedTime = time;
                 record.Index = result.Index;
                 record.SensorInPhysicalDeviceId =
                     _databaseService.GetSnmpSensorInPhysicalDeviceId(sensor.Id, _device.Id);

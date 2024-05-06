@@ -88,3 +88,10 @@
 - Testing service that uses Snmp protocol:
   - https://stackoverflow.com/questions/19422126/unit-integration-test-ssh-connection-snmp-etc-in-c-sharp
 
+## Use cases
+  - Is device online/offline (is last record of this device maximum 20 minutes old, if not summon alarm)
+  - Is value of sensor different from normal (value is different from saved value, summon alarm)
+  - Is value in some threshold (user will set some interval and if the value is outside, it will summon alarm)
+  - At home page it will show some summary like total alerts, total online devices and so on
+  - At card syslog it will highlight messages with priority like warning, error,....
+

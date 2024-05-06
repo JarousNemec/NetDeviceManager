@@ -55,7 +55,21 @@ namespace NetDeviceManager.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CredentialsDatas",
+                name: "DeviceIcons",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: true),
+                    FilePath = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DeviceIcons", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "LoginProfiles",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -71,21 +85,7 @@ namespace NetDeviceManager.Database.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CredentialsDatas", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "DeviceIcons",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: true),
-                    FilePath = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_DeviceIcons", x => x.Id);
+                    table.PrimaryKey("PK_LoginProfiles", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -126,8 +126,10 @@ namespace NetDeviceManager.Database.Migrations
                     Description = table.Column<string>(type: "text", nullable: true),
                     Oid = table.Column<string>(type: "text", nullable: false),
                     SnmpVersion = table.Column<int>(type: "integer", nullable: false),
-                    CommunityId = table.Column<Guid>(type: "uuid", nullable: false),
-                    CommunityString = table.Column<string>(type: "text", nullable: false)
+                    CommunityString = table.Column<string>(type: "text", nullable: false),
+                    IsMulti = table.Column<bool>(type: "boolean", nullable: false),
+                    StartIndex = table.Column<int>(type: "integer", nullable: true),
+                    EndIndex = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -292,15 +294,15 @@ namespace NetDeviceManager.Database.Migrations
                 {
                     table.PrimaryKey("PK_PhysicalDevices", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_PhysicalDevices_CredentialsDatas_LoginProfileId",
-                        column: x => x.LoginProfileId,
-                        principalTable: "CredentialsDatas",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
                         name: "FK_PhysicalDevices_Devices_DeviceId",
                         column: x => x.DeviceId,
                         principalTable: "Devices",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PhysicalDevices_LoginProfiles_LoginProfileId",
+                        column: x => x.LoginProfileId,
+                        principalTable: "LoginProfiles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -458,9 +460,9 @@ namespace NetDeviceManager.Database.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    ItemId = table.Column<string>(type: "text", nullable: false),
+                    Index = table.Column<int>(type: "integer", nullable: false),
                     Value = table.Column<string>(type: "text", nullable: false),
-                    CapturedTime = table.Column<long>(type: "bigint", nullable: false),
+                    CapturedTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     SensorInPhysicalDeviceId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
@@ -643,10 +645,10 @@ namespace NetDeviceManager.Database.Migrations
                 name: "SnmpSensors");
 
             migrationBuilder.DropTable(
-                name: "CredentialsDatas");
+                name: "Devices");
 
             migrationBuilder.DropTable(
-                name: "Devices");
+                name: "LoginProfiles");
 
             migrationBuilder.DropTable(
                 name: "DeviceIcons");

@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NetDeviceManager.Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240501144007_Initial")]
-    partial class Initial
+    [Migration("20240506222216_update")]
+    partial class update
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -323,7 +323,7 @@ namespace NetDeviceManager.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CredentialsDatas");
+                    b.ToTable("LoginProfiles");
                 });
 
             modelBuilder.Entity("NetDeviceManager.Database.Tables.OidIntegerLabel", b =>
@@ -458,15 +458,18 @@ namespace NetDeviceManager.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("CommunityId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("CommunityString")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
+
+                    b.Property<int?>("EndIndex")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsMulti")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -477,6 +480,9 @@ namespace NetDeviceManager.Database.Migrations
                         .HasColumnType("text");
 
                     b.Property<int>("SnmpVersion")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("StartIndex")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -511,12 +517,11 @@ namespace NetDeviceManager.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<long>("CapturedTime")
-                        .HasColumnType("bigint");
+                    b.Property<DateTime>("CapturedTime")
+                        .HasColumnType("timestamp without time zone");
 
-                    b.Property<string>("ItemId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Index")
+                        .HasColumnType("integer");
 
                     b.Property<Guid>("SensorInPhysicalDeviceId")
                         .HasColumnType("uuid");

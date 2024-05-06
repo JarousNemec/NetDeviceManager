@@ -514,8 +514,8 @@ namespace NetDeviceManager.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<long>("CapturedTime")
-                        .HasColumnType("bigint");
+                    b.Property<DateTime>("CapturedTime")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("Index")
                         .HasColumnType("integer");

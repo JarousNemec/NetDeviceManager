@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NetDeviceManager.Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240506164603_Update sensor2")]
-    partial class Updatesensor2
+    [Migration("20240506221910_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -517,12 +517,11 @@ namespace NetDeviceManager.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<long>("CapturedTime")
-                        .HasColumnType("bigint");
+                    b.Property<DateTime>("CapturedTime")
+                        .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("ItemId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Index")
+                        .HasColumnType("integer");
 
                     b.Property<Guid>("SensorInPhysicalDeviceId")
                         .HasColumnType("uuid");
