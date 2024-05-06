@@ -1,17 +1,16 @@
 ﻿using NetDeviceManager.Database;
 using System.Timers;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using NetDeviceManager.Database.Interfaces;
+using NetDeviceManager.Database.Services;
 using NetDeviceManager.Database.Tables;
 using NetDeviceManager.Lib.GlobalConstantsAndEnums;
 using NetDeviceManager.Lib.Snmp.Interfaces;
 using NetDeviceManager.Lib.Snmp.Services;
 using NetDeviceManager.ScheduledSnmpAgent.Factories;
 using NetDeviceManager.ScheduledSnmpAgent.Helpers;
-using NetDeviceManager.ScheduledSnmpAgent.Interfaces;
 using NetDeviceManager.ScheduledSnmpAgent.Jobs;
-using NetDeviceManager.ScheduledSnmpAgent.Services;
 using NetDeviceManager.ScheduledSnmpAgent.Utils;
 using Quartz;
 using Quartz.Impl;
@@ -22,13 +21,13 @@ namespace NetDeviceManager.ScheduledSnmpAgent;
 
 public class Scheduler
 {
-    private readonly IDatabaseService _database;
+    private readonly IDatabaseService _databaseService;
     private readonly Timer _timer;
     private IScheduler _scheduler;
 
-    public Scheduler(IDatabaseService database, Timer timer)
+    public Scheduler(IDatabaseService databaseService, Timer timer)
     {
-        _database = database;
+        _databaseService = databaseService;
         _timer = timer;
         SetupTimer(20000); //todo: change for production
         SetupScheduler();
@@ -75,7 +74,7 @@ public class Scheduler
 
     private async void ScheduleReadDeviceSensorJobs()
     {
-        var registeredJobs = _database.GetSnmpReadJobs();
+        var registeredJobs = _databaseService.GetSnmpReadJobs();
         var readersGroup = ConfigurationHelper.GetValue("SnmpReadersGroupName");
         if (readersGroup == null)
         {
@@ -89,27 +88,32 @@ public class Scheduler
         {
             if (jobKeys.All(x => x.Name != registeredJob.Id.ToString()) && registeredJob.Type == SchedulerJobType.SNMPGET)
             {
-                var port = _database.GetPortInPhysicalDevices(registeredJob.PhysicalDeviceId).FirstOrDefault(x=> x.Port.Protocol == CommunicationProtocol.SNMP).Port.Number;
-                var loginProfile = _database.GetPhysicalDeviceLoginProfile(registeredJob.PhysicalDevice.LoginProfileId);
-                if (port < 1)
-                {
-                    continue;
-                }
-                string id = registeredJob.Id.ToString();
-
-                var sensorsInPhysicalDevice = _database.GetSensorsOfPhysicalDevice(registeredJob.PhysicalDeviceId);
-                
-                if (sensorsInPhysicalDevice.Any())
-                {
-                    var job = SchedulerUtil.CreateReadDeviceSensorJob(id, registeredJob.PhysicalDevice,
-                        sensorsInPhysicalDevice,port, loginProfile,
-                        readersGroup);
-                    var trigger = SchedulerUtil.CreateJobTrigger(id, registeredJob.Cron,
-                        readersGroup);
-
-                    await _scheduler.ScheduleJob(job, trigger);
-                }
+                await ScheduleSnmpGetJob(registeredJob, readersGroup);
             }
+        }
+    }
+
+    private async Task ScheduleSnmpGetJob(SchedulerJob registeredJob, string readersGroup)
+    {
+        var port = _databaseService.GetPortInPhysicalDevices(registeredJob.PhysicalDeviceId).FirstOrDefault(x=> x.Port.Protocol == CommunicationProtocol.SNMP)?.Port;
+        var loginProfile = _databaseService.GetPhysicalDeviceLoginProfile(registeredJob.PhysicalDevice.LoginProfileId);
+        if (port == null)
+        {
+            return;
+        }
+        string id = registeredJob.Id.ToString();
+
+        var sensorsInPhysicalDevice = _databaseService.GetSensorsOfPhysicalDevice(registeredJob.PhysicalDeviceId);
+                
+        if (sensorsInPhysicalDevice.Any())
+        {
+            var job = SchedulerUtil.CreateReadDeviceSensorJob(id, registeredJob.PhysicalDevice,
+                sensorsInPhysicalDevice,port, loginProfile,
+                readersGroup);
+            var trigger = SchedulerUtil.CreateJobTrigger(id, registeredJob.Cron,
+                readersGroup);
+
+            await _scheduler.ScheduleJob(job, trigger);
         }
     }
 }

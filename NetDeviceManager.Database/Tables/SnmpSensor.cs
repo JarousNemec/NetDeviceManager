@@ -10,6 +10,11 @@ public class SnmpSensor
     public string Oid { get; set; }
     public VersionCode SnmpVersion { get; set; }
     public string CommunityString { get; set; }
+
+    public bool IsMulti { get; set; } = false;
+
+    public int? StartIndex { get; set; } = 0;
+    public int? EndIndex { get; set; } = 0;
     
     public virtual IEnumerable<SnmpSensorInPhysicalDevice> SnmpSensorInDevices { get; set; }
 }

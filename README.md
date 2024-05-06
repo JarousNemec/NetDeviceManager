@@ -84,6 +84,7 @@
 - Testing service with EF:
   - https://learn.microsoft.com/en-us/ef/ef6/fundamentals/testing/mocking
   - https://code-maze.com/ef-core-mock-dbcontext/
+  - https://www.codejourney.net/entity-framework-core-database-initialization-with-unit-test/
 - Testing service that uses Snmp protocol:
   - https://stackoverflow.com/questions/19422126/unit-integration-test-ssh-connection-snmp-etc-in-c-sharp
-  - 
+

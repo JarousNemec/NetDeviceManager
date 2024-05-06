@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetDeviceManager.Database;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NetDeviceManager.Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240506164525_Updated Snmp Sensor")]
+    partial class UpdatedSnmpSensor
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -462,7 +465,7 @@ namespace NetDeviceManager.Database.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
-                    b.Property<int?>("EndIndex")
+                    b.Property<int>("EndIndex")
                         .HasColumnType("integer");
 
                     b.Property<bool>("IsMulti")
@@ -479,7 +482,7 @@ namespace NetDeviceManager.Database.Migrations
                     b.Property<int>("SnmpVersion")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("StartIndex")
+                    b.Property<int>("StartIndex")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -517,8 +520,9 @@ namespace NetDeviceManager.Database.Migrations
                     b.Property<long>("CapturedTime")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("Index")
-                        .HasColumnType("integer");
+                    b.Property<string>("ItemId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<Guid>("SensorInPhysicalDeviceId")
                         .HasColumnType("uuid");

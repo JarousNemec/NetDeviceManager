@@ -10,4 +10,8 @@
       <PackageReference Include="Lextm.SharpSnmpLib" Version="12.5.3-alpha.2" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\NetDeviceManager.Database\NetDeviceManager.Database.csproj" />
+    </ItemGroup>
+
 </Project>

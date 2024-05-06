@@ -2,75 +2,119 @@
 using Lextm.SharpSnmpLib;
 using Lextm.SharpSnmpLib.Messaging;
 using Lextm.SharpSnmpLib.Security;
+using NetDeviceManager.Database.Tables;
 using NetDeviceManager.Lib.Snmp.Interfaces;
+using NetDeviceManager.Lib.Snmp.Models;
 
 namespace NetDeviceManager.Lib.Snmp.Services;
 
 public class SnmpService : ISnmpService
 {
     private const int MESSANGER_GET_TIMEOUT = 10000;
-    public List<Variable>? GetSensorValue(VersionCode version, string ip, int port, string community, string oid, string authPass = "", string privacyPass = "", string securityName = "")
+    public List<VariableModel>? GetSensorValue(SnmpSensor sensor, LoginProfile profile, PhysicalDevice device, Port port)
     {
-        if (version != VersionCode.V3)
-            return ReadSensorV1V2(version, ip, port, community, oid);
-        if (string.IsNullOrEmpty(authPass) || string.IsNullOrEmpty(privacyPass) || string.IsNullOrEmpty(securityName))
+        if (sensor.SnmpVersion != VersionCode.V3)
+            return ReadSensorV1V2(sensor, device, port);
+        if (string.IsNullOrEmpty(profile.AuthenticationPassword) || string.IsNullOrEmpty(profile.PrivacyPassword) || string.IsNullOrEmpty(profile.SecurityName))
             return null;
-        return ReadSensorV3(ip, port, oid, authPass, privacyPass, securityName);
+        return ReadSensorV3(sensor, profile, device, port);
     }
 
-    private List<Variable> ReadSensorV1V2(VersionCode version, string ip, int port, string community, string oid)
+    private List<VariableModel> ReadSensorV1V2(SnmpSensor sensor, PhysicalDevice device, Port port)
     {
-        var results = new List<Variable>();
+        var results = new List<VariableModel>();
+            if (sensor.IsMulti)
+            {
+                for (int i = (int)sensor.StartIndex!; i < sensor.EndIndex; i++)
+                {
+                    var orderOid = $"{sensor.Oid}.0.{i}";
+                    var value = SnmpGetV1V2(sensor, device, port, orderOid);
+                    results.Add(new VariableModel(){DeviceId = device.Id, Index = i, SensorId = sensor.Id, Value = value});
+                }
+            }
+            else
+            {
+                var value = SnmpGetV1V2(sensor, device, port, sensor.Oid);
+                results.Add(new VariableModel(){DeviceId = device.Id, Index = 0, SensorId = sensor.Id, Value = value});
+            }
+        return results;
+    }
+
+    private string SnmpGetV1V2(SnmpSensor sensor, PhysicalDevice device, Port port, string oid)
+    {
+        var objectId = new ObjectIdentifier(oid);
         try
         {
-            results = Messenger.Get(version,
-                new IPEndPoint(IPAddress.Parse(ip), port),
-                new OctetString(community),
+            var result = Messenger.Get(sensor.SnmpVersion,
+                new IPEndPoint(IPAddress.Parse(device.IpAddress), port.Number),
+                new OctetString(sensor.CommunityString),
                 new List<Variable>
-                    { new(new ObjectIdentifier(oid)) }, MESSANGER_GET_TIMEOUT).ToList();
+                    { new(objectId) }, MESSANGER_GET_TIMEOUT)[0];
+            return result.Data.ToString();
         }
         catch (Exception e)
         {
             Console.Out.WriteLine(e.Message);
+            return "-1";
+        }
+    }
+
+    private List<VariableModel> ReadSensorV3(SnmpSensor sensor, LoginProfile profile, PhysicalDevice device, Port port)
+    {
+        var endpoint = new IPEndPoint(IPAddress.Parse(device.IpAddress), port.Number);
+        var results = new List<VariableModel>();
+        if (sensor.IsMulti)
+        {
+            for (int i = (int)sensor.StartIndex!; i < sensor.EndIndex; i++)
+            {
+                var orderOid = $"{sensor.Oid}.0.{i}";
+                var value = SnmpGetV3(profile, device, endpoint, orderOid);
+                results.Add(new VariableModel(){DeviceId = device.Id, Index = i, SensorId = sensor.Id, Value = value});
+            }
+        }
+        else
+        {
+            var value = SnmpGetV3(profile, device, endpoint, sensor.Oid);
+            results.Add(new VariableModel(){DeviceId = device.Id, Index = 0, SensorId = sensor.Id, Value = value});
         }
         return results;
     }
-    private List<Variable> ReadSensorV3(string ip, int port, string oid, string authPass, string privacyPass, string username)
+
+    private string SnmpGetV3(LoginProfile profile, PhysicalDevice device, IPEndPoint endpoint, string oid)
     {
-        var results = new List<Variable>();
+        var objectId = new ObjectIdentifier(oid);
         try
         {
             Discovery discovery = Messenger.GetNextDiscovery(SnmpType.GetRequestPdu);
-            ReportMessage report = discovery.GetResponse(MESSANGER_GET_TIMEOUT, new IPEndPoint(IPAddress.Parse(ip), port));
-            var auth = new SHA1AuthenticationProvider(new OctetString(authPass));
-            var priv = new DESPrivacyProvider(new OctetString(privacyPass), auth);
+            ReportMessage report = discovery.GetResponse(MESSANGER_GET_TIMEOUT, endpoint);
+            var auth = new SHA1AuthenticationProvider(new OctetString(profile.AuthenticationPassword));
+            var priv = new DESPrivacyProvider(new OctetString(profile.PrivacyPassword), auth);
 
             GetRequestMessage request = new GetRequestMessage(
                 VersionCode.V3, 
                 Messenger.NextMessageId,
                 Messenger.NextRequestId, 
-                new OctetString(username),
-                new List<Variable> { new Variable(new ObjectIdentifier(oid)) }, 
+                new OctetString(profile.Username),
+                new List<Variable> { new Variable(objectId) }, 
                 priv,
                 Messenger.MaxMessageSize, report);
         
-            ISnmpMessage reply = request.GetResponse(MESSANGER_GET_TIMEOUT, new IPEndPoint(IPAddress.Parse(ip), port));
+            ISnmpMessage reply = request.GetResponse(MESSANGER_GET_TIMEOUT, endpoint);
         
             if (reply.Pdu().ErrorStatus.ToInt32() != 0)
             {
                 throw ErrorException.Create(
                     "error in response",
-                    IPAddress.Parse(ip),
+                    IPAddress.Parse(device.IpAddress),
                     reply);
             }
-            results = reply.Pdu().Variables.ToList();
+            var result = reply.Pdu().Variables[0];
+            return result.Data.ToString();
         }
         catch (Exception e)
         {
             Console.Out.WriteLine(e.Message);
+            return "-1";
         }
-
-
-        return results;
     }
 }

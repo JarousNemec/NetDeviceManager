@@ -1,9 +1,10 @@
 ﻿using Lextm.SharpSnmpLib;
+using NetDeviceManager.Database.Tables;
+using NetDeviceManager.Lib.Snmp.Models;
 
 namespace NetDeviceManager.Lib.Snmp.Interfaces;
 
 public interface ISnmpService
 {
-    List<Variable>? GetSensorValue(VersionCode version, string ip, int port, string community, string oid,
-        string authPass = "", string privacyPass = "", string securityName = "");
+    List<VariableModel>? GetSensorValue(SnmpSensor sensor, LoginProfile profile, PhysicalDevice device, Port port);
 }

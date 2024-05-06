@@ -1,16 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NetDeviceManager.Database;
+using NetDeviceManager.Database.Interfaces;
+using NetDeviceManager.Database.Services;
 using NetDeviceManager.Lib.Snmp.Interfaces;
 using NetDeviceManager.Lib.Snmp.Services;
 using NetDeviceManager.ScheduledSnmpAgent;
 using NetDeviceManager.ScheduledSnmpAgent.Helpers;
-using NetDeviceManager.ScheduledSnmpAgent.Interfaces;
-using NetDeviceManager.ScheduledSnmpAgent.Services;
-using NetDeviceManager.ScheduledSnmpAgent.Utils;
-using Quartz;
 using Timer = System.Timers.Timer;
 
 Console.WriteLine("Initializing...");
