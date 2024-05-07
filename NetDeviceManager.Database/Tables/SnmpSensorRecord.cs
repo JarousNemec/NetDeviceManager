@@ -6,8 +6,7 @@ public class SnmpSensorRecord
 {
     public Guid Id { get; set; }
     
-    public int Index{ get; set; }
-    public string Value { get; set; }
+    public string Data { get; set; }
     public DateTime CapturedTime { get; set; }
 
     public Guid SensorInPhysicalDeviceId { get; set; }

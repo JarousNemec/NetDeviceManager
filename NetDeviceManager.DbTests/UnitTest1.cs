@@ -1,9 +1,12 @@
+using System.Globalization;
+using System.Text.Json;
 using Lextm.SharpSnmpLib;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using NetDeviceManager.Database;
 using NetDeviceManager.Database.Services;
 using NetDeviceManager.Database.Tables;
+using NetDeviceManager.Lib.Snmp.Models;
 using NetDeviceManager.ScheduledSnmpAgent.Helpers;
 
 namespace NetDeviceManager.DbTests;
@@ -50,11 +53,10 @@ public class Tests
         var snmpSensorInPhysicalDevice = GetSnmpSensorInPhysicalDevice(physicalDevice.Id, sensor.Id);
         var snmpRecord = GetSnmpRecord(snmpSensorInPhysicalDevice.Id);
         var multisnmpSensorInPhysicalDevice = GetSnmpSensorInPhysicalDevice(physicalDevice.Id, multiSensor.Id);
-        var multiSnmpRecord = GetMultiSnmpRecord(multisnmpSensorInPhysicalDevice.Id, (int)multiSensor.StartIndex,
-            (int)multiSensor.EndIndex);
+        var multiSnmpRecord = GetMultiSnmpRecord(multisnmpSensorInPhysicalDevice.Id, multiSensor.StartIndex,
+            multiSensor.EndIndex);
 
         var recordCount = dbService.GetRecordsCount();
-
         var iconId = dbService.AddDeviceIcon(icon);
         device.IconId = iconId;
         var deviceId = dbService.AddDevice(device);
@@ -73,34 +75,30 @@ public class Tests
         multisnmpSensorInPhysicalDevice.SnmpSensorId = multiSensorId;
         var multiSensorInDeviceId = dbService.AddSnmpSensorToPhysicalDevice(multisnmpSensorInPhysicalDevice);
 
-        foreach (var record in multiSnmpRecord)
-        {
-            record.SensorInPhysicalDeviceId = multiSensorInDeviceId;
-            dbService.AddSnmpRecord(record);
-        }
+        multiSnmpRecord.SensorInPhysicalDeviceId = multiSensorInDeviceId;
+        dbService.AddSnmpRecord(multiSnmpRecord);
 
         var afterRecordCount = dbService.GetRecordsCount();
-        Assert.AreEqual(16, (afterRecordCount - recordCount));
+        Assert.AreEqual(2, (afterRecordCount - recordCount));
     }
 
-    private List<SnmpSensorRecord> GetMultiSnmpRecord(Guid snmpSensorInPhysicalDeviceId, int start, int end)
+    private SnmpSensorRecord GetMultiSnmpRecord(Guid snmpSensorInPhysicalDeviceId, int start, int end)
     {
         Random r = new Random();
-        var result = new List<SnmpSensorRecord>();
         var recordTime = DateTime.Now;
-        for (int i = start; i < end; i++)
+        var data = new string[end - start + 1];
+        for (int i = start; i <= end; i++)
         {
-            result.Add(new SnmpSensorRecord
-            {
-                Id = Guid.NewGuid(),
-                Index = i,
-                Value = (r.Next(0, 2000)<200?2:1).ToString(),
-                CapturedTime = DateTime.Now.AddMinutes(-10*i),
-                SensorInPhysicalDeviceId = snmpSensorInPhysicalDeviceId
-            });
+            data[i - start] = (r.Next(0, 2000) < 200 ? 2 : 1).ToString();
         }
 
-        return result;
+        return new SnmpSensorRecord()
+        {
+            Id = Guid.NewGuid(),
+            CapturedTime = recordTime,
+            Data = JsonSerializer.Serialize(data),
+            SensorInPhysicalDeviceId = snmpSensorInPhysicalDeviceId
+        };
     }
 
     private SnmpSensorRecord GetSnmpRecord(Guid snmpSensorInPhysicalDeviceId)
@@ -109,8 +107,7 @@ public class Tests
         return new SnmpSensorRecord
         {
             Id = Guid.NewGuid(),
-            Index = 0,
-            Value = r.Next(1, 50).ToString(),
+            Data = JsonSerializer.Serialize(new[] { r.Next(1, 50).ToString() }),
             CapturedTime = DateTime.Now,
             SensorInPhysicalDeviceId = snmpSensorInPhysicalDeviceId
         };
@@ -139,8 +136,8 @@ public class Tests
             SnmpVersion = VersionCode.V2,
             CommunityString = "public",
             IsMulti = false,
-            StartIndex = null,
-            EndIndex = null,
+            StartIndex = 0,
+            EndIndex = 0,
         };
     }
 

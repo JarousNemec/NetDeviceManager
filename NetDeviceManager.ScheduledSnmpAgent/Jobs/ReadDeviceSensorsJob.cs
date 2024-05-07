@@ -1,4 +1,5 @@
-﻿using NetDeviceManager.Database.Interfaces;
+﻿using System.Text.Json;
+using NetDeviceManager.Database.Interfaces;
 using NetDeviceManager.Database.Tables;
 using NetDeviceManager.Lib.GlobalConstantsAndEnums;
 using NetDeviceManager.Lib.Snmp.Interfaces;
@@ -32,16 +33,17 @@ public class ReadDeviceSensorsJob : IJob
         {
             var results = _snmpService.GetSensorValue(sensor, _login, _device, _port);
             var time = DateTime.Now;
+            var record = new SnmpSensorRecord();
+            var data = new string[sensor.EndIndex-sensor.StartIndex+1];
             foreach (var result in results)
             {
-                var record = new SnmpSensorRecord();
-                record.Value = result.Value;
-                record.CapturedTime = time;
-                record.Index = result.Index;
-                record.SensorInPhysicalDeviceId =
-                    _databaseService.GetSnmpSensorInPhysicalDeviceId(sensor.Id, _device.Id);
-                _databaseService.AddSnmpRecord(record);
+                data[result.Index] = result.Value;
             }
+            record.Data = JsonSerializer.Serialize(data);
+            record.CapturedTime = time;
+            record.SensorInPhysicalDeviceId =
+                _databaseService.GetSnmpSensorInPhysicalDeviceId(sensor.Id, _device.Id);
+            _databaseService.AddSnmpRecord(record);
         }
 
         return Task.CompletedTask;

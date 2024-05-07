@@ -25,7 +25,7 @@ public class SnmpService : ISnmpService
         var results = new List<VariableModel>();
             if (sensor.IsMulti)
             {
-                for (int i = (int)sensor.StartIndex!; i < sensor.EndIndex; i++)
+                for (int i = (int)sensor.StartIndex!; i <= sensor.EndIndex; i++)
                 {
                     var orderOid = $"{sensor.Oid}.0.{i}";
                     var value = SnmpGetV1V2(sensor, device, port, orderOid);
@@ -65,7 +65,7 @@ public class SnmpService : ISnmpService
         var results = new List<VariableModel>();
         if (sensor.IsMulti)
         {
-            for (int i = (int)sensor.StartIndex!; i < sensor.EndIndex; i++)
+            for (int i = (int)sensor.StartIndex!; i <= sensor.EndIndex; i++)
             {
                 var orderOid = $"{sensor.Oid}.0.{i}";
                 var value = SnmpGetV3(profile, device, endpoint, orderOid);

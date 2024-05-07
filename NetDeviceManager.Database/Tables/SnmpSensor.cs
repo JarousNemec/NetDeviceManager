@@ -13,8 +13,8 @@ public class SnmpSensor
 
     public bool IsMulti { get; set; } = false;
 
-    public int? StartIndex { get; set; } = 0;
-    public int? EndIndex { get; set; } = 0;
+    public int StartIndex { get; set; } = 0;
+    public int EndIndex { get; set; } = 0;
     
     public virtual IEnumerable<SnmpSensorInPhysicalDevice> SnmpSensorInDevices { get; set; }
 }
