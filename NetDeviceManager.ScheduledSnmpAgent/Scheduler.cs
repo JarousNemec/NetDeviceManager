@@ -69,46 +69,70 @@ public class Scheduler
 
     public void Schedule()
     {
-        ScheduleReadDeviceSensorJobs();
+        ScheduleJobs();
     }
 
-    private async void ScheduleReadDeviceSensorJobs()
+    private async void ScheduleJobs()
     {
         var registeredJobs = _databaseService.GetSnmpReadJobs();
-        var readersGroup = ConfigurationHelper.GetValue("SnmpReadersGroupName");
-        if (readersGroup == null)
+        var group = ConfigurationHelper.GetValue("JobGroupName");
+        if (group == null)
         {
             Console.Out.WriteLine("Cannot load configuration for readers group name");
             return;
         }
 
+        await StartNewJobsIfThereAre(group, registeredJobs);
+        await KillOldJobsIfThereAre(group, registeredJobs);
+    }
+
+    private async Task StartNewJobsIfThereAre(string group, List<SchedulerJob> registeredJobs)
+    {
         var jobKeys = _scheduler
-            .GetJobKeys(GroupMatcher<JobKey>.GroupEquals(readersGroup)).Result;
+            .GetJobKeys(GroupMatcher<JobKey>.GroupEquals(group)).Result.ToList();
         foreach (var registeredJob in registeredJobs)
         {
-            if (jobKeys.All(x => x.Name != registeredJob.Id.ToString()) && registeredJob.Type == SchedulerJobType.SNMPGET)
+            if (jobKeys.All(x => x.Name != registeredJob.Id.ToString()))
             {
-                await ScheduleSnmpGetJob(registeredJob, readersGroup);
+                if (registeredJob.Type == SchedulerJobType.SNMPGET)
+                {
+                    await ScheduleSnmpGetJob(registeredJob, group);
+                    
+                }
+            }
+        }
+    }
+    private async Task KillOldJobsIfThereAre(string group, List<SchedulerJob> registeredJobs)
+    {
+        var jobKeys = _scheduler
+            .GetJobKeys(GroupMatcher<JobKey>.GroupEquals(group)).Result.ToList();
+        foreach (var jobKey in jobKeys)
+        {
+            if (registeredJobs.All(x => x.Id.ToString() != jobKey.Name))
+            {
+                await _scheduler.Interrupt(jobKey);
             }
         }
     }
 
     private async Task ScheduleSnmpGetJob(SchedulerJob registeredJob, string readersGroup)
     {
-        var port = _databaseService.GetPortInPhysicalDevices(registeredJob.PhysicalDeviceId).FirstOrDefault(x=> x.Port.Protocol == CommunicationProtocol.SNMP)?.Port;
+        var port = _databaseService.GetPortInPhysicalDevices(registeredJob.PhysicalDeviceId)
+            .FirstOrDefault(x => x.Port.Protocol == CommunicationProtocol.SNMP)?.Port;
         var loginProfile = _databaseService.GetPhysicalDeviceLoginProfile(registeredJob.PhysicalDevice.LoginProfileId);
         if (port == null)
         {
             return;
         }
+
         string id = registeredJob.Id.ToString();
 
         var sensorsInPhysicalDevice = _databaseService.GetSensorsOfPhysicalDevice(registeredJob.PhysicalDeviceId);
-                
+
         if (sensorsInPhysicalDevice.Any())
         {
             var job = SchedulerUtil.CreateReadDeviceSensorJob(id, registeredJob.PhysicalDevice,
-                sensorsInPhysicalDevice,port, loginProfile,
+                sensorsInPhysicalDevice, port, loginProfile,
                 readersGroup);
             var trigger = SchedulerUtil.CreateJobTrigger(id, registeredJob.Cron,
                 readersGroup);

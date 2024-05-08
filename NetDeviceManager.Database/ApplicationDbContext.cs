@@ -35,4 +35,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<PhysicalDeviceHasPort> PhysicalDevicesHasPorts { get; set; }
     
     public DbSet<OidIntegerLabel> OidIntegerLabels { get; set; }
+    
+    public DbSet<CorrectDataPattern> CorrectDataPatterns { get; set; }
 }

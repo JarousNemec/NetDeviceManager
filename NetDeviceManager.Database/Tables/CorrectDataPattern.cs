@@ -1,8 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿namespace NetDeviceManager.Database.Tables;
 
-namespace NetDeviceManager.Database.Tables;
-
-public class SnmpSensorRecord
+public class CorrectDataPattern
 {
     public Guid Id { get; set; }
     

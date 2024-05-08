@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetDeviceManager.Database;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NetDeviceManager.Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240508143905_changed structure of snmp record")]
+    partial class changedstructureofsnmprecord
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -229,34 +232,6 @@ namespace NetDeviceManager.Database.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
-                });
-
-            modelBuilder.Entity("NetDeviceManager.Database.Tables.CorrectDataPattern", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CapturedTime")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("Data")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("PhysicalDeviceId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("SensorId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PhysicalDeviceId");
-
-                    b.HasIndex("SensorId");
-
-                    b.ToTable("CorrectDataPatterns");
                 });
 
             modelBuilder.Entity("NetDeviceManager.Database.Tables.Device", b =>
@@ -504,10 +479,6 @@ namespace NetDeviceManager.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("OidFilling")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<int>("SnmpVersion")
                         .HasColumnType("integer");
 
@@ -740,25 +711,6 @@ namespace NetDeviceManager.Database.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("NetDeviceManager.Database.Tables.CorrectDataPattern", b =>
-                {
-                    b.HasOne("NetDeviceManager.Database.Tables.PhysicalDevice", "PhysicalDevice")
-                        .WithMany()
-                        .HasForeignKey("PhysicalDeviceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("NetDeviceManager.Database.Tables.SnmpSensor", "Sensor")
-                        .WithMany()
-                        .HasForeignKey("SensorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("PhysicalDevice");
-
-                    b.Navigation("Sensor");
                 });
 
             modelBuilder.Entity("NetDeviceManager.Database.Tables.Device", b =>

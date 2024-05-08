@@ -41,8 +41,8 @@ public class ReadDeviceSensorsJob : IJob
             }
             record.Data = JsonSerializer.Serialize(data);
             record.CapturedTime = time;
-            record.SensorInPhysicalDeviceId =
-                _databaseService.GetSnmpSensorInPhysicalDeviceId(sensor.Id, _device.Id);
+            record.PhysicalDeviceId = _device.Id;
+            record.SensorId = sensor.Id;
             _databaseService.AddSnmpRecord(record);
         }
 

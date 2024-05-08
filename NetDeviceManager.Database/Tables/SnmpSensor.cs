@@ -12,6 +12,7 @@ public class SnmpSensor
     public string CommunityString { get; set; }
 
     public bool IsMulti { get; set; } = false;
+    public string OidFilling { get; set; } = ".";
 
     public int StartIndex { get; set; } = 0;
     public int EndIndex { get; set; } = 0;

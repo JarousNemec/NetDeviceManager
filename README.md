@@ -90,8 +90,11 @@
 
 ## Use cases
   - Is device online/offline (is last record of this device maximum 20 minutes old, if not summon alarm)
+    - When device was added, running job in scheduler will recognize that there is new device and it will get uptime value from it in user specified healthprobe intervals(for all devices same)
   - Is value of sensor different from normal (value is different from saved value, summon alarm)
+    - When user attached sensor to device he press GETDATA button that will load actual data and if they are ok user will mark them as a correct state IF HE WANTS THIS FUNCTION ON FOR THIS SENSOR and system will notice him about every mismatches
   - Is value in some threshold (user will set some interval and if the value is outside, it will summon alarm)
+    - 
   - At home page it will show some summary like total alerts, total online devices and so on
   - At card syslog it will highlight messages with priority like warning, error,....
 
