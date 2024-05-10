@@ -28,6 +28,7 @@
 - SSH config: https://gulian.uk/8-steps-to-configure-ssh-on-a-cisco-router-or-switch/
 - SNMP basic and trap config: https://www.manageengine.com/products/oputils/enable-snmp-cisco-router.html
 - Syslog config: https://blog.noblinkyblinky.com/2018/11/25/configuring-a-cisco-device-to-send-syslog-messages/
+- Syslog server code exapmle: https://github.com/jchristn/WatsonSyslogServer/tree/master
 
 ## SNMP library for C#
 - 1)
@@ -91,10 +92,26 @@
 ## Use cases
   - Is device online/offline (is last record of this device maximum 20 minutes old, if not summon alarm)
     - When device was added, running job in scheduler will recognize that there is new device and it will get uptime value from it in user specified healthprobe intervals(for all devices same)
+
+
+  - Alarms will be available only for oids which are marked as number by user
+
+
   - Is value of sensor different from normal (value is different from saved value, summon alarm)
     - When user attached sensor to device he press GETDATA button that will load actual data and if they are ok user will mark them as a correct state IF HE WANTS THIS FUNCTION ON FOR THIS SENSOR and system will notice him about every mismatches
+
+
   - Is value in some threshold (user will set some interval and if the value is outside, it will summon alarm)
-    - 
+    - The threshold will be set by user in same dialog in which he will assign a sensor to device
+    - When value will be different from saved pattern than app go to watch if the value is in the threshold and if it isnt too, it will notice the user
+
+
   - At home page it will show some summary like total alerts, total online devices and so on
-  - At card syslog it will highlight messages with priority like warning, error,....
+    - count of last responses on healthprobe get requests
+    - count of alerts that will be saved in alerttable
+    - count of different syslog messages with severity like error and warning
+    
+
+  - At card syslog 
+    - it will highlight messages with priority like warning, error,....
 
