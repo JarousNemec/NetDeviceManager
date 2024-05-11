@@ -1,29 +1,36 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
+using NetDeviceManager.Database;
+using NetDeviceManager.Database.Interfaces;
+using NetDeviceManager.Database.Services;
 using NetDeviceManager.SyslogServer.Helpers;
 using NetDeviceManager.SyslogServer.Models;
 
 namespace NetDeviceManager.SyslogServer;
-
+//config keys: SyslogUdpPort
 public class MessageReceiver
 {
     private readonly ServerCache _cache;
+    private readonly IDatabaseService _database;
+    private readonly int _port;
 
-    public MessageReceiver(ServerCache cache)
+    public MessageReceiver(ServerCache cache, int port)
     {
         _cache = cache;
+        _port = port;
+
     }
 
     public void Run()
     {
         Console.WriteLine("Running receiver...");
-        var port = int.Parse(ConfigurationHelper.GetValue("UdpPort") ?? "514");
-        var udpListener = new UdpClient(port);
+        var udpListener = new UdpClient(_port);
 
         try
         {
-            IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, port);
+            IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, _port);
             string receivedData;
             byte[] receivedBytes;
 
@@ -43,6 +50,8 @@ public class MessageReceiver
         {
             udpListener.Close();
             Console.WriteLine(e.Message);
+            Thread.Sleep(5000);
+            Console.WriteLine("New atempt to run receiver...");
             Run();
         }
     }

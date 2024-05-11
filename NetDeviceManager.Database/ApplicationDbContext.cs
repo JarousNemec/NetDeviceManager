@@ -37,4 +37,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<OidIntegerLabel> OidIntegerLabels { get; set; }
     
     public DbSet<CorrectDataPattern> CorrectDataPatterns { get; set; }
+
+    public DbSet<Setting> Settings { get; set; }
 }

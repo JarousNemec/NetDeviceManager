@@ -9,6 +9,7 @@ public class SyslogRecord
     public string Message { get; set; }
     public DateTime ProcessedDate { get; set; }
 
+    public string Ip { get; set; }
     public Guid? PhysicalDeviceId { get; set; }
     public virtual PhysicalDevice PhysicalDevice { get; set; }
 }

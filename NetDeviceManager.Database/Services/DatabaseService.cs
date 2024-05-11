@@ -179,4 +179,14 @@ public class DatabaseService(ApplicationDbContext database) : IDatabaseService
     {
         return database.SnmpSensorRecords.Count();
     }
+
+    public PhysicalDevice? GetPhysicalDeviceByIp(string ip)
+    {
+        return database.PhysicalDevices.FirstOrDefault(x => x.IpAddress == ip);
+    }
+
+    public string? GetConfigValue(string key)
+    {
+        return database.Settings.FirstOrDefault(x => x.Key == key)?.Value;
+    }
 }

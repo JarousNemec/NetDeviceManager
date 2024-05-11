@@ -40,5 +40,9 @@ public interface IDatabaseService
 
     int GetRecordsCount();
 
+    PhysicalDevice? GetPhysicalDeviceByIp(string ip);
+
+    string? GetConfigValue(string key);
+
 
 }

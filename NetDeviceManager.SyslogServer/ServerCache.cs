@@ -6,6 +6,7 @@ public class ServerCache
 {
     public List<CacheMessageModel> MessagesQueue { get; set; }
     public readonly object ProcessorLock = new object();
+    
 
     public ServerCache()
     {
