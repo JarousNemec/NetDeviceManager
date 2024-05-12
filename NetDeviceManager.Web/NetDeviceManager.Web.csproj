@@ -29,9 +29,11 @@
 
     <ItemGroup>
       <ProjectReference Include="..\NetDeviceManager.Database\NetDeviceManager.Database.csproj" />
+      <ProjectReference Include="..\NetDeviceManager.Lib.Snmp\NetDeviceManager.Lib.Snmp.csproj" />
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Components\Cards\" />
       <Folder Include="Components\Public\" />
     </ItemGroup>
 

@@ -21,9 +21,9 @@
                     </a>
                 </div>
 
-                <div class="nav-link @(_selected == "events" ? "active" : "")" onclick="@(() => { SetSelectedLink("events"); })">
-                    <a href="events" class="nav-link-item">
-                        Events
+                <div class="nav-link @(_selected == "snmp" ? "active" : "")" onclick="@(() => { SetSelectedLink("snmp"); })">
+                    <a href="snmp" class="nav-link-item">
+                        Snmp
                     </a>
                 </div>
 
@@ -37,9 +37,9 @@
                         Reports
                     </a>
                 </div>
-                <div class="nav-link @(_selected == "monitoring" ? "active" : "")" onclick="@(() => { SetSelectedLink("monitoring"); })">
-                    <a href="monitoring" class="nav-link-item">
-                        Monitoring
+                <div class="nav-link @(_selected == "syslog" ? "active" : "")" onclick="@(() => { SetSelectedLink("syslog"); })">
+                    <a href="syslog" class="nav-link-item">
+                        Syslog
                     </a>
                 </div>
                 <div class="nav-link-dropdown" onclick="@(() => { SetSelectedLink("mibs"); })">
@@ -50,7 +50,7 @@
                             <DropdownItem Target="Target.Blank" To="https://github.com/hsnodgrass/snmp_mib_archive/tree/master/snmp_mib_archive" Type="ButtonType.Link"><span class="font-18">Github - hsnodgrass</span></DropdownItem>
                             <DropdownItem Target="Target.Blank" To="https://github.com/kcsinclair/mibs" Type="ButtonType.Link"><span class="font-18">Github - kcsinclair</span></DropdownItem>
                             <DropdownItem Target="Target.Blank" To="http://www.snmplink.org/resource/mib/#5" Type="ButtonType.Link"><span class="font-18">SnmpLink</span></DropdownItem>
-                            <DropdownItem Target="Target.Blank" To="https://bestmonitoringtools.com/snmp-mib-download-any-mib-from-any-vendor/" Type="ButtonType.Link"><span class="font-18">BestMonitoringTools</span></DropdownItem>
+                            <DropdownItem Target="Target.Blank" To="https://bestmonitoringtools.com/snmp-mib-download-any-mib-from-any-vendor/" Type="ButtonType.Link"><span class="font-18">BestSyslogTools</span></DropdownItem>
                         </DropdownMenu>
                     </Dropdown>
                 </div>
@@ -76,16 +76,21 @@
 @code {
     private string _selected = string.Empty;
 
+    [Inject] public NavbarHelper NavbarHelper { get; set; }
+    
     private void SetSelectedLink(string link)
     {
         _selected = link;
-        StateHasChanged();
+        InvokeAsync(StateHasChanged);
     }
+    
+    
 
     private string? currentUrl;
 
     protected override void OnInitialized()
     {
+        NavbarHelper.OnSelectedNavbarChange += SetSelectedLink;
         currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
         NavigationManager.LocationChanged += OnLocationChanged;
     }

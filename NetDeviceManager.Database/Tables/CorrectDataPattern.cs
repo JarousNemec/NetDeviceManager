@@ -7,6 +7,9 @@ public class CorrectDataPattern
     public string Data { get; set; }
     public DateTime CapturedTime { get; set; }
 
+    public bool HasToleration { get; set; }
+    public int Toleration { get; set; }
+
     public Guid PhysicalDeviceId { get; set; }
     public virtual PhysicalDevice PhysicalDevice { get; set; }
     

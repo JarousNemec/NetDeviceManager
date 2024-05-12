@@ -1,6 +1,141 @@
 ﻿@page "/"
+@using System.Text.Json
 @using Microsoft.AspNetCore.Authorization
+@using NetDeviceManager.Database.Interfaces
+@using NetDeviceManager.Web.Components.Layout
+@rendermode InteractiveServer
 @attribute [Authorize]
 <PageTitle>Home</PageTitle>
+<div style="width: 100%; display: flex; justify-content: center">
+    <div>
+        <h1>Overview</h1>
+        <div style="display: flex; justify-content: space-between; width: 80em">
+            <Card TextAlignment="Alignment.Center" Class="mb-4" Style="width:25rem;">
+                <CardBody>
+                    <CardTitle>Devices</CardTitle>
+                    <CardText Style="font-size: 38px">Online: <span style="color: forestgreen">@_online.Count</span> <br/> Offline: <span style="color: red">@_offline.Count</span></CardText>
+                    <Button Color="ButtonColor.Primary" To="/devices" Type="ButtonType.Link" @onclick="() => NavbarHelper.SelectedChange(_devicesLink)">Show devices</Button>
+                </CardBody>
+            </Card>
+            <Card TextAlignment="Alignment.Center" Class="mb-4" Style="width:25rem;">
+                <CardBody>
+                    <CardTitle>Snmp alerts</CardTitle>
+                    <CardText Style="font-size: 38px">
+                        <span style="color: red">@_snmpAlerts.Count</span>
+                    </CardText>
+                    <Button Color="ButtonColor.Primary" To="/snmp" Type="ButtonType.Link" @onclick="() => NavbarHelper.SelectedChange(_snmpLink)">Show snmp monitoring</Button>
+                </CardBody>
+            </Card>
+            <Card TextAlignment="Alignment.Center" Class="mb-4" Style="width:25rem;">
+                <CardBody>
+                    <CardTitle>Syslog alerts</CardTitle>
+                    <CardText Style="font-size: 38px">
+                        <span style="color: red">@_syslogAlerts.Count</span>
+                    </CardText>
+                    <Button Color="ButtonColor.Primary" To="/syslog" Type="ButtonType.Link" @onclick="() => NavbarHelper.SelectedChange(_syslogLink)">Show syslogs</Button>
+                </CardBody>
+            </Card>
+        </div>
+    </div>
+</div>
 
-<h1>Hello, world! - Home</h1>
+@code{
+    [Inject] public IDatabaseService Database { get; set; }
+    [Inject] public NavbarHelper NavbarHelper { get; set; }
+    [Inject] public NavigationManager NavigationManager { get; set; }
+
+    private const string _syslogLink = "syslog";
+    private const string _snmpLink = "snmp";
+    private const string _devicesLink = "devices";
+    private readonly int[] DEFAULT_SEVERITIES = new[] { 0, 1, 2, 3, 4 };
+    private readonly List<Guid> _online = new();
+    private readonly List<Guid> _offline = new();
+    private readonly List<Guid> _snmpAlerts = new();
+    private readonly List<Guid> _syslogAlerts = new();
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            NavbarHelper.OnSelectedNavbarChange += (link) => NavigationManager.NavigateTo($"/{link}");
+            CalculateOnlineOfflineDevices();
+            CalculateSnmpAlerts();
+            CalculateSyslogAlerts();
+            InvokeAsync(StateHasChanged);
+
+        }
+    }
+
+    private void CalculateOnlineOfflineDevices()
+    {
+        var devices = Database.GetPhysicalDevices();
+        _online.Clear();
+        _offline.Clear();
+        var maxAge = TimeSpan.TicksPerMinute * 15;
+        foreach (var device in devices)
+        {
+            var lastRecord = Database.GetLastDeviceRecord(device.Id);
+            if (lastRecord == null)
+            {
+                continue;
+            }
+
+            if ((DateTime.Now - lastRecord.CapturedTime).Ticks > maxAge)
+            {
+                _offline.Add(device.Id);
+            }
+            else
+            {
+                _online.Add(device.Id);
+            }
+        }
+    }
+
+    private void CalculateSnmpAlerts()
+    {
+        var patterns = Database.GetPhysicalDevicesPatterns();
+        foreach (var pattern in patterns)
+        {
+            var lastRecord = Database.GetLastDeviceRecord(pattern.PhysicalDeviceId);
+            if(lastRecord == null)
+                continue;
+            string[] patternData = JsonSerializer.Deserialize<string[]>(pattern.Data);
+            if (patternData == null)
+                continue;
+
+
+            if (pattern.HasToleration)
+            {
+                string[] data = JsonSerializer.Deserialize<string[]>(lastRecord.Data);
+                if (data == null)
+                {
+                    _snmpAlerts.Add(pattern.PhysicalDeviceId);
+                    continue;
+                }
+
+                if (int.TryParse(data[0], out int recordValue) && int.TryParse(patternData[0], out int paternValue))
+                {
+                    if (!(recordValue == paternValue || recordValue > paternValue - pattern.Toleration || recordValue < paternValue + pattern.Toleration))
+                    {
+                        _snmpAlerts.Add(pattern.PhysicalDeviceId);
+                        continue;
+                    }
+                }
+            }
+            else
+            {
+                if (pattern.Data != lastRecord.Data)
+                {
+                    _snmpAlerts.Add(pattern.PhysicalDeviceId);
+                    continue;
+                }
+            }
+        }
+    }
+
+    private void CalculateSyslogAlerts()
+    {
+    }
+
+
+}

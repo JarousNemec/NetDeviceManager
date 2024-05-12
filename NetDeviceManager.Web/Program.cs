@@ -3,8 +3,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NetDeviceManager.Database;
 using NetDeviceManager.Database.Identity;
+using NetDeviceManager.Database.Interfaces;
+using NetDeviceManager.Database.Services;
+using NetDeviceManager.Lib.Snmp.Interfaces;
+using NetDeviceManager.Lib.Snmp.Services;
 using NetDeviceManager.Web.Components;
 using NetDeviceManager.Web.Components.Account;
+using NetDeviceManager.Web.Components.Layout;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +40,9 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddSignInManager()
     .AddDefaultTokenProviders();
 builder.Services.AddBlazorBootstrap();
+builder.Services.AddScoped<IDatabaseService, DatabaseService>();
+builder.Services.AddSingleton<ISnmpService, SnmpService>();
+builder.Services.AddSingleton<NavbarHelper>();
 
 var app = builder.Build();
 

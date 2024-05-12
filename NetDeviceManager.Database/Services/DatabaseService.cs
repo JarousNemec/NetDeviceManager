@@ -189,4 +189,19 @@ public class DatabaseService(ApplicationDbContext database) : IDatabaseService
     {
         return database.Settings.FirstOrDefault(x => x.Key == key)?.Value;
     }
+
+    public SnmpSensorRecord? GetLastDeviceRecord(Guid id)
+    {
+        return database.SnmpSensorRecords.Where(x => x.PhysicalDeviceId == id).OrderBy(x => x.CapturedTime).ToList().Last();
+    }
+
+    public IEnumerable<PhysicalDevice> GetPhysicalDevices()
+    {
+        return database.PhysicalDevices;
+    }
+
+    public IEnumerable<CorrectDataPattern> GetPhysicalDevicesPatterns()
+    {
+        return database.CorrectDataPatterns;
+    }
 }

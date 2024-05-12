@@ -44,5 +44,11 @@ public interface IDatabaseService
 
     string? GetConfigValue(string key);
 
+    SnmpSensorRecord? GetLastDeviceRecord(Guid id);
+
+    IEnumerable<PhysicalDevice> GetPhysicalDevices();
+
+    IEnumerable<CorrectDataPattern> GetPhysicalDevicesPatterns();
+
 
 }
