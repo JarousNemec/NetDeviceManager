@@ -5,8 +5,9 @@ using NetDeviceManager.Database;
 using NetDeviceManager.Database.Identity;
 using NetDeviceManager.Database.Interfaces;
 using NetDeviceManager.Database.Services;
+using NetDeviceManager.Lib.Interfaces;
+using NetDeviceManager.Lib.Services;
 using NetDeviceManager.Lib.Snmp.Interfaces;
-using NetDeviceManager.Lib.Snmp.Services;
 using NetDeviceManager.Web.Components;
 using NetDeviceManager.Web.Components.Account;
 using NetDeviceManager.Web.Components.Layout;
@@ -41,7 +42,9 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddDefaultTokenProviders();
 builder.Services.AddBlazorBootstrap();
 builder.Services.AddScoped<IDatabaseService, DatabaseService>();
-builder.Services.AddSingleton<ISnmpService, SnmpService>();
+builder.Services.AddScoped<IDeviceService, DeviceService>();
+builder.Services.AddScoped<ISnmpService, SnmpService>();
+builder.Services.AddScoped<ISyslogService, SyslogService>();
 builder.Services.AddSingleton<NavbarHelper>();
 
 var app = builder.Build();

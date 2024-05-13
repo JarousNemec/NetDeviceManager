@@ -6,7 +6,6 @@ using Microsoft.Extensions.Configuration;
 using NetDeviceManager.Database;
 using NetDeviceManager.Database.Services;
 using NetDeviceManager.Database.Tables;
-using NetDeviceManager.Lib.Snmp.Models;
 using NetDeviceManager.ScheduledSnmpAgent.Helpers;
 
 namespace NetDeviceManager.DbTests;

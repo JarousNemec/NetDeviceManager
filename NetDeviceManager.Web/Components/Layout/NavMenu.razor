@@ -26,7 +26,11 @@
                         Snmp
                     </a>
                 </div>
-
+                <div class="nav-link @(_selected == "syslog" ? "active" : "")" onclick="@(() => { SetSelectedLink("syslog"); })">
+                    <a href="syslog" class="nav-link-item">
+                        Syslog
+                    </a>
+                </div>
                 <div class="nav-link @(_selected == "devices" ? "active" : "")" onclick="@(() => { SetSelectedLink("devices"); })">
                     <a href="devices" class="nav-link-item">
                         Devices
@@ -35,11 +39,6 @@
                 <div class="nav-link @(_selected == "reports" ? "active" : "")" onclick="@(() => { SetSelectedLink("reports"); })">
                     <a href="reports" class="nav-link-item">
                         Reports
-                    </a>
-                </div>
-                <div class="nav-link @(_selected == "syslog" ? "active" : "")" onclick="@(() => { SetSelectedLink("syslog"); })">
-                    <a href="syslog" class="nav-link-item">
-                        Syslog
                     </a>
                 </div>
                 <div class="nav-link-dropdown" onclick="@(() => { SetSelectedLink("mibs"); })">

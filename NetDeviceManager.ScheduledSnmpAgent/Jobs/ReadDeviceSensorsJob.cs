@@ -3,7 +3,6 @@ using NetDeviceManager.Database.Interfaces;
 using NetDeviceManager.Database.Tables;
 using NetDeviceManager.Lib.GlobalConstantsAndEnums;
 using NetDeviceManager.Lib.Snmp.Interfaces;
-using NetDeviceManager.Lib.Snmp.Utils;
 using NetDeviceManager.ScheduledSnmpAgent.Utils;
 using Quartz;
 

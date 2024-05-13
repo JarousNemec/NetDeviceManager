@@ -29,13 +29,13 @@
     &lt;TestId&gt;NUnit3x::3CBB2839-F6AF-4D5F-B2AE-2862F89589A4::net8.0::NetDeviceManager.DbTests.Tests.DbConnection&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=d592a2fd_002Db9ce_002D4086_002Da902_002Dcb2e7ce778ee/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="DbConnection #4" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=d592a2fd_002Db9ce_002D4086_002Da902_002Dcb2e7ce778ee/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="DbConnection #4" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;NUnit3x::3CBB2839-F6AF-4D5F-B2AE-2862F89589A4::net8.0::NetDeviceManager.DbTests.Tests.DbConnection&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;NUnit3x::3CBB2839-F6AF-4D5F-B2AE-2862F89589A4::net8.0::NetDeviceManager.DbTests.Tests.AddSnmpRecords&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=e042edfb_002D2fda_002D460c_002Db2cb_002D34b72b8dbbe7/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="DbConnection #5" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=e042edfb_002D2fda_002D460c_002Db2cb_002D34b72b8dbbe7/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="DbConnection #5" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;NUnit3x::3CBB2839-F6AF-4D5F-B2AE-2862F89589A4::net8.0::NetDeviceManager.DbTests.Tests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;

@@ -2,16 +2,35 @@
 using Lextm.SharpSnmpLib;
 using Lextm.SharpSnmpLib.Messaging;
 using Lextm.SharpSnmpLib.Security;
+using NetDeviceManager.Database.Interfaces;
 using NetDeviceManager.Database.Tables;
+using NetDeviceManager.Lib.Helpers;
+using NetDeviceManager.Lib.Model;
 using NetDeviceManager.Lib.Snmp.Interfaces;
 using NetDeviceManager.Lib.Snmp.Models;
 
-namespace NetDeviceManager.Lib.Snmp.Services;
+namespace NetDeviceManager.Lib.Services;
 
 public class SnmpService : ISnmpService
 {
     private const int MESSANGER_GET_TIMEOUT = 10000;
-    public List<VariableModel>? GetSensorValue(SnmpSensor sensor, LoginProfile profile, PhysicalDevice device, Port port)
+    private readonly IDatabaseService _database;
+    public SnmpService(IDatabaseService database)
+    {
+        _database = database;
+    }
+
+    public OperationResult CreateSnmpSensor(CreateSnmpSensorModel model)
+    {
+        throw new NotImplementedException();
+    }
+
+    public OperationResult AssignSensorToDevice(SnmpSensorInPhysicalDevice model)
+    {
+        throw new NotImplementedException();
+    }
+
+    public List<SnmpVariableModel>? GetSensorValue(SnmpSensor sensor, LoginProfile profile, PhysicalDevice device, Port port)
     {
         if (sensor.SnmpVersion != VersionCode.V3)
             return ReadSensorV1V2(sensor, device, port);
@@ -20,22 +39,66 @@ public class SnmpService : ISnmpService
         return ReadSensorV3(sensor, profile, device, port);
     }
 
-    private List<VariableModel> ReadSensorV1V2(SnmpSensor sensor, PhysicalDevice device, Port port)
+    private readonly List<Guid> _snmpProblemDevice = new();
+    private int _alertCount = 0;
+    private DateTime _lastUpdate = new DateTime(2006, 8, 1, 20, 20, 20);
+    public int GetSnmpAlertsCount()
     {
-        var results = new List<VariableModel>();
+        CheckTimelinessOfData();
+        return _snmpProblemDevice.Count;
+    }
+
+    public List<SnmpSensor> GetSensorsInDevice(Guid deviceId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SnmpSensor GetSensor(Guid id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public OperationResult UpdateSnmpSensor(SnmpSensor model)
+    {
+        throw new NotImplementedException();
+    }
+
+    public OperationResult DeleteSnmpSensor(Guid id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public OperationResult RemoveSensorFromDevice(SnmpSensorInPhysicalDevice model)
+    {
+        throw new NotImplementedException();
+    }
+
+    private void CheckTimelinessOfData()
+    {
+        if ((DateTime.Now.Ticks - _lastUpdate.Ticks) > (TimeSpan.TicksPerMinute * 5))
+        {
+            SnmpServiceHelper.CalculateSnmpAlerts(_database, _snmpProblemDevice);
+            _lastUpdate = DateTime.Now;
+        }
+    }
+
+
+    private List<SnmpVariableModel> ReadSensorV1V2(SnmpSensor sensor, PhysicalDevice device, Port port)
+    {
+        var results = new List<SnmpVariableModel>();
             if (sensor.IsMulti)
             {
                 for (int i = sensor.StartIndex!; i <= sensor.EndIndex; i++)
                 {
                     var orderOid = $"{sensor.Oid}{sensor.OidFilling}{i}";
                     var value = SnmpGetV1V2(sensor, device, port, orderOid);
-                    results.Add(new VariableModel(){DeviceId = device.Id, Index = i, SensorId = sensor.Id, Value = value});
+                    results.Add(new SnmpVariableModel(){DeviceId = device.Id, Index = i, SensorId = sensor.Id, Value = value});
                 }
             }
             else
             {
                 var value = SnmpGetV1V2(sensor, device, port, sensor.Oid);
-                results.Add(new VariableModel(){DeviceId = device.Id, Index = 0, SensorId = sensor.Id, Value = value});
+                results.Add(new SnmpVariableModel(){DeviceId = device.Id, Index = 0, SensorId = sensor.Id, Value = value});
             }
         return results;
     }
@@ -59,23 +122,23 @@ public class SnmpService : ISnmpService
         }
     }
 
-    private List<VariableModel> ReadSensorV3(SnmpSensor sensor, LoginProfile profile, PhysicalDevice device, Port port)
+    private List<SnmpVariableModel> ReadSensorV3(SnmpSensor sensor, LoginProfile profile, PhysicalDevice device, Port port)
     {
         var endpoint = new IPEndPoint(IPAddress.Parse(device.IpAddress), port.Number);
-        var results = new List<VariableModel>();
+        var results = new List<SnmpVariableModel>();
         if (sensor.IsMulti)
         {
             for (int i = (int)sensor.StartIndex!; i <= sensor.EndIndex; i++)
             {
                 var orderOid = $"{sensor.Oid}{sensor.OidFilling}{i}";
                 var value = SnmpGetV3(profile, device, endpoint, orderOid);
-                results.Add(new VariableModel(){DeviceId = device.Id, Index = i, SensorId = sensor.Id, Value = value});
+                results.Add(new SnmpVariableModel(){DeviceId = device.Id, Index = i, SensorId = sensor.Id, Value = value});
             }
         }
         else
         {
             var value = SnmpGetV3(profile, device, endpoint, sensor.Oid);
-            results.Add(new VariableModel(){DeviceId = device.Id, Index = 0, SensorId = sensor.Id, Value = value});
+            results.Add(new SnmpVariableModel(){DeviceId = device.Id, Index = 0, SensorId = sensor.Id, Value = value});
         }
         return results;
     }

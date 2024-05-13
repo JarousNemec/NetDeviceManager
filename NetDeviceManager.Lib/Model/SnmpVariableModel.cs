@@ -1,6 +1,6 @@
 ﻿namespace NetDeviceManager.Lib.Snmp.Models;
 
-public class VariableModel
+public class SnmpVariableModel
 {
     public Guid SensorId { get; set; }
     public Guid DeviceId { get; set; }

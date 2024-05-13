@@ -46,9 +46,12 @@ public interface IDatabaseService
 
     SnmpSensorRecord? GetLastDeviceRecord(Guid id);
 
-    IEnumerable<PhysicalDevice> GetPhysicalDevices();
+    List<PhysicalDevice> GetPhysicalDevices();
 
-    IEnumerable<CorrectDataPattern> GetPhysicalDevicesPatterns();
+    List<CorrectDataPattern> GetPhysicalDevicesPatterns();
+
+    List<Guid> GetSyslogsBySeverity(int severity);
+    List<Guid> GetSyslogs();
 
 
 }

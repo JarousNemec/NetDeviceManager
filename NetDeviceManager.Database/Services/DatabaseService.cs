@@ -4,8 +4,14 @@ using NetDeviceManager.Database.Tables;
 
 namespace NetDeviceManager.Database.Services;
 
-public class DatabaseService(ApplicationDbContext database) : IDatabaseService
+public class DatabaseService : IDatabaseService
 {
+    private readonly ApplicationDbContext _database;
+
+    public DatabaseService(ApplicationDbContext database)
+    {
+        _database = database;
+    }
     private Guid GenerateGuid()
     {
         return Guid.NewGuid();
@@ -15,8 +21,8 @@ public class DatabaseService(ApplicationDbContext database) : IDatabaseService
     {
         var id = GenerateGuid();
         record.Id = id;
-        database.SnmpSensorRecords.Add(record);
-        database.SaveChanges();
+        _database.SnmpSensorRecords.Add(record);
+        _database.SaveChanges();
         return id;
     }
 
@@ -24,8 +30,8 @@ public class DatabaseService(ApplicationDbContext database) : IDatabaseService
     {
         var id = GenerateGuid();
         icon.Id = id;
-        database.DeviceIcons.Add(icon);
-        database.SaveChanges();
+        _database.DeviceIcons.Add(icon);
+        _database.SaveChanges();
         return id;
     }
 
@@ -33,8 +39,8 @@ public class DatabaseService(ApplicationDbContext database) : IDatabaseService
     {
         var id = GenerateGuid();
         device.Id = id;
-        database.Devices.Add(device);
-        database.SaveChanges();
+        _database.Devices.Add(device);
+        _database.SaveChanges();
         return id;
     }
 
@@ -42,8 +48,8 @@ public class DatabaseService(ApplicationDbContext database) : IDatabaseService
     {
         var id = GenerateGuid();
         label.Id = id;
-        database.OidIntegerLabels.Add(label);
-        database.SaveChanges();
+        _database.OidIntegerLabels.Add(label);
+        _database.SaveChanges();
         return id;
     }
 
@@ -51,8 +57,8 @@ public class DatabaseService(ApplicationDbContext database) : IDatabaseService
     {
         var id = GenerateGuid();
         profile.Id = id;
-        database.LoginProfiles.Add(profile);
-        database.SaveChanges();
+        _database.LoginProfiles.Add(profile);
+        _database.SaveChanges();
         return id;
     }
 
@@ -60,8 +66,8 @@ public class DatabaseService(ApplicationDbContext database) : IDatabaseService
     {
         var id = GenerateGuid();
         physicalDevice.Id = id;
-        database.PhysicalDevices.Add(physicalDevice);
-        database.SaveChanges();
+        _database.PhysicalDevices.Add(physicalDevice);
+        _database.SaveChanges();
         return id;
     }
 
@@ -69,8 +75,8 @@ public class DatabaseService(ApplicationDbContext database) : IDatabaseService
     {
         var id = GenerateGuid();
         port.Id = id;
-        database.Ports.Add(port);
-        database.SaveChanges();
+        _database.Ports.Add(port);
+        _database.SaveChanges();
         return id;
     }
 
@@ -78,8 +84,8 @@ public class DatabaseService(ApplicationDbContext database) : IDatabaseService
     {
         var id = GenerateGuid();
         physicalDeviceHasPort.Id = id;
-        database.PhysicalDevicesHasPorts.Add(physicalDeviceHasPort);
-        database.SaveChanges();
+        _database.PhysicalDevicesHasPorts.Add(physicalDeviceHasPort);
+        _database.SaveChanges();
         return id;
     }
 
@@ -87,8 +93,8 @@ public class DatabaseService(ApplicationDbContext database) : IDatabaseService
     {
         var id = GenerateGuid();
         sensor.Id = id;
-        database.SnmpSensors.Add(sensor);
-        database.SaveChanges();
+        _database.SnmpSensors.Add(sensor);
+        _database.SaveChanges();
         return id;
     }
 
@@ -96,8 +102,8 @@ public class DatabaseService(ApplicationDbContext database) : IDatabaseService
     {
         var id = GenerateGuid();
         sensorInPhysicalDevice.Id = id;
-        database.SnmpSensorsInPhysicalDevices.Add(sensorInPhysicalDevice);
-        database.SaveChanges();
+        _database.SnmpSensorsInPhysicalDevices.Add(sensorInPhysicalDevice);
+        _database.SaveChanges();
         return id;
     }
 
@@ -105,8 +111,8 @@ public class DatabaseService(ApplicationDbContext database) : IDatabaseService
     {
         var id = GenerateGuid();
         job.Id = id;
-        database.SchedulerJobs.Add(job);
-        database.SaveChanges();
+        _database.SchedulerJobs.Add(job);
+        _database.SaveChanges();
         return id;
     }
 
@@ -114,8 +120,8 @@ public class DatabaseService(ApplicationDbContext database) : IDatabaseService
     {
         var id = GenerateGuid();
         record.Id = id;
-        database.SyslogRecords.Add(record);
-        database.SaveChanges();
+        _database.SyslogRecords.Add(record);
+        _database.SaveChanges();
         return id;
     }
 
@@ -123,8 +129,8 @@ public class DatabaseService(ApplicationDbContext database) : IDatabaseService
     {
         var id = GenerateGuid();
         tag.Id = id;
-        database.Tags.Add(tag);
-        database.SaveChanges();
+        _database.Tags.Add(tag);
+        _database.SaveChanges();
         return id;
     }
 
@@ -132,8 +138,8 @@ public class DatabaseService(ApplicationDbContext database) : IDatabaseService
     {
         var id = GenerateGuid();
         ticket.Id = id;
-        database.Tickets.Add(ticket);
-        database.SaveChanges();
+        _database.Tickets.Add(ticket);
+        _database.SaveChanges();
         return id;
     }
 
@@ -141,19 +147,19 @@ public class DatabaseService(ApplicationDbContext database) : IDatabaseService
     {
         var id = GenerateGuid();
         tagOnPhysicalDevice.Id = id;
-        database.TagsOnPhysicalDevices.Add(tagOnPhysicalDevice);
-        database.SaveChanges();
+        _database.TagsOnPhysicalDevices.Add(tagOnPhysicalDevice);
+        _database.SaveChanges();
         return id;
     }
 
     public List<SchedulerJob> GetSnmpReadJobs()
     {
-        return database.SchedulerJobs.Include(x => x.PhysicalDevice).ToList();
+        return _database.SchedulerJobs.Include(x => x.PhysicalDevice).ToList();
     }
 
     public List<SnmpSensorInPhysicalDevice> GetSensorsOfPhysicalDevice(Guid physicalDeviceId)
     {
-        return database.SnmpSensorsInPhysicalDevices
+        return _database.SnmpSensorsInPhysicalDevices
             .Where(x => x.PhysicalDeviceId == physicalDeviceId)
             .Include(x => x.SnmpSensor)
             .ToList();
@@ -161,47 +167,57 @@ public class DatabaseService(ApplicationDbContext database) : IDatabaseService
 
     public List<PhysicalDeviceHasPort> GetPortInPhysicalDevices(Guid deviceId)
     {
-        return database.PhysicalDevicesHasPorts.Where(x => x.DeviceId == deviceId).Include(x => x.Port).ToList();
+        return _database.PhysicalDevicesHasPorts.Where(x => x.DeviceId == deviceId).Include(x => x.Port).ToList();
     }
 
     public LoginProfile GetPhysicalDeviceLoginProfile(Guid id)
     {
-        return database.LoginProfiles.FirstOrDefault(x => x.Id == id);
+        return _database.LoginProfiles.FirstOrDefault(x => x.Id == id);
     }
 
     public Guid GetSnmpSensorInPhysicalDeviceId(Guid sensorId, Guid deviceId)
     {
-        return database.SnmpSensorsInPhysicalDevices.FirstOrDefault(x =>
+        return _database.SnmpSensorsInPhysicalDevices.FirstOrDefault(x =>
             x.PhysicalDeviceId == deviceId && x.SnmpSensorId == sensorId).Id;
     }
 
     public int GetRecordsCount()
     {
-        return database.SnmpSensorRecords.Count();
+        return _database.SnmpSensorRecords.Count();
     }
 
     public PhysicalDevice? GetPhysicalDeviceByIp(string ip)
     {
-        return database.PhysicalDevices.FirstOrDefault(x => x.IpAddress == ip);
+        return _database.PhysicalDevices.FirstOrDefault(x => x.IpAddress == ip);
     }
 
     public string? GetConfigValue(string key)
     {
-        return database.Settings.FirstOrDefault(x => x.Key == key)?.Value;
+        return _database.Settings.FirstOrDefault(x => x.Key == key)?.Value;
     }
 
     public SnmpSensorRecord? GetLastDeviceRecord(Guid id)
     {
-        return database.SnmpSensorRecords.Where(x => x.PhysicalDeviceId == id).OrderBy(x => x.CapturedTime).ToList().Last();
+        return _database.SnmpSensorRecords.Where(x => x.PhysicalDeviceId == id).OrderByDescending(x => x.CapturedTime).FirstOrDefault();
     }
 
-    public IEnumerable<PhysicalDevice> GetPhysicalDevices()
+    public List<PhysicalDevice> GetPhysicalDevices()
     {
-        return database.PhysicalDevices;
+        return _database.PhysicalDevices.ToList();
     }
 
-    public IEnumerable<CorrectDataPattern> GetPhysicalDevicesPatterns()
+    public List<CorrectDataPattern> GetPhysicalDevicesPatterns()
     {
-        return database.CorrectDataPatterns;
+        return _database.CorrectDataPatterns.ToList();
+    }
+
+    public List<Guid> GetSyslogsBySeverity(int severity)
+    {
+        return _database.SyslogRecords.Where(x => x.Severity == severity).Select(x => x.Id).ToList();
+    }
+
+    public List<Guid> GetSyslogs()
+    {
+        return _database.SyslogRecords.Select(x => x.Id).ToList();
     }
 }
