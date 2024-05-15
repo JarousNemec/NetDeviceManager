@@ -23,6 +23,17 @@ services:
     depends_on:
       database:
         condition: service_healthy
+        
+  syslog-server:
+    restart: always
+    build:
+      context: .
+      dockerfile: ./NetDeviceManager.SyslogServer/Dockerfile
+    ports:
+      - "514:514/udp"
+    depends_on:
+      database:
+        condition: service_healthy
       
   api:
     restart: always

@@ -17,7 +17,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
 builder.Services.AddSingleton<ServerCache>();
 builder.Services.AddSingleton<Server>();
-builder.Services.AddSingleton<IDatabaseService, DatabaseService>();
+builder.Services.AddScoped<IDatabaseService, DatabaseService>();
 
 Console.WriteLine("Initialized!");
 

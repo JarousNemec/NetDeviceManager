@@ -44,6 +44,9 @@
 ## Web
 - How to make design: https://thewhitelabelagency.com/best-resolution-for-web-design/
 - Design in Figma: https://www.figma.com/file/lxeBbT1rmo3OwivrzSfVLN/NetDeviceManager?type=design&node-id=0%3A1&mode=design&t=o8PdbUcIOWJaL8KB-1
+- Design inspiration:
+  - https://www.cisco.com/c/video/webinars/en_in/enterprise-networks/dna-center-overview-demo.html
+  - https://www.youtube.com/watch?v=NKw0drOyQCU
 
 ## CRON
 - What is cron: 
@@ -88,6 +91,11 @@
   - https://www.codejourney.net/entity-framework-core-database-initialization-with-unit-test/
 - Testing service that uses Snmp protocol:
   - https://stackoverflow.com/questions/19422126/unit-integration-test-ssh-connection-snmp-etc-in-c-sharp
+
+## Syslog server
+- Setup server in docker:
+  - https://stackoverflow.com/questions/60061703/when-i-specify-ports-in-a-docker-compose-yml-file-is-it-tcp-or-udp
+  - https://hub.docker.com/r/linuxserver/syslog-ng
 
 ## Use cases
   - Is device online/offline (is last record of this device maximum 20 minutes old, if not summon alarm)

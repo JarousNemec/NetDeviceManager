@@ -20,7 +20,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddSingleton<Scheduler>();
 builder.Services.AddSingleton<Timer>();
 builder.Services.AddScoped<ISnmpService, SnmpService>();
-builder.Services.AddSingleton<IDatabaseService, DatabaseService>();
+builder.Services.AddScoped<IDatabaseService, DatabaseService>();
 
 Console.WriteLine("Initialized!");
 
