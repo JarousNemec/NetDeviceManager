@@ -55,6 +55,11 @@ h1:focus {
     align-items: center;
 }
 
+.font-16{
+    font-size: 16px;
+    font-family: SFMono-Regular, sans-serif;
+}
+
 .font-18{
     font-size: 18px;
     font-family: SFMono-Regular, sans-serif;

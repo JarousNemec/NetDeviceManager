@@ -21,10 +21,14 @@
                     </a>
                 </div>
 
-                <div class="nav-link @(_selected == "snmp" ? "active" : "")" onclick="@(() => { SetSelectedLink("snmp"); })">
-                    <a href="snmp" class="nav-link-item">
-                        Snmp
-                    </a>
+                <div class="nav-link-dropdown" onclick="@(() => { SetSelectedLink("snmp"); })">
+                    <Dropdown>
+                        <DropdownToggleButton Color="ButtonColor.None"><span class="font-18">Snmp</span></DropdownToggleButton>
+                        <DropdownMenu>
+                            <DropdownItem To="snmpmngmt" Type="ButtonType.Link"><span class="font-18">Snmp mngmt</span></DropdownItem>
+                            <DropdownItem To="snmprecords" Type="ButtonType.Link"><span class="font-18">Snmp records</span></DropdownItem>
+                        </DropdownMenu>
+                    </Dropdown>
                 </div>
                 <div class="nav-link @(_selected == "syslog" ? "active" : "")" onclick="@(() => { SetSelectedLink("syslog"); })">
                     <a href="syslog" class="nav-link-item">
@@ -48,7 +52,7 @@
                             <DropdownItem Target="Target.Blank" To="https://www.circitor.fr/Mibs/Mibs.php" Type="ButtonType.Link"><span class="font-18">Circitor</span></DropdownItem>
                             <DropdownItem Target="Target.Blank" To="https://github.com/hsnodgrass/snmp_mib_archive/tree/master/snmp_mib_archive" Type="ButtonType.Link"><span class="font-18">Github - hsnodgrass</span></DropdownItem>
                             <DropdownItem Target="Target.Blank" To="https://github.com/kcsinclair/mibs" Type="ButtonType.Link"><span class="font-18">Github - kcsinclair</span></DropdownItem>
-                            <DropdownItem Target="Target.Blank" To="http://www.snmplink.org/resource/mib/#5" Type="ButtonType.Link"><span class="font-18">SnmpLink</span></DropdownItem>
+                            <DropdownItem Target="Target.Blank" To="http://www.snmplink.org/resource/mib/#5" Type="ButtonType.Link"><span class="font-18">SnmpMngmtLink</span></DropdownItem>
                             <DropdownItem Target="Target.Blank" To="https://bestmonitoringtools.com/snmp-mib-download-any-mib-from-any-vendor/" Type="ButtonType.Link"><span class="font-18">BestSyslogTools</span></DropdownItem>
                         </DropdownMenu>
                     </Dropdown>

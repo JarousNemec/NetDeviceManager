@@ -20,6 +20,7 @@ public interface ISnmpService
     public int GetSnmpAlertsCount();
 
     public List<SnmpSensor> GetSensorsInDevice(Guid deviceId);
+    
     public SnmpSensor GetSensor(Guid id);
 
     #endregion

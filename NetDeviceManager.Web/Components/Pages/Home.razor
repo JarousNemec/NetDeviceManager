@@ -26,7 +26,7 @@
                     <CardText Style="font-size: 38px">
                         <span style="color: red">@SnmpService.GetSnmpAlertsCount()</span>
                     </CardText>
-                    <Button Color="ButtonColor.Primary" To="/snmp" Type="ButtonType.Link" @onclick="() => NavbarHelper.SelectedChange(_snmpLink)">Show snmp monitoring</Button>
+                    <Button Color="ButtonColor.Primary" To="/snmp" Type="ButtonType.Link" @onclick="() => NavbarHelper.SelectedChange(_snmpRecordsLink)">Show snmp records</Button>
                 </CardBody>
             </Card>
             <Card TextAlignment="Alignment.Center" Class="mb-4" Style="width:25rem;">
@@ -50,7 +50,7 @@
     [Inject] public NavigationManager NavigationManager { get; set; }
 
     private const string _syslogLink = "syslog";
-    private const string _snmpLink = "snmp";
+    private const string _snmpRecordsLink = "snmprecords";
     private const string _devicesLink = "devices";
 
     protected override void OnAfterRender(bool firstRender)

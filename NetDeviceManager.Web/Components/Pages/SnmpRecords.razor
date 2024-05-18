@@ -1,0 +1,135 @@
+﻿@page "/snmprecords"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.EntityFrameworkCore.Storage
+@using NetDeviceManager.Database.Interfaces
+@using NetDeviceManager.Database.Tables
+@using NetDeviceManager.Lib.Snmp.Interfaces
+@using NetDeviceManager.Web.Components.Layout
+
+@using NetDeviceManager.Lib.Interfaces
+@using NetDeviceManager.Lib.Model
+@using NetDeviceManager.Web.Models
+@attribute [Authorize]
+@rendermode InteractiveServer
+<PageTitle>Snmp records</PageTitle>
+<div>
+    <h2>Snmp records</h2>
+
+    <EditForm Model="Filter" method="post" OnValidSubmit="FilterRecords" FormName="filter" class="filter-form">
+        <div class="login-labelinput">
+            <label class="login-label font-16">Device name</label>
+            <InputText @bind-Value="Filter.DeviceName" class="login-input font-16" placeholder="Enter your device name..."/>
+        </div>
+        <div class="login-labelinput">
+            <label class="login-label font-16">Ip address</label>
+            <InputText @bind-Value="Filter.IpAddress" class="login-input font-16" placeholder="Enter your ip address..."/>
+        </div>
+        <div class="login-labelinput">
+            <label class="login-label font-16">Sensor name</label>
+            <InputText @bind-Value="Filter.SensorName" class="login-input font-16" placeholder="Enter your sensor name..."/>
+        </div>
+        <div class="login-labelinput">
+            <label class="login-label font-16">Oid</label>
+            <InputText @bind-Value="Filter.Oid" class="login-input font-16" placeholder="Enter your Oid..."/>
+        </div>
+        <button type="submit" class="login-btn font-16">Query data</button>
+    </EditForm>
+
+    <Grid @ref="grid"
+          TItem="SnmpSensorRecord"
+          Class="table table-hover table-bordered table-striped"
+          DataProvider="EmployeesDataProvider"
+          Responsive="true">
+
+        <GridColumn TItem="SnmpSensorRecord" HeaderText="Captured time" PropertyName="CapturedTime">
+            @context.CapturedTime
+        </GridColumn>
+        <GridColumn TItem="SnmpSensorRecord" HeaderText="Device" PropertyName="PhysicalDevice.IpAddress">
+            @($"{context.PhysicalDevice.Name} ({@context.PhysicalDevice.IpAddress})")
+        </GridColumn>
+        <GridColumn TItem="SnmpSensorRecord" HeaderText="Sensor" PropertyName="Sensor.Oid">
+            @($"{context.Sensor.Name} ({@context.Sensor.Oid})")
+        </GridColumn>
+        <GridColumn TItem="SnmpSensorRecord" HeaderText="Data" PropertyName="Data">
+            @context.Data
+        </GridColumn>
+    </Grid>
+</div>
+
+<style>
+    .filter-form {
+        display: flex;
+        align-items: flex-end;
+        margin-bottom: 8px;
+    }
+    .login-input{
+        width: 220px;
+        height: 30px;
+        border: 3px solid black;
+        border-radius: 5px;
+        background: #F0F0F0;
+    }
+
+    .login-labelinput{
+        display: flex;
+        flex-direction: column;
+        margin-left: 10px;
+    }
+    .login-checkbox{
+        margin-top: 30px;
+    }
+    .login-checkbox-input{
+        border: 3px solid black;
+        border-radius: 15px;
+        background: #F0F0F0;
+    }
+
+    .login-label{
+        font-weight: bold;
+    }
+
+    .login-btn {
+        width: 130px;
+        height: 30px;
+        border-radius: 5px;
+        color: #FFFFFF;
+        background-color: #0081C6;
+        border-color: #0081C6;
+        margin-left: 10px;
+    }
+</style>
+
+@code{
+    [Inject] public IDeviceService DeviceService { get; set; }
+    [Inject] public ISnmpService SnmpService { get; set; }
+    [Inject] public IDatabaseService DatabaseService { get; set; }
+
+    [SupplyParameterFromForm] private SnmpRecordFilterModel Filter { get; set; } = new();
+
+    BlazorBootstrap.Grid<SnmpSensorRecord> grid = default!;
+    private IEnumerable<SnmpSensorRecord> _records = default!;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async Task<GridDataProviderResult<SnmpSensorRecord>> EmployeesDataProvider(GridDataProviderRequest<SnmpSensorRecord> request)
+    {
+        if (_records is null) // pull employees only one time for client-side filtering, sorting, and paging
+            _records = GetEmployees(); // call a service or an API to pull the employees
+        return await Task.FromResult(request.ApplyTo(_records));
+    }
+
+    private IEnumerable<SnmpSensorRecord> GetEmployees()
+    {
+        return DatabaseService.GetLastSnmpRecords(100);
+    }
+
+    private async void FilterRecords()
+    {
+        _records = DatabaseService.GetSnmpRecordsWithFilter(Filter, 100);
+        await grid.RefreshDataAsync();
+    }
+
+}

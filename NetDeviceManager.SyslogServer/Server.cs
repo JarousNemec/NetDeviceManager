@@ -6,19 +6,17 @@ namespace NetDeviceManager.SyslogServer;
 public class Server
 {
     private readonly ServerCache _cache;
-    private readonly int _receiverPort;
 
     public Server(ServerCache cache, IDatabaseService database)
     {
         _cache = cache;
-        _receiverPort = int.Parse(database.GetConfigValue("SyslogUdpPort") ?? "514");
     }
 
     public void Run()
     {
         Console.WriteLine("Starting receiver...");
 
-        var receiver = new MessageReceiver(_cache, _receiverPort);
+        var receiver = new MessageReceiver(_cache, 514);
         Thread receiverThread = new Thread(receiver.Run);
         receiverThread.Start();
 

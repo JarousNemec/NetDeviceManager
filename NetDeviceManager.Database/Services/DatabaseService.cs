@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NetDeviceManager.Database.Interfaces;
 using NetDeviceManager.Database.Tables;
+using NetDeviceManager.Lib.Model;
 
 namespace NetDeviceManager.Database.Services;
 
@@ -12,6 +13,7 @@ public class DatabaseService : IDatabaseService
     {
         _database = database;
     }
+
     private Guid GenerateGuid()
     {
         return Guid.NewGuid();
@@ -186,6 +188,17 @@ public class DatabaseService : IDatabaseService
         return _database.SnmpSensorRecords.Count();
     }
 
+    public List<SnmpSensorRecord> GetLastSnmpRecords(int count)
+    {
+        return _database.SnmpSensorRecords.Include(x => x.PhysicalDevice).Include(x => x.Sensor)
+            .OrderByDescending(x => x.CapturedTime).Take(count).ToList();
+    }
+
+    public List<SnmpSensorRecord> GetSnmpRecords()
+    {
+        return _database.SnmpSensorRecords.Include(x => x.PhysicalDevice).Include(x => x.Sensor).ToList();
+    }
+
     public PhysicalDevice? GetPhysicalDeviceByIp(string ip)
     {
         return _database.PhysicalDevices.FirstOrDefault(x => x.IpAddress == ip);
@@ -198,7 +211,8 @@ public class DatabaseService : IDatabaseService
 
     public SnmpSensorRecord? GetLastDeviceRecord(Guid id)
     {
-        return _database.SnmpSensorRecords.Where(x => x.PhysicalDeviceId == id).OrderByDescending(x => x.CapturedTime).FirstOrDefault();
+        return _database.SnmpSensorRecords.Where(x => x.PhysicalDeviceId == id).OrderByDescending(x => x.CapturedTime)
+            .FirstOrDefault();
     }
 
     public List<PhysicalDevice> GetPhysicalDevices()
@@ -219,5 +233,27 @@ public class DatabaseService : IDatabaseService
     public List<Guid> GetSyslogs()
     {
         return _database.SyslogRecords.Select(x => x.Id).ToList();
+    }
+    public List<SnmpSensorRecord> GetSnmpRecordsWithFilter(SnmpRecordFilterModel model, int count)
+    {
+        IQueryable<SnmpSensorRecord> query = _database.SnmpSensorRecords.Include(x =>x.PhysicalDevice).Include( x => x.Sensor);
+        if (!string.IsNullOrEmpty(model.DeviceName))
+        {
+            query = query.Where(x => x.PhysicalDevice.Name == model.DeviceName);
+        }
+        if (!string.IsNullOrEmpty(model.IpAddress))
+        {
+            query = query.Where(x => x.PhysicalDevice.IpAddress == model.IpAddress);
+        }
+        if (!string.IsNullOrEmpty(model.Oid))
+        {
+            query = query.Where(x => x.Sensor.Oid == model.Oid);
+        }
+        if (!string.IsNullOrEmpty(model.SensorName))
+        {
+            query = query.Where(x => x.Sensor.Name == model.SensorName);
+        }
+
+        return query.Take(count).ToList();
     }
 }
