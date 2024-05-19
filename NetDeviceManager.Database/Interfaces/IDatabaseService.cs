@@ -1,6 +1,6 @@
-﻿using NetDeviceManager.Database.Tables;
+﻿using NetDeviceManager.Database.Models;
+using NetDeviceManager.Database.Tables;
 using NetDeviceManager.Lib;
-using NetDeviceManager.Lib.Model;
 
 namespace NetDeviceManager.Database.Interfaces;
 
@@ -44,6 +44,8 @@ public interface IDatabaseService
 
     List<SnmpSensorRecord> GetLastSnmpRecords(int count);
 
+    List<SyslogRecord> GetLastSyslogRecords(int count);
+
     PhysicalDevice? GetPhysicalDeviceByIp(string ip);
 
     string? GetConfigValue(string key);
@@ -58,4 +60,6 @@ public interface IDatabaseService
     List<Guid> GetSyslogs();
 
     List<SnmpSensorRecord> GetSnmpRecordsWithFilter(SnmpRecordFilterModel model, int count);
+    
+    List<SyslogRecord> GetSyslogRecordsWithFilter(SyslogRecordFilterModel model,int count);
 }

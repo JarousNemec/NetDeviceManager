@@ -1,9 +1,9 @@
 ﻿namespace NetDeviceManager.Database.Models;
 
-public class SnmpRecordFilterModel
+public class SyslogRecordFilterModel
 {
     public string DeviceName { get; set; }
     public string IpAddress { get; set; }
-    public string SensorName { get; set; }
-    public string Oid { get; set; }
+    public int Facility { get; set; } = -1;
+    public int Severity { get; set; } = -1;
 }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NetDeviceManager.Database.Interfaces;
+using NetDeviceManager.Database.Models;
 using NetDeviceManager.Database.Tables;
-using NetDeviceManager.Lib.Model;
 
 namespace NetDeviceManager.Database.Services;
 
@@ -194,9 +194,11 @@ public class DatabaseService : IDatabaseService
             .OrderByDescending(x => x.CapturedTime).Take(count).ToList();
     }
 
-    public List<SnmpSensorRecord> GetSnmpRecords()
+    public List<SyslogRecord> GetLastSyslogRecords(int count)
     {
-        return _database.SnmpSensorRecords.Include(x => x.PhysicalDevice).Include(x => x.Sensor).ToList();
+        var data =_database.SyslogRecords.Include(x => x.PhysicalDevice)
+            .OrderByDescending(x => x.ProcessedDate).Take(count).ToList();
+        return data;
     }
 
     public PhysicalDevice? GetPhysicalDeviceByIp(string ip)
@@ -234,24 +236,55 @@ public class DatabaseService : IDatabaseService
     {
         return _database.SyslogRecords.Select(x => x.Id).ToList();
     }
+
     public List<SnmpSensorRecord> GetSnmpRecordsWithFilter(SnmpRecordFilterModel model, int count)
     {
-        IQueryable<SnmpSensorRecord> query = _database.SnmpSensorRecords.Include(x =>x.PhysicalDevice).Include( x => x.Sensor);
+        IQueryable<SnmpSensorRecord> query = _database.SnmpSensorRecords.Include(x => x.PhysicalDevice)
+            .Include(x => x.Sensor);
         if (!string.IsNullOrEmpty(model.DeviceName))
         {
             query = query.Where(x => x.PhysicalDevice.Name == model.DeviceName);
         }
+
         if (!string.IsNullOrEmpty(model.IpAddress))
         {
             query = query.Where(x => x.PhysicalDevice.IpAddress == model.IpAddress);
         }
+
         if (!string.IsNullOrEmpty(model.Oid))
         {
             query = query.Where(x => x.Sensor.Oid == model.Oid);
         }
+
         if (!string.IsNullOrEmpty(model.SensorName))
         {
             query = query.Where(x => x.Sensor.Name == model.SensorName);
+        }
+
+        return query.Take(count).ToList();
+    }
+
+    public List<SyslogRecord> GetSyslogRecordsWithFilter(SyslogRecordFilterModel model, int count)
+    {
+        IQueryable<SyslogRecord> query = _database.SyslogRecords.Include(x => x.PhysicalDevice);
+        if (!string.IsNullOrEmpty(model.DeviceName))
+        {
+            query = query.Where(x => x.PhysicalDevice.Name == model.DeviceName);
+        }
+
+        if (!string.IsNullOrEmpty(model.IpAddress))
+        {
+            query = query.Where(x => x.Ip == model.IpAddress);
+        }
+
+        if (model.Facility >= 0)
+        {
+            query = query.Where(x => x.Facility == model.Facility);
+        }
+
+        if (model.Severity >= 0)
+        {
+            query = query.Where(x => x.Severity == model.Severity);
         }
 
         return query.Take(count).ToList();

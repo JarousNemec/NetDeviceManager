@@ -2,6 +2,7 @@
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.EntityFrameworkCore.Storage
 @using NetDeviceManager.Database.Interfaces
+@using NetDeviceManager.Database.Models
 @using NetDeviceManager.Database.Tables
 @using NetDeviceManager.Lib.Snmp.Interfaces
 @using NetDeviceManager.Web.Components.Layout
@@ -38,7 +39,7 @@
     <Grid @ref="grid"
           TItem="SnmpSensorRecord"
           Class="table table-hover table-bordered table-striped"
-          DataProvider="EmployeesDataProvider"
+          DataProvider="RecordsDataProvider"
           Responsive="true">
 
         <GridColumn TItem="SnmpSensorRecord" HeaderText="Captured time" PropertyName="CapturedTime">
@@ -114,14 +115,14 @@
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    private async Task<GridDataProviderResult<SnmpSensorRecord>> EmployeesDataProvider(GridDataProviderRequest<SnmpSensorRecord> request)
+    private async Task<GridDataProviderResult<SnmpSensorRecord>> RecordsDataProvider(GridDataProviderRequest<SnmpSensorRecord> request)
     {
         if (_records is null) // pull employees only one time for client-side filtering, sorting, and paging
-            _records = GetEmployees(); // call a service or an API to pull the employees
+            _records = GetRecords(); // call a service or an API to pull the employees
         return await Task.FromResult(request.ApplyTo(_records));
     }
 
-    private IEnumerable<SnmpSensorRecord> GetEmployees()
+    private IEnumerable<SnmpSensorRecord> GetRecords()
     {
         return DatabaseService.GetLastSnmpRecords(100);
     }
