@@ -2,9 +2,9 @@
 using Lextm.SharpSnmpLib;
 using Lextm.SharpSnmpLib.Messaging;
 using Lextm.SharpSnmpLib.Security;
-using NetDeviceManager.Database.Interfaces;
 using NetDeviceManager.Database.Tables;
 using NetDeviceManager.Lib.Helpers;
+using NetDeviceManager.Lib.Interfaces;
 using NetDeviceManager.Lib.Model;
 using NetDeviceManager.Lib.Snmp.Interfaces;
 using NetDeviceManager.Lib.Snmp.Models;
@@ -39,13 +39,19 @@ public class SnmpService : ISnmpService
         return ReadSensorV3(sensor, profile, device, port);
     }
 
-    private readonly List<Guid> _snmpProblemDevice = new();
+    private readonly List<Guid> _devicesSnmpAlerts = new();
     private int _alertCount = 0;
     private DateTime _lastUpdate = new DateTime(2006, 8, 1, 20, 20, 20);
     public int GetSnmpAlertsCount()
     {
         CheckTimelinessOfData();
-        return _snmpProblemDevice.Count;
+        return _devicesSnmpAlerts.Count;
+    }
+
+    public int GetCurrentDeviceSnmpAlertsCount(Guid id)
+    {
+        CheckTimelinessOfData();
+        return _devicesSnmpAlerts.Count(x => x == id);
     }
 
     public List<SnmpSensor> GetSensorsInDevice(Guid deviceId)
@@ -77,7 +83,7 @@ public class SnmpService : ISnmpService
     {
         if ((DateTime.Now.Ticks - _lastUpdate.Ticks) > (TimeSpan.TicksPerMinute * 5))
         {
-            SnmpServiceHelper.CalculateSnmpAlerts(_database, _snmpProblemDevice);
+            SnmpServiceHelper.CalculateSnmpAlerts(_database, _devicesSnmpAlerts);
             _lastUpdate = DateTime.Now;
         }
     }

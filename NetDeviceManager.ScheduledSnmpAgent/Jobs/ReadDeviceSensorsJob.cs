@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
-using NetDeviceManager.Database.Interfaces;
 using NetDeviceManager.Database.Tables;
 using NetDeviceManager.Lib.GlobalConstantsAndEnums;
+using NetDeviceManager.Lib.Interfaces;
 using NetDeviceManager.Lib.Snmp.Interfaces;
 using NetDeviceManager.ScheduledSnmpAgent.Utils;
 using Quartz;

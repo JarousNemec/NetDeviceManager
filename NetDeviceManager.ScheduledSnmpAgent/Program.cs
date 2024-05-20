@@ -2,8 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NetDeviceManager.Database;
-using NetDeviceManager.Database.Interfaces;
-using NetDeviceManager.Database.Services;
+using NetDeviceManager.Lib.Interfaces;
 using NetDeviceManager.Lib.Services;
 using NetDeviceManager.Lib.Snmp.Interfaces;
 using NetDeviceManager.ScheduledSnmpAgent;

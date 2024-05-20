@@ -1,4 +1,4 @@
-﻿using NetDeviceManager.Database.Interfaces;
+﻿using NetDeviceManager.Lib.Interfaces;
 using NetDeviceManager.SyslogServer.Helpers;
 
 namespace NetDeviceManager.SyslogServer;

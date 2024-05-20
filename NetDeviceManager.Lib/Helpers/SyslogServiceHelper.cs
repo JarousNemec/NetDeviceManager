@@ -1,4 +1,4 @@
-﻿using NetDeviceManager.Database.Interfaces;
+﻿using NetDeviceManager.Lib.Interfaces;
 
 namespace NetDeviceManager.Lib.Helpers;
 

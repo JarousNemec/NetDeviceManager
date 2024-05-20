@@ -1,7 +1,6 @@
 ﻿@page "/snmprecords"
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.EntityFrameworkCore.Storage
-@using NetDeviceManager.Database.Interfaces
 @using NetDeviceManager.Database.Models
 @using NetDeviceManager.Database.Tables
 @using NetDeviceManager.Lib.Snmp.Interfaces
@@ -90,8 +89,7 @@
     }
 
     .login-btn {
-        width: 130px;
-        height: 30px;
+        padding: 0 10px;
         border-radius: 5px;
         color: #FFFFFF;
         background-color: #0081C6;

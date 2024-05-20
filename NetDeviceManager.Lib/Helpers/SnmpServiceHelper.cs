@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using NetDeviceManager.Database;
-using NetDeviceManager.Database.Interfaces;
 using NetDeviceManager.Database.Tables;
+using NetDeviceManager.Lib.Interfaces;
 
 namespace NetDeviceManager.Lib.Helpers;
 

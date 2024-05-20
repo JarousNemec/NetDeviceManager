@@ -1,6 +1,160 @@
 ﻿@page "/devices"
 @using Microsoft.AspNetCore.Authorization
+@using NetDeviceManager.Database.Tables
+@using NetDeviceManager.Lib.Snmp.Interfaces
+
+@using NetDeviceManager.Lib.Interfaces
+@rendermode InteractiveServer
 @attribute [Authorize]
 <PageTitle>devices</PageTitle>
+<ConfirmDialog @ref="dialog" />
+<div>
+    <h2>Devices</h2>
+    <div class="actions-div">
+        <button class="normal-btn font-16" @onclick="CreateNewDevice">New device</button>
+    </div>
 
-<h1>Hello, world! - devices</h1>
+    <Grid @ref="grid"
+          TItem="PhysicalDevice"
+          Class="table table-hover table-bordered table-striped"
+          DataProvider="RecordsDataProvider"
+          Responsive="true">
+
+        <GridColumn TItem="PhysicalDevice" HeaderText="Name" PropertyName="Device name">
+            @($"{context.Name} ({@context.Device.Model})")
+        </GridColumn>
+        <GridColumn TItem="PhysicalDevice" HeaderText="IpAddress" PropertyName="IpAddress">
+            @context.IpAddress
+        </GridColumn>
+        <GridColumn TItem="PhysicalDevice" HeaderText="Snmp Warnings" PropertyName="Data">
+            @SnmpService.GetCurrentDeviceSnmpAlertsCount(context.Id)
+        </GridColumn>
+        <GridColumn TItem="PhysicalDevice" HeaderText="Syslog warnings" PropertyName="Data">
+            @SyslogService.GetCurrentDeviceSyslogAlertsCount(context.Id)
+        </GridColumn>
+        <GridColumn TItem="PhysicalDevice" HeaderText="Actions" PropertyName="Data">
+            <div style="display: flex; width: 100%; flex-direction: row-reverse;">
+                <button class="danger-btn font-16" @onclick="()=>RemoveDevice(context.Id)">X</button>
+                <button class="normal-btn font-16" @onclick="()=>ConfigureDevice(context.Id)">Configure</button>
+                
+            </div>
+            
+        </GridColumn>
+    </Grid>
+</div>
+
+<style>
+    .actions-div {
+        display: flex;
+        align-items: flex-end;
+        margin-bottom: 8px;
+    }
+    .login-input{
+        width: 220px;
+        height: 30px;
+        border: 3px solid black;
+        border-radius: 5px;
+        background: #F0F0F0;
+    }
+
+    .login-labelinput{
+        display: flex;
+        flex-direction: column;
+        margin-left: 10px;
+    }
+    .login-checkbox{
+        margin-top: 30px;
+    }
+    .login-checkbox-input{
+        border: 3px solid black;
+        border-radius: 15px;
+        background: #F0F0F0;
+    }
+
+    .login-label{
+        font-weight: bold;
+    }
+
+    .normal-btn {
+        padding: 0 10px;
+        border-radius: 5px;
+        color: #FFFFFF;
+        background-color: #0081C6;
+        border-color: #0081C6;
+        margin-left: 10px;
+    }
+    .danger-btn {
+        padding: 0 10px;
+        border-radius: 5px;
+        color: #FFFFFF;
+        background-color: #E10000;
+        border-color: #E10000;
+        margin-left: 10px;
+    }
+</style>
+
+@code{
+    [Inject] public IDeviceService DeviceService { get; set; }
+    [Inject] public ISnmpService SnmpService { get; set; }
+    [Inject] public ISyslogService SyslogService { get; set; }
+    [Inject] public IDatabaseService DatabaseService { get; set; }
+    [Inject] public NavigationManager NavigationManager { get; set; }
+    
+    BlazorBootstrap.Grid<PhysicalDevice> grid = default!;
+    private IEnumerable<PhysicalDevice> _records = default!;
+    private ConfirmDialog dialog = default!;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async Task<GridDataProviderResult<PhysicalDevice>> RecordsDataProvider(GridDataProviderRequest<PhysicalDevice> request)
+    {
+        if (_records is null) // pull employees only one time for client-side filtering, sorting, and paging
+            _records = GetRecords(); // call a service or an API to pull the employees
+        return await Task.FromResult(request.ApplyTo(_records));
+    }
+
+    private IEnumerable<PhysicalDevice> GetRecords()
+    {
+        return DatabaseService.GetPhysicalDevices();
+    }
+
+    private void CreateNewDevice()
+    {
+        
+    }
+
+    private async void RemoveDevice(Guid id)
+    {
+        if (await ShowConfirmationAsync())
+            DatabaseService.DeletePhysicalDevice(id);
+        NavigationManager.NavigateTo(NavigationManager.Uri, true);
+    }
+
+    private void ConfigureDevice(Guid id)
+    {
+        
+    }
+    
+    
+
+    private async Task<bool> ShowConfirmationAsync()
+    {
+        var options = new ConfirmDialogOptions
+        {
+            YesButtonText = "Yes",
+            YesButtonColor = ButtonColor.Success,
+            NoButtonText = "No",
+            NoButtonColor = ButtonColor.Danger
+        };
+
+        var confirmation = await dialog.ShowAsync(
+            title: "Confirm dialog",
+            message1: "Are u sure u wanna to do it?",
+            confirmDialogOptions: options);
+
+        return confirmation;
+    }
+}

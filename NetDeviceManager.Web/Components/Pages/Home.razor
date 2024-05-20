@@ -2,7 +2,6 @@
 @using System.Runtime.InteropServices
 @using System.Text.Json
 @using Microsoft.AspNetCore.Authorization
-@using NetDeviceManager.Database.Interfaces
 @using NetDeviceManager.Lib.Interfaces
 @using NetDeviceManager.Lib.Snmp.Interfaces
 @using NetDeviceManager.Web.Components.Layout
@@ -16,7 +15,7 @@
             <Card TextAlignment="Alignment.Center" Class="mb-4" Style="width:25rem;">
                 <CardBody>
                     <CardTitle>Devices</CardTitle>
-                    <CardText Style="font-size: 38px">Online: <span style="color: forestgreen">@DeviceService.GetOnlineDevicesCount()</span> <br/> Offline: <span style="color: red">@DeviceService.GetOfflineDevicesCount()</span></CardText>
+                    <CardText Style="font-size: 38px">Online: <span style="color: #75BC00">@DeviceService.GetOnlineDevicesCount()</span> <br/> Offline: <span style="color: red">@DeviceService.GetOfflineDevicesCount()</span></CardText>
                     <Button Color="ButtonColor.Primary" To="/devices" Type="ButtonType.Link" @onclick="() => NavbarHelper.SelectedChange(_devicesLink)">Show devices</Button>
                 </CardBody>
             </Card>

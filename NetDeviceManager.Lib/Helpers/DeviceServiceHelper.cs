@@ -1,5 +1,5 @@
-﻿using NetDeviceManager.Database.Interfaces;
-using NetDeviceManager.Database.Tables;
+﻿using NetDeviceManager.Database.Tables;
+using NetDeviceManager.Lib.Interfaces;
 
 namespace NetDeviceManager.Lib.Helpers;
 

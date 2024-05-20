@@ -4,10 +4,9 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using NetDeviceManager.Database;
-using NetDeviceManager.Database.Interfaces;
-using NetDeviceManager.Database.Services;
 using NetDeviceManager.Database.Tables;
-using NetDeviceManager.SyslogServer.Helpers;
+using NetDeviceManager.Lib.Interfaces;
+using NetDeviceManager.Lib.Services;
 using NetDeviceManager.SyslogServer.Models;
 
 namespace NetDeviceManager.SyslogServer;

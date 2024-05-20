@@ -18,6 +18,8 @@ public interface ISnmpService
 
     List<SnmpVariableModel>? GetSensorValue(SnmpSensor sensor, LoginProfile profile, PhysicalDevice device, Port port);
     public int GetSnmpAlertsCount();
+    
+    public int GetCurrentDeviceSnmpAlertsCount(Guid id);
 
     public List<SnmpSensor> GetSensorsInDevice(Guid deviceId);
     

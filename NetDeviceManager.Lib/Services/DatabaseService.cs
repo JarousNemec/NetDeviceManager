@@ -1,9 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using NetDeviceManager.Database.Interfaces;
+using NetDeviceManager.Database;
 using NetDeviceManager.Database.Models;
 using NetDeviceManager.Database.Tables;
+using NetDeviceManager.Lib.Interfaces;
+using NetDeviceManager.Lib.Model;
 
-namespace NetDeviceManager.Database.Services;
+namespace NetDeviceManager.Lib.Services;
 
 public class DatabaseService : IDatabaseService
 {
@@ -196,7 +198,7 @@ public class DatabaseService : IDatabaseService
 
     public List<SyslogRecord> GetLastSyslogRecords(int count)
     {
-        var data =_database.SyslogRecords.Include(x => x.PhysicalDevice)
+        var data = _database.SyslogRecords.Include(x => x.PhysicalDevice)
             .OrderByDescending(x => x.ProcessedDate).Take(count).ToList();
         return data;
     }
@@ -219,7 +221,19 @@ public class DatabaseService : IDatabaseService
 
     public List<PhysicalDevice> GetPhysicalDevices()
     {
-        return _database.PhysicalDevices.ToList();
+        var data = _database.PhysicalDevices.Include(x => x.Device).ToList();
+        return data;
+    }
+
+    public List<PhysicalDevice> GetCompletePhysicalDevices(Guid id)
+    {
+        return _database.PhysicalDevices.Where(x => x.Id == id)
+            .Include(x => x.Device)
+            .Include(x => x.LoginProfile)
+            .Include(x => x.PortsInDevice)
+            .Include(x => x.SensorsInDevice)
+            .Include(x => x.TagsOnDevice)
+            .ToList();
     }
 
     public List<CorrectDataPattern> GetPhysicalDevicesPatterns()
@@ -288,5 +302,29 @@ public class DatabaseService : IDatabaseService
         }
 
         return query.Take(count).ToList();
+    }
+
+    public OperationResult DeletePhysicalDevice(Guid id)
+    {
+        var device = _database.PhysicalDevices.FirstOrDefault(x => x.Id == id);
+        if (device == null)
+            return new OperationResult() { IsSuccessful = false, Message = "Unknown Id" };
+
+        var tickets = _database.Tickets.Where(x => x.DeviceId == id);
+        _database.Tickets.RemoveRange(tickets);
+        var tags = _database.TagsOnPhysicalDevices.Where(x => x.DeviceId == id);
+        _database.TagsOnPhysicalDevices.RemoveRange(tags);
+        var sensorsInPd = _database.SnmpSensorsInPhysicalDevices.Where(x => x.PhysicalDeviceId == id);
+        _database.SnmpSensorsInPhysicalDevices.RemoveRange(sensorsInPd);
+        var jobs = _database.SchedulerJobs.Where(x => x.PhysicalDeviceId == id);
+        _database.SchedulerJobs.RemoveRange(jobs);
+        var pdHasPorts = _database.PhysicalDevicesHasPorts.Where(x => x.DeviceId == id);
+        _database.PhysicalDevicesHasPorts.RemoveRange(pdHasPorts);
+        var patterns = _database.CorrectDataPatterns.Where(x => x.PhysicalDeviceId == id);
+        _database.CorrectDataPatterns.RemoveRange(patterns);
+
+        _database.PhysicalDevices.Remove(device);
+        _database.SaveChanges();
+        return new OperationResult();
     }
 }

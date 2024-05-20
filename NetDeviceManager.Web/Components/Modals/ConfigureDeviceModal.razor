@@ -1,0 +1,21 @@
+﻿<Modal @ref="modal" Title="Modal title">
+    <HeaderTemplate>
+        <h3>Device configuration</h3>
+    </HeaderTemplate>
+    <BodyTemplate>
+        Modal body text goes here.
+    </BodyTemplate>
+    <FooterTemplate>
+        <button class="danger-btn font-16" @onclick="">Apply</button>
+    </FooterTemplate>
+</Modal>
+
+@code{
+    private Modal modal = default!;
+
+    private async Task OnShowModalClick()
+    {
+        await modal.ShowAsync();
+    }
+
+}

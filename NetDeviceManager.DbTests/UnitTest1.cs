@@ -1,11 +1,9 @@
-using System.Globalization;
 using System.Text.Json;
 using Lextm.SharpSnmpLib;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using NetDeviceManager.Database;
-using NetDeviceManager.Database.Services;
 using NetDeviceManager.Database.Tables;
+using NetDeviceManager.Lib.Services;
 using NetDeviceManager.ScheduledSnmpAgent.Helpers;
 
 namespace NetDeviceManager.DbTests;

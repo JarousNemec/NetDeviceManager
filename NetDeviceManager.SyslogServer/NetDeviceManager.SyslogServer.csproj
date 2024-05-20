@@ -22,6 +22,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\NetDeviceManager.Database\NetDeviceManager.Database.csproj" />
+      <ProjectReference Include="..\NetDeviceManager.Lib\NetDeviceManager.Lib.csproj" />
     </ItemGroup>
 
     <ItemGroup>

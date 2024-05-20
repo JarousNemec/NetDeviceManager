@@ -3,8 +3,7 @@ using System.Net.Sockets;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using NetDeviceManager.Database;
-using NetDeviceManager.Database.Interfaces;
-using NetDeviceManager.Database.Services;
+using NetDeviceManager.Lib.Interfaces;
 using NetDeviceManager.SyslogServer.Helpers;
 using NetDeviceManager.SyslogServer.Models;
 

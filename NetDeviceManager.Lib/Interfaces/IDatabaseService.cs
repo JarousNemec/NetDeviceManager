@@ -1,13 +1,15 @@
 ﻿using NetDeviceManager.Database.Models;
 using NetDeviceManager.Database.Tables;
-using NetDeviceManager.Lib;
+using NetDeviceManager.Lib.Model;
 
-namespace NetDeviceManager.Database.Interfaces;
+namespace NetDeviceManager.Lib.Interfaces;
 
 public interface IDatabaseService
 {
+    #region Create
+
     Guid AddSnmpRecord(SnmpSensorRecord record);
-   
+
     Guid AddDeviceIcon(DeviceIcon icon);
     Guid AddDevice(Device device);
 
@@ -32,7 +34,11 @@ public interface IDatabaseService
     Guid AddTicket(Ticket ticket);
 
     Guid AddTagOnPhysicalDevice(TagOnPhysicalDevice tagOnPhysicalDevice);
-    
+
+    #endregion
+
+    #region Read
+
     List<SchedulerJob> GetSnmpReadJobs();
     List<SnmpSensorInPhysicalDevice> GetSensorsOfPhysicalDevice(Guid physicalDeviceId);
     List<PhysicalDeviceHasPort> GetPortInPhysicalDevices(Guid deviceId);
@@ -53,6 +59,7 @@ public interface IDatabaseService
     SnmpSensorRecord? GetLastDeviceRecord(Guid id);
 
     List<PhysicalDevice> GetPhysicalDevices();
+    List<PhysicalDevice> GetCompletePhysicalDevices(Guid id);
 
     List<CorrectDataPattern> GetPhysicalDevicesPatterns();
 
@@ -60,6 +67,14 @@ public interface IDatabaseService
     List<Guid> GetSyslogs();
 
     List<SnmpSensorRecord> GetSnmpRecordsWithFilter(SnmpRecordFilterModel model, int count);
-    
-    List<SyslogRecord> GetSyslogRecordsWithFilter(SyslogRecordFilterModel model,int count);
+
+    List<SyslogRecord> GetSyslogRecordsWithFilter(SyslogRecordFilterModel model, int count);
+
+    #endregion
+
+    #region Delete
+
+    OperationResult DeletePhysicalDevice(Guid id);
+
+    #endregion
 }

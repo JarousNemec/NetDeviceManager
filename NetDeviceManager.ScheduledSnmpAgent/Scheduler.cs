@@ -2,10 +2,9 @@
 using System.Timers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using NetDeviceManager.Database.Interfaces;
-using NetDeviceManager.Database.Services;
 using NetDeviceManager.Database.Tables;
 using NetDeviceManager.Lib.GlobalConstantsAndEnums;
+using NetDeviceManager.Lib.Interfaces;
 using NetDeviceManager.Lib.Services;
 using NetDeviceManager.Lib.Snmp.Interfaces;
 using NetDeviceManager.ScheduledSnmpAgent.Factories;
