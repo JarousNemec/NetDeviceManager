@@ -39,6 +39,8 @@ public interface IDatabaseService
 
     #region Read
 
+    List<Device> GetDevices();
+    List<LoginProfile> GetLoginProfiles();
     List<SchedulerJob> GetSnmpReadJobs();
     List<SnmpSensorInPhysicalDevice> GetSensorsOfPhysicalDevice(Guid physicalDeviceId);
     List<PhysicalDeviceHasPort> GetPortInPhysicalDevices(Guid deviceId);
@@ -70,11 +72,19 @@ public interface IDatabaseService
 
     List<SyslogRecord> GetSyslogRecordsWithFilter(SyslogRecordFilterModel model, int count);
 
+    List<DeviceIcon> GetIcons();
+
     #endregion
 
     #region Delete
 
     OperationResult DeletePhysicalDevice(Guid id);
+
+    #endregion
+
+    #region Special
+
+    bool AnyPhysicalDeviceWithIp(string ip);
 
     #endregion
 }

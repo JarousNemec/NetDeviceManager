@@ -1,5 +1,81 @@
-﻿<h3>NewLoginProfileModal</h3>
+﻿@using NetDeviceManager.Database.Tables
+@rendermode InteractiveServer
+<Modal @ref="modal" Title="New login profile">
+    <BodyTemplate>
+        <div style="margin: 30px; margin-top: 0">
+            <EditForm Model="Profile" method="post" OnValidSubmit="Callback" FormName="Config" class="modal-form">
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Name<span class="important-symbol">*</span></label>
+                    <InputText @bind-Value="Profile.Name" class="input-modalform font-16"
+                               placeholder="Enter value..."/>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Description</label>
+                    <InputText @bind-Value="Profile.Description" class="input-modalform font-16"
+                               placeholder="Enter value..."/>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Username</label>
+                    <InputText @bind-Value="Profile.Username" class="input-modalform font-16"
+                               placeholder="Enter value..."/>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Password</label>
+                    <InputText @bind-Value="Profile.Password" class="input-modalform font-16"
+                               placeholder="Enter value..."/>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Connection string</label>
+                    <InputText @bind-Value="Profile.ConnString" class="input-modalform font-16"
+                               placeholder="Enter value..."/>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Key</label>
+                    <InputText @bind-Value="Profile.Key" class="input-modalform font-16"
+                               placeholder="Enter value..."/>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Security name</label>
+                    <InputText @bind-Value="Profile.SecurityName" class="input-modalform font-16"
+                               placeholder="Enter value..."/>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Authentication password</label>
+                    <InputText @bind-Value="Profile.AuthenticationPassword" class="input-modalform font-16"
+                               placeholder="Enter value..."/>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Privacy password</label>
+                    <InputText @bind-Value="Profile.PrivacyPassword" class="input-modalform font-16"
+                               placeholder="Enter value..."/>
+                </div>
+                <div>
+                    <button type="submit" class="btn-apply btn-style-confirm font-16">Apply</button>
+                </div>
+            </EditForm>
+        </div>
+    </BodyTemplate>
+</Modal>
 
-@code {
+@code{
+    private Modal modal = default!;
+
+    [Parameter] public LoginProfile Profile { get; set; }
+    [Parameter] public Action<LoginProfile> OnApply { get; set; }
+
+    public async Task ShowModalAsync()
+    {
+        await modal.ShowAsync();
+    }
+    public async Task HideModalAsync()
+    {
+        await modal.HideAsync();
+    }
     
+
+    private void Callback()
+    {
+        OnApply?.Invoke(Profile);
+    }
+
 }

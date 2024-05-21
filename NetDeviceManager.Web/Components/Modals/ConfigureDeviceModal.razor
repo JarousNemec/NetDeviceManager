@@ -1,21 +1,100 @@
-﻿<Modal @ref="modal" Title="Modal title">
-    <HeaderTemplate>
-        <h3>Device configuration</h3>
-    </HeaderTemplate>
+﻿@using NetDeviceManager.Database.Tables
+@rendermode InteractiveServer
+<Modal @ref="modal" Title="Device configuration">
     <BodyTemplate>
-        Modal body text goes here.
+        <div style="margin: 30px; margin-top: 0">
+            <EditForm Model="Device" method="post" OnValidSubmit="Callback" FormName="Config" class="modal-form">
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Name<span class="important-symbol">*</span></label>
+                    <InputText @bind-Value="Device.Name" class="input-modalform font-16"
+                               placeholder="Enter your device name..."/>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Description</label>
+                    <InputText @bind-Value="Device.Description" class="input-modalform font-16"
+                               placeholder="Enter description..."/>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Ip Address<span class="important-symbol">*</span></label>
+                    <InputText @bind-Value="Device.IpAddress" class="input-modalform font-16"
+                               placeholder="Enter device ip address..."/>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Mac Address</label>
+                    <InputText @bind-Value="Device.MacAddress" class="input-modalform font-16"
+                               placeholder="Enter device mac address..."/>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Select device type<span class="important-symbol">*</span>:</label>
+                    <InputSelect id="department" @bind-Value="Device.DeviceId" class="input-modalform">
+                        @foreach (var device in Devices)
+                        {
+                            <option value="@device.Id">@($"{device.Name}({device.Model})")</option>
+                        }
+                    </InputSelect>
+                    <div class="btn-container-modalform">
+                        <button class="btn-action btn-style-normal font-16" @onclick="() => OnNewDevice?.Invoke()">
+                            New device
+                        </button>
+                    </div>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Select login profile<span class="important-symbol">*</span>:</label>
+                    <InputSelect id="department" @bind-Value="Device.LoginProfileId" class="input-modalform">
+                        @foreach (var profile in LoginProfiles)
+                        {
+                            <option value="@profile.Id">@profile.Name</option>
+                        }
+                    </InputSelect>
+                    <div class="btn-container-modalform">
+                        <button class="btn-action btn-style-normal font-16" @onclick="() => OnNewProfile?.Invoke()">
+                            New
+                            profile
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <button type="submit" class="btn-apply btn-style-confirm font-16">Apply</button>
+                </div>
+            </EditForm>
+        </div>
     </BodyTemplate>
-    <FooterTemplate>
-        <button class="danger-btn font-16" @onclick="">Apply</button>
-    </FooterTemplate>
 </Modal>
 
 @code{
     private Modal modal = default!;
 
-    private async Task OnShowModalClick()
+    [Parameter] public PhysicalDevice Device { get; set; }
+    [Parameter] public List<Device> Devices { get; set; }
+    [Parameter] public List<LoginProfile> LoginProfiles { get; set; }
+    [Parameter] public Action<PhysicalDevice> OnApply { get; set; }
+    [Parameter] public Action OnNewDevice { get; set; }
+    [Parameter] public Action OnNewProfile { get; set; }
+
+    public void AddNewDevice(Device device)
+    {
+        Devices.Add(device);
+        StateHasChanged();
+    }
+
+    public void AddNewProfile(LoginProfile profile)
+    {
+        LoginProfiles.Add(profile);
+        StateHasChanged();
+    }
+
+    public async Task ShowModalAsync()
     {
         await modal.ShowAsync();
+    }
+    public async Task HideModalAsync()
+    {
+        await modal.HideAsync();
+    }
+
+    private void Callback()
+    {
+        OnApply?.Invoke(Device);
     }
 
 }

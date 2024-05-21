@@ -16,23 +16,23 @@
     <h2>Snmp records</h2>
 
     <EditForm Model="Filter" method="post" OnValidSubmit="FilterRecords" FormName="filter" class="filter-form">
-        <div class="login-labelinput">
-            <label class="login-label font-16">Device name</label>
-            <InputText @bind-Value="Filter.DeviceName" class="login-input font-16" placeholder="Enter your device name..."/>
+        <div class="labelinput-menu">
+            <label class="label-menu font-16">Device name</label>
+            <InputText @bind-Value="Filter.DeviceName" class="input-menu font-16" placeholder="Enter your device name..."/>
         </div>
-        <div class="login-labelinput">
-            <label class="login-label font-16">Ip address</label>
-            <InputText @bind-Value="Filter.IpAddress" class="login-input font-16" placeholder="Enter your ip address..."/>
+        <div class="labelinput-menu">
+            <label class="label-menu font-16">Ip address</label>
+            <InputText @bind-Value="Filter.IpAddress" class="input-menu font-16" placeholder="Enter your ip address..."/>
         </div>
-        <div class="login-labelinput">
-            <label class="login-label font-16">Sensor name</label>
-            <InputText @bind-Value="Filter.SensorName" class="login-input font-16" placeholder="Enter your sensor name..."/>
+        <div class="labelinput-menu">
+            <label class="label-menu font-16">Sensor name</label>
+            <InputText @bind-Value="Filter.SensorName" class="input-menu font-16" placeholder="Enter your sensor name..."/>
         </div>
-        <div class="login-labelinput">
-            <label class="login-label font-16">Oid</label>
-            <InputText @bind-Value="Filter.Oid" class="login-input font-16" placeholder="Enter your Oid..."/>
+        <div class="labelinput-menu">
+            <label class="label-menu font-16">Oid</label>
+            <InputText @bind-Value="Filter.Oid" class="input-menu font-16" placeholder="Enter your Oid..."/>
         </div>
-        <button type="submit" class="login-btn font-16">Query data</button>
+        <button type="submit" class="btn-style-normal btn-action font-16">Query data</button>
     </EditForm>
 
     <Grid @ref="grid"
@@ -61,40 +61,6 @@
         display: flex;
         align-items: flex-end;
         margin-bottom: 8px;
-    }
-    .login-input{
-        width: 220px;
-        height: 30px;
-        border: 3px solid black;
-        border-radius: 5px;
-        background: #F0F0F0;
-    }
-
-    .login-labelinput{
-        display: flex;
-        flex-direction: column;
-        margin-left: 10px;
-    }
-    .login-checkbox{
-        margin-top: 30px;
-    }
-    .login-checkbox-input{
-        border: 3px solid black;
-        border-radius: 15px;
-        background: #F0F0F0;
-    }
-
-    .login-label{
-        font-weight: bold;
-    }
-
-    .login-btn {
-        padding: 0 10px;
-        border-radius: 5px;
-        color: #FFFFFF;
-        background-color: #0081C6;
-        border-color: #0081C6;
-        margin-left: 10px;
     }
 </style>
 

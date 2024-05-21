@@ -8,6 +8,6 @@ public class Device
     public string? Description { get; set; }
     public string Brand { get; set; }
     
-    public Guid IconId { get; set; }
-    public virtual DeviceIcon Icon { get; set; }
+    public Guid? IconId { get; set; }
+    public virtual DeviceIcon? Icon { get; set; }
 }

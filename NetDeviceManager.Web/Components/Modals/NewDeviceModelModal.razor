@@ -1,5 +1,77 @@
-﻿<h3>NewDeviceModelModal</h3>
+﻿@using NetDeviceManager.Database.Tables
+@rendermode InteractiveServer
+<Modal @ref="modal" Title="New model">
+    <BodyTemplate>
+        <div style="margin: 30px; margin-top: 0">
+            <EditForm Model="Device" method="post" OnValidSubmit="Callback" FormName="Config" class="modal-form">
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Name<span class="important-symbol">*</span></label>
+                    <InputText @bind-Value="Device.Name" class="input-modalform font-16"
+                               placeholder="Enter name..."/>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Description</label>
+                    <InputText @bind-Value="Device.Description" class="input-modalform font-16"
+                               placeholder="Enter description..."/>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Model<span class="important-symbol">*</span></label>
+                    <InputText @bind-Value="Device.Model" class="input-modalform font-16"
+                               placeholder="Enter device ip address..."/>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Brand<span class="important-symbol">*</span></label>
+                    <InputText @bind-Value="Device.Brand" class="input-modalform font-16"
+                               placeholder="Enter device mac address..."/>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Select device icon:</label>
+                    <InputSelect id="department" @bind-Value="Device.IconId" class="input-modalform">
+                        @foreach (var icon in Icons)
+                        {
+                            <option value="@icon.Id">@($"{icon.Name})")</option>
+                        }
+                    </InputSelect>
+                    <div class="btn-container-modalform">
+                        <button class="btn-action btn-style-normal font-16" @onclick="() => OnNewIcon?.Invoke()">
+                            New icon
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <button type="submit" class="btn-apply btn-style-confirm font-16">Apply</button>
+                </div>
+            </EditForm>
+        </div>
+    </BodyTemplate>
+</Modal>
 
-@code {
-    
+@code{
+    private Modal modal = default!;
+
+    [Parameter] public Device Device { get; set; }
+    [Parameter] public Action<Device> OnApply { get; set; }
+    [Parameter] public Action OnNewIcon { get; set; }
+    [Parameter] public List<DeviceIcon> Icons { get; set; }
+
+    public void AddNewIcon(DeviceIcon icon)
+    {
+        Icons.Add(icon);
+        StateHasChanged();
+    }
+
+    public async Task ShowModalAsync()
+    {
+        await modal.ShowAsync();
+    }
+    public async Task HideModalAsync()
+    {
+        await modal.HideAsync();
+    }
+
+    private void Callback()
+    {
+        OnApply?.Invoke(Device);
+    }
+
 }

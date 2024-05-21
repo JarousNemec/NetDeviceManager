@@ -156,6 +156,16 @@ public class DatabaseService : IDatabaseService
         return id;
     }
 
+    public List<Device> GetDevices()
+    {
+        return _database.Devices.ToList();
+    }
+
+    public List<LoginProfile> GetLoginProfiles()
+    {
+        return _database.LoginProfiles.ToList();
+    }
+
     public List<SchedulerJob> GetSnmpReadJobs()
     {
         return _database.SchedulerJobs.Include(x => x.PhysicalDevice).ToList();
@@ -304,6 +314,11 @@ public class DatabaseService : IDatabaseService
         return query.Take(count).ToList();
     }
 
+    public List<DeviceIcon> GetIcons()
+    {
+        return _database.DeviceIcons.ToList();
+    }
+
     public OperationResult DeletePhysicalDevice(Guid id)
     {
         var device = _database.PhysicalDevices.FirstOrDefault(x => x.Id == id);
@@ -326,5 +341,10 @@ public class DatabaseService : IDatabaseService
         _database.PhysicalDevices.Remove(device);
         _database.SaveChanges();
         return new OperationResult();
+    }
+
+    public bool AnyPhysicalDeviceWithIp(string ip)
+    {
+        return _database.PhysicalDevices.Any(x => x.IpAddress == ip);
     }
 }

@@ -4,7 +4,14 @@ public class NavbarHelper
 {
     public delegate void SelectedNavbarChange(string name);
 
+    public string SelectedTabName { get; set; }
+
     public event SelectedNavbarChange OnSelectedNavbarChange;
+
+    public NavbarHelper()
+    {
+        SelectedTabName = string.Empty;
+    }
 
     public void SelectedChange(string name)
     {

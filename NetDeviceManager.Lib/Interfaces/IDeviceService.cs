@@ -6,12 +6,12 @@ namespace NetDeviceManager.Lib.Interfaces;
 public interface IDeviceService
 {
     //Create
-    public OperationResult CreateDevice(CreateDeviceModel model);
-    public OperationResult CreatePhysicalDevice(CreatePhysicalDeviceModel model);
-    public OperationResult CreateDeviceIcon(CreateDeviceIconModel model);
-    public OperationResult CreateLoginProfile(CreateLoginProfileModel model);
+    public OperationResult AddDevice(CreateDeviceModel model);
+    public OperationResult AddPhysicalDevice(PhysicalDevice model);
+    public OperationResult AddDeviceIcon(CreateDeviceIconModel model);
+    public OperationResult AddLoginProfile(CreateLoginProfileModel model);
 
-    public OperationResult CreatePort(Port model);
+    public OperationResult AddPort(Port model);
     
     //Read
     public int GetOnlineDevicesCount();
@@ -34,7 +34,7 @@ public interface IDeviceService
     
     //Update
     public OperationResult UpdateDevice(Guid id, CreateDeviceModel model);
-    public OperationResult UpdatePhysicalDevice(Guid id, CreatePhysicalDeviceModel model);
+    public OperationResult UpdatePhysicalDevice(Guid id, PhysicalDevice model);
     public OperationResult UpdateDeviceIcon(Guid id, CreateDeviceIconModel model);
     public OperationResult UpdateLoginProfile(Guid id, CreateLoginProfileModel model);
 

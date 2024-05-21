@@ -9,13 +9,13 @@
                 <div style="margin-right: 15px">
                     <SmallLogo/>
                 </div>
-                <div class="nav-link @(_selected == "" ? "active" : "")" onclick="@(() => { SetSelectedLink(""); })">
+                <div class="nav-link @(NavbarHelper.SelectedTabName == "" ? "active" : "")" onclick="@(() => { SetSelectedLink(""); })">
                     <a href="" Match="NavLinkMatch.All" class="nav-link-item">
                         Home
                     </a>
                 </div>
 
-                <div class="nav-link @(_selected == "map" ? "active" : "")" onclick="@(() => { SetSelectedLink("map"); })">
+                <div class="nav-link @(NavbarHelper.SelectedTabName == "map" ? "active" : "")" onclick="@(() => { SetSelectedLink("map"); })">
                     <a href="map" class="nav-link-item">
                         Map
                     </a>
@@ -30,17 +30,17 @@
                         </DropdownMenu>
                     </Dropdown>
                 </div>
-                <div class="nav-link @(_selected == "syslog" ? "active" : "")" onclick="@(() => { SetSelectedLink("syslog"); })">
+                <div class="nav-link @(NavbarHelper.SelectedTabName == "syslog" ? "active" : "")" onclick="@(() => { SetSelectedLink("syslog"); })">
                     <a href="syslog" class="nav-link-item">
                         Syslog
                     </a>
                 </div>
-                <div class="nav-link @(_selected == "devices" ? "active" : "")" onclick="@(() => { SetSelectedLink("devices"); })">
+                <div class="nav-link @(NavbarHelper.SelectedTabName == "devices" ? "active" : "")" onclick="@(() => { SetSelectedLink("devices"); })">
                     <a href="devices" class="nav-link-item">
                         Devices
                     </a>
                 </div>
-                <div class="nav-link @(_selected == "reports" ? "active" : "")" onclick="@(() => { SetSelectedLink("reports"); })">
+                <div class="nav-link @(NavbarHelper.SelectedTabName == "reports" ? "active" : "")" onclick="@(() => { SetSelectedLink("reports"); })">
                     <a href="reports" class="nav-link-item">
                         Reports
                     </a>
@@ -57,7 +57,7 @@
                         </DropdownMenu>
                     </Dropdown>
                 </div>
-                <div class="nav-link @(_selected == "settings" ? "active" : "")" onclick="@(() => { SetSelectedLink("settings"); })">
+                <div class="nav-link @(NavbarHelper.SelectedTabName == "settings" ? "active" : "")" onclick="@(() => { SetSelectedLink("settings"); })">
                     <a href="settings" class="nav-link-item">
                         Settings
                     </a>
@@ -77,13 +77,12 @@
 </AuthorizeView>
 
 @code {
-    private string _selected = string.Empty;
 
     [Inject] public NavbarHelper NavbarHelper { get; set; }
     
     private void SetSelectedLink(string link)
     {
-        _selected = link;
+        NavbarHelper.SelectedTabName = link;
         InvokeAsync(StateHasChanged);
     }
     

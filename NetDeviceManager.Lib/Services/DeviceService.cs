@@ -16,27 +16,33 @@ public class DeviceService : IDeviceService
 
     #region CreateMethods
 
-    public OperationResult CreateDevice(CreateDeviceModel model)
+    public OperationResult AddDevice(CreateDeviceModel model)
     {
         throw new NotImplementedException();
     }
 
-    public OperationResult CreatePhysicalDevice(CreatePhysicalDeviceModel model)
+    public OperationResult AddPhysicalDevice(PhysicalDevice model)
+    {
+        if (!_database.AnyPhysicalDeviceWithIp(model.IpAddress))
+        {
+            _database.AddPhysicalDevice(model);
+            return new OperationResult();
+        }
+
+        return new OperationResult() { IsSuccessful = false, Message = "Device ip is already assigned!" };
+    }
+
+    public OperationResult AddDeviceIcon(CreateDeviceIconModel model)
     {
         throw new NotImplementedException();
     }
 
-    public OperationResult CreateDeviceIcon(CreateDeviceIconModel model)
+    public OperationResult AddLoginProfile(CreateLoginProfileModel model)
     {
         throw new NotImplementedException();
     }
 
-    public OperationResult CreateLoginProfile(CreateLoginProfileModel model)
-    {
-        throw new NotImplementedException();
-    }
-
-    public OperationResult CreatePort(Port model)
+    public OperationResult AddPort(Port model)
     {
         throw new NotImplementedException();
     }
@@ -136,7 +142,7 @@ public class DeviceService : IDeviceService
         throw new NotImplementedException();
     }
 
-    public OperationResult UpdatePhysicalDevice(Guid id, CreatePhysicalDeviceModel model)
+    public OperationResult UpdatePhysicalDevice(Guid id, PhysicalDevice model)
     {
         throw new NotImplementedException();
     }

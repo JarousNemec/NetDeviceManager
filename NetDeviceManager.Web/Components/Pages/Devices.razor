@@ -4,14 +4,18 @@
 @using NetDeviceManager.Lib.Snmp.Interfaces
 
 @using NetDeviceManager.Lib.Interfaces
+@using NetDeviceManager.Web.Components.Modals
 @rendermode InteractiveServer
 @attribute [Authorize]
 <PageTitle>devices</PageTitle>
-<ConfirmDialog @ref="dialog" />
+<ConfirmDialog @ref="dialog"/>
+<ConfigureDeviceModal @ref="configureDeviceModal" Device="ModalDevice" Devices="@DatabaseService.GetDevices()" LoginProfiles="@DatabaseService.GetLoginProfiles()" OnApply="OnApplyConfigureModal" OnNewDevice="OnNewDevice" OnNewProfile="OnNewProfile"/>
+<NewDeviceModelModal @ref="newDeviceModelModal" Device="new Device()" Icons="@DatabaseService.GetIcons()" OnApply="OnApplyNewDeviceModal"></NewDeviceModelModal>
+<NewLoginProfileModal @ref="_newLoginProfileModal" Profile="new LoginProfile()" OnApply="OnApplyNewLoginProfile"></NewLoginProfileModal>
 <div>
     <h2>Devices</h2>
     <div class="actions-div">
-        <button class="normal-btn font-16" @onclick="CreateNewDevice">New device</button>
+        <button class="btn-style-normal btn-action font-16" @onclick="CreateNewDevice">New device</button>
     </div>
 
     <Grid @ref="grid"
@@ -34,11 +38,14 @@
         </GridColumn>
         <GridColumn TItem="PhysicalDevice" HeaderText="Actions" PropertyName="Data">
             <div style="display: flex; width: 100%; flex-direction: row-reverse;">
-                <button class="danger-btn font-16" @onclick="()=>RemoveDevice(context.Id)">X</button>
-                <button class="normal-btn font-16" @onclick="()=>ConfigureDevice(context.Id)">Configure</button>
-                
+                <div class="btn-container-grid">
+                    <button class="btn-style-danger btn-action font-16" @onclick="() => RemoveDevice(context.Id)">X</button>
+                </div>
+                <div class="btn-container-grid">
+                    <button class="btn-style-normal btn-action font-16" @onclick="() => ConfigureDevice(context)">Configure</button>
+                </div>
             </div>
-            
+
         </GridColumn>
     </Grid>
 </div>
@@ -49,48 +56,6 @@
         align-items: flex-end;
         margin-bottom: 8px;
     }
-    .login-input{
-        width: 220px;
-        height: 30px;
-        border: 3px solid black;
-        border-radius: 5px;
-        background: #F0F0F0;
-    }
-
-    .login-labelinput{
-        display: flex;
-        flex-direction: column;
-        margin-left: 10px;
-    }
-    .login-checkbox{
-        margin-top: 30px;
-    }
-    .login-checkbox-input{
-        border: 3px solid black;
-        border-radius: 15px;
-        background: #F0F0F0;
-    }
-
-    .login-label{
-        font-weight: bold;
-    }
-
-    .normal-btn {
-        padding: 0 10px;
-        border-radius: 5px;
-        color: #FFFFFF;
-        background-color: #0081C6;
-        border-color: #0081C6;
-        margin-left: 10px;
-    }
-    .danger-btn {
-        padding: 0 10px;
-        border-radius: 5px;
-        color: #FFFFFF;
-        background-color: #E10000;
-        border-color: #E10000;
-        margin-left: 10px;
-    }
 </style>
 
 @code{
@@ -99,10 +64,15 @@
     [Inject] public ISyslogService SyslogService { get; set; }
     [Inject] public IDatabaseService DatabaseService { get; set; }
     [Inject] public NavigationManager NavigationManager { get; set; }
-    
+
     BlazorBootstrap.Grid<PhysicalDevice> grid = default!;
     private IEnumerable<PhysicalDevice> _records = default!;
     private ConfirmDialog dialog = default!;
+    private ConfigureDeviceModal configureDeviceModal = default!;
+    private NewDeviceModelModal newDeviceModelModal = default!;
+    private NewLoginProfileModal _newLoginProfileModal = default!;
+
+    private PhysicalDevice ModalDevice = default!;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -121,9 +91,10 @@
         return DatabaseService.GetPhysicalDevices();
     }
 
-    private void CreateNewDevice()
+    private async void CreateNewDevice()
     {
-        
+        ModalDevice = new PhysicalDevice();
+        await configureDeviceModal.ShowModalAsync();
     }
 
     private async void RemoveDevice(Guid id)
@@ -133,12 +104,12 @@
         NavigationManager.NavigateTo(NavigationManager.Uri, true);
     }
 
-    private void ConfigureDevice(Guid id)
+    private async void ConfigureDevice(PhysicalDevice device)
     {
-        
+        ModalDevice = device;
+        await configureDeviceModal.ShowModalAsync();
     }
-    
-    
+
 
     private async Task<bool> ShowConfirmationAsync()
     {
@@ -157,4 +128,37 @@
 
         return confirmation;
     }
+
+    private async void OnApplyConfigureModal(PhysicalDevice obj)
+    {
+        DeviceService.AddPhysicalDevice(obj);
+        await configureDeviceModal.HideModalAsync();
+    }
+
+    private async void OnNewDevice()
+    {
+        await newDeviceModelModal.ShowModalAsync();
+    }
+
+    private async void OnNewProfile()
+    {
+        await _newLoginProfileModal.ShowModalAsync();
+    }
+
+    private async void OnApplyNewDeviceModal(Device obj)
+    {
+        var id = DatabaseService.AddDevice(obj);
+        obj.Id = id;
+        configureDeviceModal.AddNewDevice(obj);
+        await newDeviceModelModal.HideModalAsync();
+    }
+
+    private async void OnApplyNewLoginProfile(LoginProfile obj)
+    {
+        var id = DatabaseService.AddLoginProfile(obj);
+        obj.Id = id;
+        configureDeviceModal.AddNewProfile(obj);
+        await _newLoginProfileModal.HideModalAsync();
+    }
+
 }
