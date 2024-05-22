@@ -1,0 +1,77 @@
+﻿@using NetDeviceManager.Database.Tables
+@using NetDeviceManager.Lib.GlobalConstantsAndEnums
+@using NetDeviceManager.Lib.Model
+@using NetDeviceManager.Lib.Snmp.Utils
+@rendermode InteractiveServer
+<Modal @ref="modal" Title="Add Port">
+    <BodyTemplate>
+        <div style="margin: 30px; margin-top: 0">
+            <EditForm Model="Port" method="post" OnValidSubmit="SubmitForm" FormName="NewPort" class="modal-form">
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Ports in system:</label>
+                    <InputSelect TValue="Guid" Value="SelectedPortId" ValueExpression="() => SelectedPortId" ValueChanged="(value) => PortSelect(value)" class="input-modalform">
+                        @foreach (var port in PortsInSystem)
+                        {
+                            <option value="@port.Id">@($"{port.Number}({port.Protocol.ToString()})")</option>
+                        }
+                    </InputSelect>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Number<span class="important-symbol">*</span></label>
+                    <InputNumber @bind-Value="Port.Number" class="input-modalform font-16" placeholder="Enter name..."/>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Protocol<span class="important-symbol">*</span></label>
+                    <InputSelect TValue="CommunicationProtocol" Value="Port.Protocol" ValueExpression="() => Port.Protocol" ValueChanged="(value) => ProtocolSelected(value)" class="input-modalform">
+                        @foreach (var protocol in EnumUtil.GetValues<CommunicationProtocol>())
+                        {
+                            <option value="@protocol">@protocol.ToString()</option>
+                        }
+                    </InputSelect>
+                </div>
+                <div>
+                    <button type="submit" class="btn-apply btn-style-confirm font-16">Add</button>
+                </div>
+            </EditForm>
+        </div>
+    </BodyTemplate>
+</Modal>
+
+@code{
+    private Modal modal = default!;
+
+    [Parameter] public Port Port { get; set; }
+    private int _portNumber = 0;
+    public Guid SelectedPortId { get; set; }
+    [Parameter] public List<Port> PortsInSystem { get; set; }
+    [Parameter] public Action<Port> OnApply { get; set; }
+
+    public async Task ShowModalAsync()
+    {
+        await modal.ShowAsync();
+    }
+
+    public async Task HideModalAsync()
+    {
+        await modal.HideAsync();
+    }
+
+    private void SubmitForm()
+    {
+        OnApply?.Invoke(Port);
+    }
+
+    private void PortSelect(Guid id)
+    {
+        var selected = PortsInSystem.FirstOrDefault(x => x.Id == id);
+        if (selected == null)
+            return;
+        Port.Number = selected.Number;
+        Port.Protocol = selected.Protocol;
+    }
+
+    private void ProtocolSelected(CommunicationProtocol obj)
+    {
+        Port.Protocol = obj;
+    }
+}

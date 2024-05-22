@@ -3,7 +3,7 @@
 <Modal @ref="modal" Title="New login profile">
     <BodyTemplate>
         <div style="margin: 30px; margin-top: 0">
-            <EditForm Model="Profile" method="post" OnValidSubmit="Callback" FormName="Config" class="modal-form">
+            <EditForm Model="Profile" method="post" OnValidSubmit="SubmitForm" FormName="NewProfile" class="modal-form">
                 <div class="labelinput-modalform">
                     <label class="label-menu font-16">Name<span class="important-symbol">*</span></label>
                     <InputText @bind-Value="Profile.Name" class="input-modalform font-16"
@@ -73,7 +73,7 @@
     }
     
 
-    private void Callback()
+    private void SubmitForm()
     {
         OnApply?.Invoke(Profile);
     }

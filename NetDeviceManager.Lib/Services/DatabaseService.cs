@@ -156,6 +156,15 @@ public class DatabaseService : IDatabaseService
         return id;
     }
 
+    public void UpdatePhysicalDevice(PhysicalDevice model)
+    {
+        if (_database.PhysicalDevices.Any(x => x.Id == model.Id))
+        {
+            _database.PhysicalDevices.Update(model);
+            _database.SaveChanges();
+        }
+    }
+
     public List<Device> GetDevices()
     {
         return _database.Devices.ToList();
@@ -285,7 +294,7 @@ public class DatabaseService : IDatabaseService
             query = query.Where(x => x.Sensor.Name == model.SensorName);
         }
 
-        return query.Take(count).ToList();
+        return query.OrderByDescending(x =>x.CapturedTime).Take(count).ToList();
     }
 
     public List<SyslogRecord> GetSyslogRecordsWithFilter(SyslogRecordFilterModel model, int count)
@@ -311,12 +320,17 @@ public class DatabaseService : IDatabaseService
             query = query.Where(x => x.Severity == model.Severity);
         }
 
-        return query.Take(count).ToList();
+        return query.OrderByDescending(x =>x.ProcessedDate).Take(count).ToList();
     }
 
     public List<DeviceIcon> GetIcons()
     {
         return _database.DeviceIcons.ToList();
+    }
+
+    public List<Port> GetPortsInSystem()
+    {
+        return _database.Ports.ToList();
     }
 
     public OperationResult DeletePhysicalDevice(Guid id)
@@ -343,8 +357,48 @@ public class DatabaseService : IDatabaseService
         return new OperationResult();
     }
 
+    public OperationResult RemovePortFromDevice(Guid id)
+    {
+        var record = _database.PhysicalDevicesHasPorts.FirstOrDefault(x => x.Id == id);
+        if (record != null)
+        {
+            _database.PhysicalDevicesHasPorts.Remove(record);
+            _database.SaveChanges();
+            return new OperationResult();
+        }
+
+        return new OperationResult() { IsSuccessful = false, Message = "Cannot remove port" };
+    }
+
     public bool AnyPhysicalDeviceWithIp(string ip)
     {
         return _database.PhysicalDevices.Any(x => x.IpAddress == ip);
+    }
+
+    public bool PortExists(Port port, out Guid id)
+    {
+        var existing = _database.Ports.FirstOrDefault(x => x.Number == port.Number && x.Protocol == port.Protocol);
+        if (existing == null)
+        {
+            id = new Guid();
+            return false;
+        }
+
+        id = existing.Id;
+        return true;
+    }
+
+    public bool PortAddDeviceRelationExists(Guid portId, Guid deviceId, out Guid id)
+    {
+        var existing =
+            _database.PhysicalDevicesHasPorts.FirstOrDefault(x => x.DeviceId == deviceId && x.PortId == portId);
+        if (existing == null)
+        {
+            id = new Guid();
+            return false;
+        }
+
+        id = existing.Id;
+        return true;
     }
 }

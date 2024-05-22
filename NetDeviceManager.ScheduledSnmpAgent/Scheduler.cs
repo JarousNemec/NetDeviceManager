@@ -116,14 +116,9 @@ public class Scheduler
 
     private async Task ScheduleSnmpGetJob(SchedulerJob registeredJob, string readersGroup)
     {
-        var port = _databaseService.GetPortInPhysicalDevices(registeredJob.PhysicalDeviceId)
-            .FirstOrDefault(x => x.Port.Protocol == CommunicationProtocol.SNMP)?.Port;
+        var port = GetSnmpPort(registeredJob);
+        if (port == null) return;
         var loginProfile = _databaseService.GetPhysicalDeviceLoginProfile(registeredJob.PhysicalDevice.LoginProfileId);
-        if (port == null)
-        {
-            return;
-        }
-
         string id = registeredJob.Id.ToString();
 
         var sensorsInPhysicalDevice = _databaseService.GetSensorsOfPhysicalDevice(registeredJob.PhysicalDeviceId);
@@ -138,5 +133,18 @@ public class Scheduler
 
             await _scheduler.ScheduleJob(job, trigger);
         }
+    }
+
+    private Port? GetSnmpPort(SchedulerJob registeredJob)
+    {
+        var port = _databaseService.GetPortInPhysicalDevices(registeredJob.PhysicalDeviceId)
+            .FirstOrDefault(x => x.Port.Protocol == CommunicationProtocol.SNMP)?.Port;
+        if (port == null)
+        {
+            var defaultPorts = _databaseService.GetPortInPhysicalDevices(new Guid());
+            port = defaultPorts.FirstOrDefault(x => x.Port.Protocol == CommunicationProtocol.SNMP)?.Port;
+        }
+
+        return port;
     }
 }

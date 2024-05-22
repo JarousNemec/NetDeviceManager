@@ -37,6 +37,12 @@ public interface IDatabaseService
 
     #endregion
 
+    #region Update
+
+    void UpdatePhysicalDevice(PhysicalDevice model);
+
+    #endregion
+
     #region Read
 
     List<Device> GetDevices();
@@ -74,17 +80,22 @@ public interface IDatabaseService
 
     List<DeviceIcon> GetIcons();
 
+    List<Port> GetPortsInSystem();
+
     #endregion
 
     #region Delete
 
     OperationResult DeletePhysicalDevice(Guid id);
+    OperationResult RemovePortFromDevice(Guid id);
 
     #endregion
 
     #region Special
 
     bool AnyPhysicalDeviceWithIp(string ip);
+    bool PortExists(Port port, out Guid id);
 
+    bool PortAddDeviceRelationExists(Guid portId, Guid deviceId, out Guid id);
     #endregion
 }

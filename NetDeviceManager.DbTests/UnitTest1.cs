@@ -199,7 +199,7 @@ public class Tests
     {
         return new DeviceIcon()
         {
-            Id = Guid.NewGuid(), Name = $"TempIcon_{Guid.NewGuid()}", FilePath = ""
+            Id = Guid.NewGuid(), Name = $"TempIcon_{Guid.NewGuid()}"
         };
     }
 

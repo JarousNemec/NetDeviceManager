@@ -8,10 +8,12 @@ namespace NetDeviceManager.Lib.Services;
 public class DeviceService : IDeviceService
 {
     private readonly IDatabaseService _database;
+    private readonly IFileStorageService _fileStorageService;
 
-    public DeviceService(IDatabaseService database)
+    public DeviceService(IDatabaseService database, IFileStorageService fileStorageService)
     {
         _database = database;
+        _fileStorageService = fileStorageService;
     }
 
     #region CreateMethods
@@ -21,20 +23,34 @@ public class DeviceService : IDeviceService
         throw new NotImplementedException();
     }
 
-    public OperationResult AddPhysicalDevice(PhysicalDevice model)
+    public OperationResult UpsertPhysicalDevice(PhysicalDevice model, out Guid id)
     {
-        if (!_database.AnyPhysicalDeviceWithIp(model.IpAddress))
+        if (model.Id != new Guid())
         {
-            _database.AddPhysicalDevice(model);
+            _database.UpdatePhysicalDevice(model);
+            id = model.Id;
             return new OperationResult();
         }
 
+        if (!_database.AnyPhysicalDeviceWithIp(model.IpAddress))
+        {
+            id = _database.AddPhysicalDevice(model);
+            return new OperationResult();
+        }
+
+        id = default;
         return new OperationResult() { IsSuccessful = false, Message = "Device ip is already assigned!" };
     }
 
-    public OperationResult AddDeviceIcon(CreateDeviceIconModel model)
+    public DeviceIcon AddDeviceIcon(CreateDeviceIconModel model)
     {
-        throw new NotImplementedException();
+        var icon = new DeviceIcon();
+        icon.Name = model.Name;
+        icon.Description = model.Description;
+        var id = _database.AddDeviceIcon(icon);
+        _fileStorageService.SaveIconFile(id, model.File);
+        icon.Id = id;
+        return icon;
     }
 
     public OperationResult AddLoginProfile(CreateLoginProfileModel model)
@@ -42,11 +58,26 @@ public class DeviceService : IDeviceService
         throw new NotImplementedException();
     }
 
-    public OperationResult AddPort(Port model)
+    public OperationResult AddPortToDevice(Port model, Guid deviceId)
     {
-        throw new NotImplementedException();
-    }
+        Guid portId;
+        if (!_database.PortExists(model, out portId))
+        {
+            portId = _database.AddPort(model);
+        }
 
+        if (!_database.PortAddDeviceRelationExists(portId, deviceId, out _))
+        {
+            var relationship = new PhysicalDeviceHasPort()
+            {
+                DeviceId = deviceId,
+                PortId = portId
+            };
+            _database.AddPortToPhysicalDevice(relationship);
+        }
+
+        return new OperationResult();
+    }
     #endregion
 
     #region GetMethods

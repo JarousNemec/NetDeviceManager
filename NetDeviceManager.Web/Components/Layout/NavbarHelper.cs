@@ -6,7 +6,7 @@ public class NavbarHelper
 
     public string SelectedTabName { get; set; }
 
-    public event SelectedNavbarChange OnSelectedNavbarChange;
+    public event SelectedNavbarChange? OnSelectedNavbarChange;
 
     public NavbarHelper()
     {
@@ -15,6 +15,6 @@ public class NavbarHelper
 
     public void SelectedChange(string name)
     {
-        OnSelectedNavbarChange.Invoke(name);
+        OnSelectedNavbarChange?.Invoke(name);
     }
 }

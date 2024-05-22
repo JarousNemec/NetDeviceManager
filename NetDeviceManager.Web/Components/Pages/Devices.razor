@@ -4,21 +4,24 @@
 @using NetDeviceManager.Lib.Snmp.Interfaces
 
 @using NetDeviceManager.Lib.Interfaces
+@using NetDeviceManager.Lib.Model
 @using NetDeviceManager.Web.Components.Modals
 @rendermode InteractiveServer
 @attribute [Authorize]
 <PageTitle>devices</PageTitle>
-<ConfirmDialog @ref="dialog"/>
-<ConfigureDeviceModal @ref="configureDeviceModal" Device="ModalDevice" Devices="@DatabaseService.GetDevices()" LoginProfiles="@DatabaseService.GetLoginProfiles()" OnApply="OnApplyConfigureModal" OnNewDevice="OnNewDevice" OnNewProfile="OnNewProfile"/>
-<NewDeviceModelModal @ref="newDeviceModelModal" Device="new Device()" Icons="@DatabaseService.GetIcons()" OnApply="OnApplyNewDeviceModal"></NewDeviceModelModal>
+<ConfirmDialog @ref="_confirmDialog"/>
+<ConfigureDeviceModal @ref="_configureDeviceModal" Devices="DevicesList" LoginProfiles="ProfilesList" OnApply="OnApplyConfigureModal" OnNewDevice="OnNewDevice" OnNewProfile="OnNewProfile" SpecialDevicePorts="DevicesPorts" OnNewPort="OnNewPort" OnRemovePort="OnRemovePort"/>
+<NewDeviceModelModal @ref="_newDeviceModelModal" Device="new Device()" Icons="IconsList" OnApply="OnApplyNewDeviceModal" OnNewIcon="OnNewIcon"></NewDeviceModelModal>
 <NewLoginProfileModal @ref="_newLoginProfileModal" Profile="new LoginProfile()" OnApply="OnApplyNewLoginProfile"></NewLoginProfileModal>
+<NewIconModal @ref="_newIconModal" Icon="new CreateDeviceIconModel()" OnApply="OnApplyNewDeviceIcon"></NewIconModal>
+<AddPortModal @ref="_addPortModal" Port="new Port()" OnApply="OnApplyNewPort" PortsInSystem="PortsInSystem"></AddPortModal>
 <div>
     <h2>Devices</h2>
     <div class="actions-div">
         <button class="btn-style-normal btn-action font-16" @onclick="CreateNewDevice">New device</button>
     </div>
 
-    <Grid @ref="grid"
+    <Grid @ref="_grid"
           TItem="PhysicalDevice"
           Class="table table-hover table-bordered table-striped"
           DataProvider="RecordsDataProvider"
@@ -65,14 +68,44 @@
     [Inject] public IDatabaseService DatabaseService { get; set; }
     [Inject] public NavigationManager NavigationManager { get; set; }
 
-    BlazorBootstrap.Grid<PhysicalDevice> grid = default!;
+    private Grid<PhysicalDevice> _grid = default!;
     private IEnumerable<PhysicalDevice> _records = default!;
-    private ConfirmDialog dialog = default!;
-    private ConfigureDeviceModal configureDeviceModal = default!;
-    private NewDeviceModelModal newDeviceModelModal = default!;
+    private ConfirmDialog _confirmDialog = default!;
+    private ConfigureDeviceModal _configureDeviceModal = default!;
+    private NewDeviceModelModal _newDeviceModelModal = default!;
     private NewLoginProfileModal _newLoginProfileModal = default!;
+    private NewIconModal _newIconModal = default!;
+    private AddPortModal _addPortModal = default!;
 
-    private PhysicalDevice ModalDevice = default!;
+    private List<Device> DevicesList = default!;
+    private List<PhysicalDeviceHasPort> DevicesPorts = default!;
+    private List<LoginProfile> ProfilesList = default!;
+    private List<DeviceIcon> IconsList = default!;
+    private List<Port> PortsInSystem = default!;
+
+    private PhysicalDevice _tempPhDevice = default!;
+    private Device _tempDevice = default!;
+    private List<Port> _tempDevicePorts = default!;
+
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            UpdateCurrentData();
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void UpdateCurrentData()
+    {
+        DevicesList = DatabaseService.GetDevices();
+        ProfilesList = DatabaseService.GetLoginProfiles();
+        IconsList = DatabaseService.GetIcons();
+        PortsInSystem = DatabaseService.GetPortsInSystem();
+        DevicesPorts = new List<PhysicalDeviceHasPort>();
+        _tempDevicePorts = new List<Port>();
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -81,8 +114,7 @@
 
     private async Task<GridDataProviderResult<PhysicalDevice>> RecordsDataProvider(GridDataProviderRequest<PhysicalDevice> request)
     {
-        if (_records is null) // pull employees only one time for client-side filtering, sorting, and paging
-            _records = GetRecords(); // call a service or an API to pull the employees
+        _records = GetRecords();
         return await Task.FromResult(request.ApplyTo(_records));
     }
 
@@ -93,8 +125,8 @@
 
     private async void CreateNewDevice()
     {
-        ModalDevice = new PhysicalDevice();
-        await configureDeviceModal.ShowModalAsync();
+        _configureDeviceModal.Device = new PhysicalDevice();
+        await _configureDeviceModal.ShowModalAsync();
     }
 
     private async void RemoveDevice(Guid id)
@@ -106,8 +138,103 @@
 
     private async void ConfigureDevice(PhysicalDevice device)
     {
-        ModalDevice = device;
-        await configureDeviceModal.ShowModalAsync();
+        _configureDeviceModal.Device = device;
+        DevicesPorts = DatabaseService.GetPortInPhysicalDevices(device.Id);
+        _configureDeviceModal.SpecialDevicePorts = new List<PhysicalDeviceHasPort>();
+        foreach (var port in DevicesPorts)
+        {
+            _configureDeviceModal.AddNewPort(port);
+        }
+        await _configureDeviceModal.ShowModalAsync();
+    }
+
+    private async void OnApplyConfigureModal(PhysicalDevice obj)
+    {
+        var result = DeviceService.UpsertPhysicalDevice(obj, out Guid deviceId);
+        foreach (var tempDevicePort in _tempDevicePorts)
+        {
+            result = DeviceService.AddPortToDevice(tempDevicePort, deviceId);
+        }
+
+        await _configureDeviceModal.HideModalAsync();
+        UpdateCurrentData();
+        NavigationManager.NavigateTo(NavigationManager.Uri, true);
+    }
+
+    private async void OnNewDevice(PhysicalDevice obj)
+    {
+        _tempPhDevice = obj;
+        await _configureDeviceModal.HideModalAsync();
+        await _newDeviceModelModal.ShowModalAsync();
+    }
+
+    private async void OnNewProfile(PhysicalDevice obj)
+    {
+        _tempPhDevice = obj;
+        await _configureDeviceModal.HideModalAsync();
+        await _newLoginProfileModal.ShowModalAsync();
+    }
+
+    private async void OnNewPort(PhysicalDevice obj)
+    {
+        _tempPhDevice = obj;
+        await _configureDeviceModal.HideModalAsync();
+        await _addPortModal.ShowModalAsync();
+    }
+
+    private async void OnNewIcon(Device obj)
+    {
+        _tempDevice = obj;
+        await _newDeviceModelModal.HideModalAsync();
+        await _newIconModal.ShowModalAsync();
+    }
+
+    private void OnRemovePort(PhysicalDeviceHasPort relation)
+    {
+        var tempPort = _tempDevicePorts.FirstOrDefault(x => x.Number == relation.Port.Number && x.Protocol == relation.Port.Protocol);
+        if (tempPort != null)
+            _tempDevicePorts.Remove(tempPort);
+        else
+            DatabaseService.RemovePortFromDevice(relation.Id);
+    }
+
+
+    private async void OnApplyNewDeviceModal(Device obj)
+    {
+        var id = DatabaseService.AddDevice(obj);
+        obj.Id = id;
+        _configureDeviceModal.AddNewDevice(obj);
+        await _newDeviceModelModal.HideModalAsync();
+        _configureDeviceModal.Device = _tempPhDevice;
+        await _configureDeviceModal.ShowModalAsync();
+    }
+
+    private async void OnApplyNewLoginProfile(LoginProfile obj)
+    {
+        var id = DatabaseService.AddLoginProfile(obj);
+        obj.Id = id;
+        _configureDeviceModal.AddNewProfile(obj);
+        await _newLoginProfileModal.HideModalAsync();
+        _configureDeviceModal.Device = _tempPhDevice;
+        await _configureDeviceModal.ShowModalAsync();
+    }
+
+    private async void OnApplyNewDeviceIcon(CreateDeviceIconModel obj)
+    {
+        var icon = DeviceService.AddDeviceIcon(obj);
+        _newDeviceModelModal.AddNewIcon(icon);
+        await _newIconModal.HideModalAsync();
+        _newDeviceModelModal.Device = _tempDevice;
+        await _newDeviceModelModal.ShowModalAsync();
+    }
+
+    private async void OnApplyNewPort(Port obj)
+    {
+        _tempDevicePorts.Add(obj);
+        _configureDeviceModal.AddNewPort(new PhysicalDeviceHasPort() { Port = obj });
+        await _addPortModal.HideModalAsync();
+        _configureDeviceModal.Device = _tempPhDevice;
+        await _configureDeviceModal.ShowModalAsync();
     }
 
 
@@ -121,44 +248,12 @@
             NoButtonColor = ButtonColor.Danger
         };
 
-        var confirmation = await dialog.ShowAsync(
+        var confirmation = await _confirmDialog.ShowAsync(
             title: "Confirm dialog",
             message1: "Are u sure u wanna to do it?",
             confirmDialogOptions: options);
 
         return confirmation;
-    }
-
-    private async void OnApplyConfigureModal(PhysicalDevice obj)
-    {
-        DeviceService.AddPhysicalDevice(obj);
-        await configureDeviceModal.HideModalAsync();
-    }
-
-    private async void OnNewDevice()
-    {
-        await newDeviceModelModal.ShowModalAsync();
-    }
-
-    private async void OnNewProfile()
-    {
-        await _newLoginProfileModal.ShowModalAsync();
-    }
-
-    private async void OnApplyNewDeviceModal(Device obj)
-    {
-        var id = DatabaseService.AddDevice(obj);
-        obj.Id = id;
-        configureDeviceModal.AddNewDevice(obj);
-        await newDeviceModelModal.HideModalAsync();
-    }
-
-    private async void OnApplyNewLoginProfile(LoginProfile obj)
-    {
-        var id = DatabaseService.AddLoginProfile(obj);
-        obj.Id = id;
-        configureDeviceModal.AddNewProfile(obj);
-        await _newLoginProfileModal.HideModalAsync();
     }
 
 }

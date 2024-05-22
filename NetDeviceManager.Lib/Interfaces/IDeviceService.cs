@@ -6,45 +6,44 @@ namespace NetDeviceManager.Lib.Interfaces;
 public interface IDeviceService
 {
     //Create
-    public OperationResult AddDevice(CreateDeviceModel model);
-    public OperationResult AddPhysicalDevice(PhysicalDevice model);
-    public OperationResult AddDeviceIcon(CreateDeviceIconModel model);
-    public OperationResult AddLoginProfile(CreateLoginProfileModel model);
+    OperationResult AddDevice(CreateDeviceModel model);
+    OperationResult UpsertPhysicalDevice(PhysicalDevice model, out Guid id);
+    DeviceIcon AddDeviceIcon(CreateDeviceIconModel model);
+    OperationResult AddLoginProfile(CreateLoginProfileModel model);
 
-    public OperationResult AddPort(Port model);
-    
+    OperationResult AddPortToDevice(Port model, Guid deviceId);
     //Read
-    public int GetOnlineDevicesCount();
-    public List<PhysicalDevice> GetOnlineDevices();
-    
-    public int GetOfflineDevicesCount();
-    public List<PhysicalDevice> GetOfflineDevices();
-    
-    public List<Device> GetDevices();
-    public List<PhysicalDevice> GetPhysicalDevices();
-    public List<DeviceIcon> GetDevicesIcons();
-    public List<LoginProfile> GetLoginProfiles();
-    
-    public Device GetDevice(Guid id);
-    public PhysicalDevice GetPhysicalDevice(Guid id);
-    public DeviceIcon GetDeviceIcon(Guid id);
-    public LoginProfile GetLoginProfile(Guid id);
+    int GetOnlineDevicesCount();
+    List<PhysicalDevice> GetOnlineDevices();
 
-    public Port GetPort(Guid id);
-    
+    int GetOfflineDevicesCount();
+    List<PhysicalDevice> GetOfflineDevices();
+
+    List<Device> GetDevices();
+    List<PhysicalDevice> GetPhysicalDevices();
+    List<DeviceIcon> GetDevicesIcons();
+    List<LoginProfile> GetLoginProfiles();
+
+    Device GetDevice(Guid id);
+    PhysicalDevice GetPhysicalDevice(Guid id);
+    DeviceIcon GetDeviceIcon(Guid id);
+    LoginProfile GetLoginProfile(Guid id);
+
+    Port GetPort(Guid id);
+
     //Update
-    public OperationResult UpdateDevice(Guid id, CreateDeviceModel model);
-    public OperationResult UpdatePhysicalDevice(Guid id, PhysicalDevice model);
-    public OperationResult UpdateDeviceIcon(Guid id, CreateDeviceIconModel model);
-    public OperationResult UpdateLoginProfile(Guid id, CreateLoginProfileModel model);
+    OperationResult UpdateDevice(Guid id, CreateDeviceModel model);
+    OperationResult UpdatePhysicalDevice(Guid id, PhysicalDevice model);
+    OperationResult UpdateDeviceIcon(Guid id, CreateDeviceIconModel model);
+    OperationResult UpdateLoginProfile(Guid id, CreateLoginProfileModel model);
 
-    public OperationResult UpdatePort(Port model);
-    
+    OperationResult UpdatePort(Port model);
+
     //Delete
-    public OperationResult DeleteDevice(Guid id);
-    public OperationResult DeletePhysicalDevice(Guid id);
-    public OperationResult DeleteDeviceIcon(Guid id);
-    public OperationResult DeleteLoginProfile(Guid id);
+    OperationResult DeleteDevice(Guid id);
+    OperationResult DeletePhysicalDevice(Guid id);
+    OperationResult DeleteDeviceIcon(Guid id);
+    OperationResult DeleteLoginProfile(Guid id);
 
-    public OperationResult DeletePort(Guid id);
+    OperationResult DeletePort(Guid id);
 }

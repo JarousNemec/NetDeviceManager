@@ -1,5 +1,56 @@
-﻿<h3>NewIconModal</h3>
+﻿@using NetDeviceManager.Database.Tables
+@using NetDeviceManager.Lib.Model
+@rendermode InteractiveServer
+<Modal @ref="modal" Title="New Icon">
+    <BodyTemplate>
+        <div style="margin: 30px; margin-top: 0">
+            <EditForm Model="Icon" method="post" OnValidSubmit="SubmitForm" FormName="NewIcon" class="modal-form">
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Name<span class="important-symbol">*</span></label>
+                    <InputText @bind-Value="Icon.Name" class="input-modalform font-16"
+                               placeholder="Enter name..."/>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Description</label>
+                    <InputText @bind-Value="Icon.Description" class="input-modalform font-16"
+                               placeholder="Enter description..."/>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Icon file (any image file type)<span class="important-symbol">*</span></label>
+                    <InputFile class="input-modalform font-16" OnChange="UploadFile"></InputFile>
+                </div>
+                <div>
+                    <button type="submit" class="btn-apply btn-style-confirm font-16">Apply</button>
+                </div>
+            </EditForm>
+        </div>
+    </BodyTemplate>
+</Modal>
 
-@code {
-    
+@code{
+    private Modal modal = default!;
+
+    [Parameter] public CreateDeviceIconModel Icon { get; set; }
+    [Parameter] public Action<CreateDeviceIconModel> OnApply { get; set; }
+
+    public async Task ShowModalAsync()
+    {
+        await modal.ShowAsync();
+    }
+
+    public async Task HideModalAsync()
+    {
+        await modal.HideAsync();
+    }
+
+    private void SubmitForm()
+    {
+        OnApply?.Invoke(Icon);
+    }
+
+    private void UploadFile(InputFileChangeEventArgs e)
+    {
+        Icon.File = e.File;
+    }
+
 }

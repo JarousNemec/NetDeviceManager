@@ -14,13 +14,12 @@
                         Home
                     </a>
                 </div>
-
-                <div class="nav-link @(NavbarHelper.SelectedTabName == "map" ? "active" : "")" onclick="@(() => { SetSelectedLink("map"); })">
-                    <a href="map" class="nav-link-item">
-                        Map
-                    </a>
-                </div>
-
+                @* *@
+                @* <div class="nav-link @(NavbarHelper.SelectedTabName == "map" ? "active" : "")" onclick="@(() => { SetSelectedLink("map"); })"> *@
+                @*     <a href="map" class="nav-link-item"> *@
+                @*         Map *@
+                @*     </a> *@
+                @* </div> *@
                 <div class="nav-link-dropdown" onclick="@(() => { SetSelectedLink("snmp"); })">
                     <Dropdown>
                         <DropdownToggleButton Color="ButtonColor.None"><span class="font-18">Snmp</span></DropdownToggleButton>

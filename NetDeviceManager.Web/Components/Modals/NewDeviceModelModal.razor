@@ -3,7 +3,7 @@
 <Modal @ref="modal" Title="New model">
     <BodyTemplate>
         <div style="margin: 30px; margin-top: 0">
-            <EditForm Model="Device" method="post" OnValidSubmit="Callback" FormName="Config" class="modal-form">
+            <EditForm Model="Device" method="post" OnValidSubmit="SubmitForm" FormName="NewDevice" class="modal-form">
                 <div class="labelinput-modalform">
                     <label class="label-menu font-16">Name<span class="important-symbol">*</span></label>
                     <InputText @bind-Value="Device.Name" class="input-modalform font-16"
@@ -29,11 +29,11 @@
                     <InputSelect id="department" @bind-Value="Device.IconId" class="input-modalform">
                         @foreach (var icon in Icons)
                         {
-                            <option value="@icon.Id">@($"{icon.Name})")</option>
+                            <option value="@icon.Id">@($"{icon.Name}")</option>
                         }
                     </InputSelect>
                     <div class="btn-container-modalform">
-                        <button class="btn-action btn-style-normal font-16" @onclick="() => OnNewIcon?.Invoke()">
+                        <button class="btn-action btn-style-normal font-16" @onclick="() => OnNewIcon?.Invoke(Device)">
                             New icon
                         </button>
                     </div>
@@ -51,7 +51,7 @@
 
     [Parameter] public Device Device { get; set; }
     [Parameter] public Action<Device> OnApply { get; set; }
-    [Parameter] public Action OnNewIcon { get; set; }
+    [Parameter] public Action<Device> OnNewIcon { get; set; }
     [Parameter] public List<DeviceIcon> Icons { get; set; }
 
     public void AddNewIcon(DeviceIcon icon)
@@ -69,7 +69,7 @@
         await modal.HideAsync();
     }
 
-    private void Callback()
+    private void SubmitForm()
     {
         OnApply?.Invoke(Device);
     }

@@ -1,14 +1,10 @@
 ﻿@page "/snmprecords"
 @using Microsoft.AspNetCore.Authorization
-@using Microsoft.EntityFrameworkCore.Storage
 @using NetDeviceManager.Database.Models
 @using NetDeviceManager.Database.Tables
 @using NetDeviceManager.Lib.Snmp.Interfaces
-@using NetDeviceManager.Web.Components.Layout
 
 @using NetDeviceManager.Lib.Interfaces
-@using NetDeviceManager.Lib.Model
-@using NetDeviceManager.Web.Models
 @attribute [Authorize]
 @rendermode InteractiveServer
 <PageTitle>Snmp records</PageTitle>
