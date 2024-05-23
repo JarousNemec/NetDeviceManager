@@ -4,10 +4,12 @@
     <BodyTemplate>
         <div style="margin: 30px; margin-top: 0">
             <EditForm Model="Device" method="post" OnValidSubmit="SubmitForm" FormName="Config" class="modal-form">
+                <DataAnnotationsValidator />
                 <div class="labelinput-modalform">
                     <label class="label-menu font-16">Name<span class="important-symbol">*</span></label>
                     <InputText @bind-Value="Device.Name" class="input-modalform font-16"
                                placeholder="Enter your device name..."/>
+                    <ValidationMessage For="() => Device.Name"/>
                 </div>
                 <div class="labelinput-modalform">
                     <label class="label-menu font-16">Description</label>
@@ -18,6 +20,7 @@
                     <label class="label-menu font-16">Ip Address<span class="important-symbol">*</span></label>
                     <InputText @bind-Value="Device.IpAddress" class="input-modalform font-16"
                                placeholder="Enter device ip address..."/>
+                    <ValidationMessage For="() => Device.IpAddress"/>
                 </div>
                 <div class="labelinput-modalform">
                     <label class="label-menu font-16">Mac Address</label>
@@ -32,6 +35,7 @@
                             <option value="@device.Id">@($"{device.Name}({device.Model})")</option>
                         }
                     </InputSelect>
+                    <ValidationMessage For="() => Device.DeviceId"/>
                     <div class="btn-container-modalform">
                         <button class="btn-action btn-style-normal font-16" @onclick="() => OnNewDevice?.Invoke(Device)">
                             New device
@@ -46,6 +50,7 @@
                             <option value="@profile.Id">@profile.Name</option>
                         }
                     </InputSelect>
+                    <ValidationMessage For="() => Device.LoginProfileId"/>
                     <div class="btn-container-modalform">
                         <button class="btn-action btn-style-normal font-16" @onclick="() => OnNewProfile?.Invoke(Device)">
                             New
@@ -112,7 +117,7 @@
         OnRemovePort?.Invoke(port);
         SpecialDevicePorts.Remove(port);
         await _grid.RefreshDataAsync();
-        StateHasChanged();
+        await InvokeAsync(StateHasChanged);
     }
 
     public void AddNewDevice(Device device)
@@ -130,14 +135,12 @@
     public async void AddNewPort(PhysicalDeviceHasPort port)
     {
         SpecialDevicePorts.Add(port);
-        await _grid.RefreshDataAsync();
         await InvokeAsync(StateHasChanged);
     }
 
     public async Task ShowModalAsync()
     {
         await modal.ShowAsync();
-        await _grid.RefreshDataAsync();
         await InvokeAsync(StateHasChanged);
     }
 

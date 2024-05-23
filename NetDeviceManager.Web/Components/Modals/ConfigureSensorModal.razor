@@ -1,5 +1,98 @@
-﻿<h3>ConfigureSensorModal</h3>
+﻿@using Lextm.SharpSnmpLib
+@using NetDeviceManager.Database.Tables
+@using NetDeviceManager.Lib.Snmp.Utils
+@rendermode InteractiveServer
+<Modal @ref="modal" Title="Configure sensor">
+    <BodyTemplate>
+        <div style="margin: 30px; margin-top: 0">
+            <EditForm Model="Sensor" method="post" OnValidSubmit="SubmitForm" FormName="NewPort" class="modal-form">
+                <DataAnnotationsValidator />
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Name<span class="important-symbol">*</span></label>
+                    <InputText @bind-Value="Sensor.Name" class="input-modalform font-16"
+                               placeholder="Enter sensor name..."/>
+                    <ValidationMessage For="() => Sensor.Name"/>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Description</label>
+                    <InputText @bind-Value="Sensor.Description" class="input-modalform font-16"
+                               placeholder="Enter sensor description..."/>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Oid<span class="important-symbol">*</span></label>
+                    <InputText @bind-Value="Sensor.Oid" class="input-modalform font-16"
+                               placeholder="Enter sensor oid..."/>
+                    <ValidationMessage For="() => Sensor.Oid"/>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Snmp Version<span class="important-symbol">*</span></label>
+                    <InputSelect TValue="VersionCode" Value="_selectedSnmpVersion" ValueExpression="() => _selectedSnmpVersion" ValueChanged="(value) => SelectSnmpVersion(value)" class="input-modalform">
+                        @foreach (var versionCode in EnumUtil.GetValues<VersionCode>())
+                        {
+                            <option value="@versionCode">@versionCode.ToString()</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="() => Sensor.SnmpVersion"/>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Community string<span class="important-symbol">*</span></label>
+                    <InputText @bind-Value="Sensor.CommunityString" class="input-modalform font-16"
+                               placeholder="Enter community string..."/>
+                    <ValidationMessage For="() => Sensor.CommunityString"/>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Has sensor interval<span class="important-symbol">*</span></label>
+                    <InputCheckbox @bind-Value="Sensor.IsMulti" class="login-checkbox-input"/>
+                    <ValidationMessage For="() => Sensor.IsMulti"/>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Oid filling</label>
+                    <InputText @bind-Value="Sensor.OidFilling" class="input-modalform font-16"
+                               placeholder="Enter oid filling if necessary..."/>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Start index</label>
+                    <InputNumber @bind-Value="Sensor.StartIndex" class="input-modalform font-16" placeholder="Enter sensor start index if necessary..."/>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">End index</label>
+                    <InputNumber @bind-Value="Sensor.EndIndex" class="input-modalform font-16" placeholder="Enter sensor end index if necessary..."/>
+                </div>
+                <div>
+                    <button type="submit" class="btn-apply btn-style-confirm font-16">Apply</button>
+                </div>
+            </EditForm>
+        </div>
+    </BodyTemplate>
+</Modal>
 
-@code {
-    
+@code{
+    private Modal modal = default!;
+
+    public SnmpSensor Sensor { get; set; }
+    private VersionCode _selectedSnmpVersion = VersionCode.V2;
+    [Parameter] public Action<SnmpSensor> OnApply { get; set; }
+
+    public async Task ShowModalAsync()
+    {
+        await modal.ShowAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public async Task HideModalAsync()
+    {
+        await modal.HideAsync();
+    }
+
+    private void SubmitForm()
+    {
+        OnApply?.Invoke(Sensor);
+    }
+
+    private void SelectSnmpVersion(VersionCode value)
+    {
+        _selectedSnmpVersion = value;
+        Sensor.SnmpVersion = value;
+    }
+
 }

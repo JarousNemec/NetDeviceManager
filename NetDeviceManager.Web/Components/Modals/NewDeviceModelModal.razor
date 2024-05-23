@@ -4,10 +4,12 @@
     <BodyTemplate>
         <div style="margin: 30px; margin-top: 0">
             <EditForm Model="Device" method="post" OnValidSubmit="SubmitForm" FormName="NewDevice" class="modal-form">
+                <DataAnnotationsValidator />
                 <div class="labelinput-modalform">
                     <label class="label-menu font-16">Name<span class="important-symbol">*</span></label>
                     <InputText @bind-Value="Device.Name" class="input-modalform font-16"
                                placeholder="Enter name..."/>
+                    <ValidationMessage For="() => Device.Name"/>
                 </div>
                 <div class="labelinput-modalform">
                     <label class="label-menu font-16">Description</label>
@@ -18,11 +20,13 @@
                     <label class="label-menu font-16">Model<span class="important-symbol">*</span></label>
                     <InputText @bind-Value="Device.Model" class="input-modalform font-16"
                                placeholder="Enter device ip address..."/>
+                    <ValidationMessage For="() => Device.Model"/>
                 </div>
                 <div class="labelinput-modalform">
                     <label class="label-menu font-16">Brand<span class="important-symbol">*</span></label>
                     <InputText @bind-Value="Device.Brand" class="input-modalform font-16"
                                placeholder="Enter device mac address..."/>
+                    <ValidationMessage For="() => Device.Brand"/>
                 </div>
                 <div class="labelinput-modalform">
                     <label class="label-menu font-16">Select device icon:</label>

@@ -7,6 +7,7 @@
     <BodyTemplate>
         <div style="margin: 30px; margin-top: 0">
             <EditForm Model="Port" method="post" OnValidSubmit="SubmitForm" FormName="NewPort" class="modal-form">
+                <DataAnnotationsValidator />
                 <div class="labelinput-modalform">
                     <label class="label-menu font-16">Ports in system:</label>
                     <InputSelect TValue="Guid" Value="SelectedPortId" ValueExpression="() => SelectedPortId" ValueChanged="(value) => PortSelect(value)" class="input-modalform">
@@ -19,6 +20,7 @@
                 <div class="labelinput-modalform">
                     <label class="label-menu font-16">Number<span class="important-symbol">*</span></label>
                     <InputNumber @bind-Value="Port.Number" class="input-modalform font-16" placeholder="Enter name..."/>
+                    <ValidationMessage For="() => Port.Number"/>
                 </div>
                 <div class="labelinput-modalform">
                     <label class="label-menu font-16">Protocol<span class="important-symbol">*</span></label>
@@ -28,6 +30,7 @@
                             <option value="@protocol">@protocol.ToString()</option>
                         }
                     </InputSelect>
+                    <ValidationMessage For="() => Port.Protocol"/>
                 </div>
                 <div>
                     <button type="submit" class="btn-apply btn-style-confirm font-16">Add</button>

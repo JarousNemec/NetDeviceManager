@@ -6,7 +6,6 @@ using NetDeviceManager.Database.Tables;
 using NetDeviceManager.Lib.Helpers;
 using NetDeviceManager.Lib.Interfaces;
 using NetDeviceManager.Lib.Model;
-using NetDeviceManager.Lib.Snmp.Interfaces;
 using NetDeviceManager.Lib.Snmp.Models;
 
 namespace NetDeviceManager.Lib.Services;
@@ -20,9 +19,17 @@ public class SnmpService : ISnmpService
         _database = database;
     }
 
-    public OperationResult CreateSnmpSensor(CreateSnmpSensorModel model)
+    public OperationResult UpsertSnmpSensor(SnmpSensor model, out Guid id)
     {
-        throw new NotImplementedException();
+        if (model.Id != new Guid())
+        {
+            id = model.Id;
+            _database.UpdateSnmpSensor(model);
+            return new OperationResult();
+        }
+
+        id = _database.AddSnmpSensor(model);
+        return new OperationResult();
     }
 
     public OperationResult AssignSensorToDevice(SnmpSensorInPhysicalDevice model)
@@ -39,7 +46,7 @@ public class SnmpService : ISnmpService
         return ReadSensorV3(sensor, profile, device, port);
     }
 
-    private readonly List<Guid> _devicesSnmpAlerts = new();
+    private readonly Dictionary<Guid, Guid> _devicesSnmpAlerts = new();
     private int _alertCount = 0;
     private DateTime _lastUpdate = new DateTime(2006, 8, 1, 20, 20, 20);
     public int GetSnmpAlertsCount()
@@ -48,10 +55,16 @@ public class SnmpService : ISnmpService
         return _devicesSnmpAlerts.Count;
     }
 
-    public int GetCurrentDeviceSnmpAlertsCount(Guid id)
+    public int GetDeviceSnmpAlertsCount(Guid id)
     {
         CheckTimelinessOfData();
-        return _devicesSnmpAlerts.Count(x => x == id);
+        return _devicesSnmpAlerts.Count(x => x.Value == id);
+    }
+
+    public int GetSensorSnmpAlertsCount(Guid id)
+    {
+        CheckTimelinessOfData();
+        return _devicesSnmpAlerts.Count(x => x.Key == id);
     }
 
     public List<SnmpSensor> GetSensorsInDevice(Guid deviceId)
@@ -68,12 +81,6 @@ public class SnmpService : ISnmpService
     {
         throw new NotImplementedException();
     }
-
-    public OperationResult DeleteSnmpSensor(Guid id)
-    {
-        throw new NotImplementedException();
-    }
-
     public OperationResult RemoveSensorFromDevice(SnmpSensorInPhysicalDevice model)
     {
         throw new NotImplementedException();

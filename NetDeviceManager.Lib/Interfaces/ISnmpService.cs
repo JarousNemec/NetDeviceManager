@@ -1,15 +1,14 @@
-﻿using Lextm.SharpSnmpLib;
-using NetDeviceManager.Database.Tables;
+﻿using NetDeviceManager.Database.Tables;
 using NetDeviceManager.Lib.Model;
 using NetDeviceManager.Lib.Snmp.Models;
 
-namespace NetDeviceManager.Lib.Snmp.Interfaces;
+namespace NetDeviceManager.Lib.Interfaces;
 
 public interface ISnmpService
 {
     #region CreateMethods
 
-    public OperationResult CreateSnmpSensor(CreateSnmpSensorModel model);
+    public OperationResult UpsertSnmpSensor(SnmpSensor model, out Guid id);
     public OperationResult AssignSensorToDevice(SnmpSensorInPhysicalDevice model);
 
     #endregion
@@ -19,7 +18,8 @@ public interface ISnmpService
     List<SnmpVariableModel>? GetSensorValue(SnmpSensor sensor, LoginProfile profile, PhysicalDevice device, Port port);
     public int GetSnmpAlertsCount();
     
-    public int GetCurrentDeviceSnmpAlertsCount(Guid id);
+    public int GetDeviceSnmpAlertsCount(Guid id);
+    public int GetSensorSnmpAlertsCount(Guid id);
 
     public List<SnmpSensor> GetSensorsInDevice(Guid deviceId);
     
@@ -34,8 +34,6 @@ public interface ISnmpService
     #endregion
 
     #region DeleteMethods
-
-    public OperationResult DeleteSnmpSensor(Guid id);
     public OperationResult RemoveSensorFromDevice(SnmpSensorInPhysicalDevice model);
 
     #endregion

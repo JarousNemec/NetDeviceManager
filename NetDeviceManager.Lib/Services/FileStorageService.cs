@@ -17,7 +17,7 @@ public class FileStorageService : IFileStorageService
         _env = env;
     }
 
-    public OperationResult SaveIconFile(Guid iconId, IBrowserFile file)
+    public async Task<OperationResult> SaveIconFile(Guid iconId, IBrowserFile file)
     {
         var pathdir = Path.Combine(_env.ContentRootPath, WEB_STORAGE_PATH);
         var pathfile = Path.Combine(pathdir, $"{iconId}.{file.Name.Split('.').Last()}");
@@ -29,7 +29,7 @@ public class FileStorageService : IFileStorageService
             }
             using (var stream = File.Create(pathfile))
             {
-                file.OpenReadStream(2000000000).CopyToAsync(stream);
+                await file.OpenReadStream(2000000000).CopyToAsync(stream);
                 stream.Flush();
             }
         }

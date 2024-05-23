@@ -152,4 +152,9 @@ h1:focus {
     color: red;
     font-size: 24px;
 }
+.actions-div {
+    display: flex;
+    align-items: flex-end;
+    margin-bottom: 8px;
+}
 

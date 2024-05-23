@@ -4,10 +4,12 @@
     <BodyTemplate>
         <div style="margin: 30px; margin-top: 0">
             <EditForm Model="Profile" method="post" OnValidSubmit="SubmitForm" FormName="NewProfile" class="modal-form">
+                <DataAnnotationsValidator />
                 <div class="labelinput-modalform">
                     <label class="label-menu font-16">Name<span class="important-symbol">*</span></label>
                     <InputText @bind-Value="Profile.Name" class="input-modalform font-16"
                                placeholder="Enter value..."/>
+                    <ValidationMessage For="() => Profile.Name"/>
                 </div>
                 <div class="labelinput-modalform">
                     <label class="label-menu font-16">Description</label>

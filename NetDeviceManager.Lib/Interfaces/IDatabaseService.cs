@@ -13,8 +13,6 @@ public interface IDatabaseService
     Guid AddDeviceIcon(DeviceIcon icon);
     Guid AddDevice(Device device);
 
-    Guid AddOidIntegerLabel(OidIntegerLabel label);
-
     Guid AddLoginProfile(LoginProfile profile);
 
     Guid AddPhysicalDevice(PhysicalDevice physicalDevice);
@@ -40,6 +38,7 @@ public interface IDatabaseService
     #region Update
 
     void UpdatePhysicalDevice(PhysicalDevice model);
+    void UpdateSnmpSensor(SnmpSensor model);
 
     #endregion
 
@@ -82,12 +81,18 @@ public interface IDatabaseService
 
     List<Port> GetPortsInSystem();
 
+    List<SnmpSensor> GetSensors();
+
+    int GetSensorUsagesCount(Guid id);
+
     #endregion
 
     #region Delete
 
     OperationResult DeletePhysicalDevice(Guid id);
     OperationResult RemovePortFromDevice(Guid id);
+
+    OperationResult DeleteSnmpSensor(Guid id);
 
     #endregion
 

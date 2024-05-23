@@ -48,15 +48,6 @@ public class DatabaseService : IDatabaseService
         return id;
     }
 
-    public Guid AddOidIntegerLabel(OidIntegerLabel label)
-    {
-        var id = GenerateGuid();
-        label.Id = id;
-        _database.OidIntegerLabels.Add(label);
-        _database.SaveChanges();
-        return id;
-    }
-
     public Guid AddLoginProfile(LoginProfile profile)
     {
         var id = GenerateGuid();
@@ -161,6 +152,15 @@ public class DatabaseService : IDatabaseService
         if (_database.PhysicalDevices.Any(x => x.Id == model.Id))
         {
             _database.PhysicalDevices.Update(model);
+            _database.SaveChanges();
+        }
+    }
+
+    public void UpdateSnmpSensor(SnmpSensor model)
+    {
+        if (_database.SnmpSensors.Any(x => x.Id == model.Id))
+        {
+            _database.SnmpSensors.Update(model);
             _database.SaveChanges();
         }
     }
@@ -333,6 +333,16 @@ public class DatabaseService : IDatabaseService
         return _database.Ports.ToList();
     }
 
+    public List<SnmpSensor> GetSensors()
+    {
+        return _database.SnmpSensors.ToList();
+    }
+
+    public int GetSensorUsagesCount(Guid id)
+    {
+        return _database.SnmpSensorsInPhysicalDevices.Count(x => x.SnmpSensorId == id);
+    }
+
     public OperationResult DeletePhysicalDevice(Guid id)
     {
         var device = _database.PhysicalDevices.FirstOrDefault(x => x.Id == id);
@@ -368,6 +378,26 @@ public class DatabaseService : IDatabaseService
         }
 
         return new OperationResult() { IsSuccessful = false, Message = "Cannot remove port" };
+    }
+
+    public OperationResult DeleteSnmpSensor(Guid id)
+    {
+        var sensor = _database.SnmpSensors.FirstOrDefault(x => x.Id == id);
+        if (sensor == null)
+        {
+            return new OperationResult() { IsSuccessful = false, Message = "Unknown Id" };
+        }
+
+        var records = _database.SnmpSensorRecords.Where(x => x.SensorId == id);
+        _database.SnmpSensorRecords.RemoveRange(records);
+
+        var relationShips = _database.SnmpSensorsInPhysicalDevices.Where(x => x.SnmpSensorId == id);
+        _database.SnmpSensorsInPhysicalDevices.RemoveRange(relationShips);
+
+        _database.SnmpSensors.Remove(sensor);
+        _database.SaveChanges();
+
+        return new OperationResult();
     }
 
     public bool AnyPhysicalDeviceWithIp(string ip)

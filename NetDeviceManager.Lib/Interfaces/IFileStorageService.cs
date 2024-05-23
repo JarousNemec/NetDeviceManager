@@ -5,5 +5,5 @@ namespace NetDeviceManager.Lib.Interfaces;
 
 public interface IFileStorageService
 {
-    OperationResult SaveIconFile(Guid iconId, IBrowserFile file);
+    Task<OperationResult> SaveIconFile(Guid iconId, IBrowserFile file);
 }

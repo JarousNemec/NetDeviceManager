@@ -5,10 +5,12 @@
     <BodyTemplate>
         <div style="margin: 30px; margin-top: 0">
             <EditForm Model="Icon" method="post" OnValidSubmit="SubmitForm" FormName="NewIcon" class="modal-form">
+                <DataAnnotationsValidator />
                 <div class="labelinput-modalform">
                     <label class="label-menu font-16">Name<span class="important-symbol">*</span></label>
                     <InputText @bind-Value="Icon.Name" class="input-modalform font-16"
                                placeholder="Enter name..."/>
+                    <ValidationMessage For="() => Icon.Name"/>
                 </div>
                 <div class="labelinput-modalform">
                     <label class="label-menu font-16">Description</label>
@@ -18,6 +20,7 @@
                 <div class="labelinput-modalform">
                     <label class="label-menu font-16">Icon file (any image file type)<span class="important-symbol">*</span></label>
                     <InputFile class="input-modalform font-16" OnChange="UploadFile"></InputFile>
+                    <ValidationMessage For="() => Icon.File"/>
                 </div>
                 <div>
                     <button type="submit" class="btn-apply btn-style-confirm font-16">Apply</button>

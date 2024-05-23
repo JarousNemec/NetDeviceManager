@@ -8,7 +8,7 @@ public interface IDeviceService
     //Create
     OperationResult AddDevice(CreateDeviceModel model);
     OperationResult UpsertPhysicalDevice(PhysicalDevice model, out Guid id);
-    DeviceIcon AddDeviceIcon(CreateDeviceIconModel model);
+    Task<DeviceIcon> AddDeviceIcon(CreateDeviceIconModel model);
     OperationResult AddLoginProfile(CreateLoginProfileModel model);
 
     OperationResult AddPortToDevice(Port model, Guid deviceId);

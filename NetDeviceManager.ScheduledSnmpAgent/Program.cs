@@ -4,7 +4,6 @@ using Microsoft.Extensions.Hosting;
 using NetDeviceManager.Database;
 using NetDeviceManager.Lib.Interfaces;
 using NetDeviceManager.Lib.Services;
-using NetDeviceManager.Lib.Snmp.Interfaces;
 using NetDeviceManager.ScheduledSnmpAgent;
 using NetDeviceManager.ScheduledSnmpAgent.Helpers;
 using Timer = System.Timers.Timer;

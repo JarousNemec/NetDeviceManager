@@ -1,4 +1,5 @@
 ﻿using NetDeviceManager.Database.Tables;
+using NetDeviceManager.Lib.GlobalConstantsAndEnums;
 using NetDeviceManager.Lib.Helpers;
 using NetDeviceManager.Lib.Interfaces;
 using NetDeviceManager.Lib.Model;
@@ -42,13 +43,13 @@ public class DeviceService : IDeviceService
         return new OperationResult() { IsSuccessful = false, Message = "Device ip is already assigned!" };
     }
 
-    public DeviceIcon AddDeviceIcon(CreateDeviceIconModel model)
+    public async Task<DeviceIcon> AddDeviceIcon(CreateDeviceIconModel model)
     {
         var icon = new DeviceIcon();
         icon.Name = model.Name;
         icon.Description = model.Description;
         var id = _database.AddDeviceIcon(icon);
-        _fileStorageService.SaveIconFile(id, model.File);
+        await _fileStorageService.SaveIconFile(id, model.File);
         icon.Id = id;
         return icon;
     }

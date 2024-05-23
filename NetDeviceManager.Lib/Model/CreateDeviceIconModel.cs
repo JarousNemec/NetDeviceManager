@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Components.Forms;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Http;
 
 namespace NetDeviceManager.Lib.Model;
 
 public class CreateDeviceIconModel
 {
-    public string Name { get; set; }
+    [Required]public string Name { get; set; }
     public string? Description { get; set; }
-    public IBrowserFile File { get; set; }
+    [Required]public IBrowserFile File { get; set; }
 }

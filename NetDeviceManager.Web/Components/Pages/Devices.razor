@@ -1,7 +1,6 @@
 ﻿@page "/devices"
 @using Microsoft.AspNetCore.Authorization
 @using NetDeviceManager.Database.Tables
-@using NetDeviceManager.Lib.Snmp.Interfaces
 
 @using NetDeviceManager.Lib.Interfaces
 @using NetDeviceManager.Lib.Model
@@ -34,7 +33,7 @@
             @context.IpAddress
         </GridColumn>
         <GridColumn TItem="PhysicalDevice" HeaderText="Snmp Warnings" PropertyName="Data">
-            @SnmpService.GetCurrentDeviceSnmpAlertsCount(context.Id)
+            @SnmpService.GetDeviceSnmpAlertsCount(context.Id)
         </GridColumn>
         <GridColumn TItem="PhysicalDevice" HeaderText="Syslog warnings" PropertyName="Data">
             @SyslogService.GetCurrentDeviceSyslogAlertsCount(context.Id)
@@ -52,14 +51,6 @@
         </GridColumn>
     </Grid>
 </div>
-
-<style>
-    .actions-div {
-        display: flex;
-        align-items: flex-end;
-        margin-bottom: 8px;
-    }
-</style>
 
 @code{
     [Inject] public IDeviceService DeviceService { get; set; }
@@ -221,7 +212,7 @@
 
     private async void OnApplyNewDeviceIcon(CreateDeviceIconModel obj)
     {
-        var icon = DeviceService.AddDeviceIcon(obj);
+        var icon = await DeviceService.AddDeviceIcon(obj);
         _newDeviceModelModal.AddNewIcon(icon);
         await _newIconModal.HideModalAsync();
         _newDeviceModelModal.Device = _tempDevice;

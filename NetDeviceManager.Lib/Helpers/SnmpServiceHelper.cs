@@ -7,7 +7,7 @@ namespace NetDeviceManager.Lib.Helpers;
 
 public static class SnmpServiceHelper
 {
-    public static void CalculateSnmpAlerts(IDatabaseService database, List<Guid> snmpProblemDevice)
+    public static void CalculateSnmpAlerts(IDatabaseService database, Dictionary<Guid, Guid> snmpProblemDevice)
     {
         snmpProblemDevice.Clear();
         var patterns = database.GetPhysicalDevicesPatterns();
@@ -26,7 +26,7 @@ public static class SnmpServiceHelper
                 string[] data = JsonSerializer.Deserialize<string[]>(lastRecord.Data);
                 if (data == null)
                 {
-                    snmpProblemDevice.Add(pattern.PhysicalDeviceId);
+                    snmpProblemDevice.Add(pattern.SensorId,pattern.PhysicalDeviceId);
                     continue;
                 }
         
@@ -34,7 +34,7 @@ public static class SnmpServiceHelper
                 {
                     if (!(recordValue == paternValue || recordValue > paternValue - pattern.Toleration || recordValue < paternValue + pattern.Toleration))
                     {
-                        snmpProblemDevice.Add(pattern.PhysicalDeviceId);
+                        snmpProblemDevice.Add(pattern.SensorId,pattern.PhysicalDeviceId);
                         continue;
                     }
                 }
@@ -43,7 +43,7 @@ public static class SnmpServiceHelper
             {
                 if (pattern.Data != lastRecord.Data)
                 {
-                    snmpProblemDevice.Add(pattern.PhysicalDeviceId);
+                    snmpProblemDevice.Add(pattern.SensorId,pattern.PhysicalDeviceId);
                     continue;
                 }
             }

@@ -5,7 +5,6 @@ using NetDeviceManager.Database;
 using NetDeviceManager.Database.Identity;
 using NetDeviceManager.Lib.Interfaces;
 using NetDeviceManager.Lib.Services;
-using NetDeviceManager.Lib.Snmp.Interfaces;
 using NetDeviceManager.Web.Components;
 using NetDeviceManager.Web.Components.Account;
 using NetDeviceManager.Web.Components.Layout;
@@ -15,6 +14,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+builder.Services.AddSignalR(e => {
+    e.MaximumReceiveMessageSize = 102400000;
+});
 
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();

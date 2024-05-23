@@ -3,7 +3,6 @@
 @using System.Text.Json
 @using Microsoft.AspNetCore.Authorization
 @using NetDeviceManager.Lib.Interfaces
-@using NetDeviceManager.Lib.Snmp.Interfaces
 @using NetDeviceManager.Web.Components.Layout
 @rendermode InteractiveServer
 @attribute [Authorize]
@@ -16,7 +15,7 @@
                 <CardBody>
                     <CardTitle>Devices</CardTitle>
                     <CardText Style="font-size: 38px">Online: <span style="color: #75BC00">@DeviceService.GetOnlineDevicesCount()</span> <br/> Offline: <span style="color: red">@DeviceService.GetOfflineDevicesCount()</span></CardText>
-                    <Button Color="ButtonColor.Primary" To="/devices" Type="ButtonType.Link" @onclick="() => NavbarHelper.SelectedChange(_devicesLink)">Show devices</Button>
+                    <Button Color="ButtonColor.Primary" @onclick="() => NavbarHelper.SelectedChange(_devicesLink)">Show devices</Button>
                 </CardBody>
             </Card>
             <Card TextAlignment="Alignment.Center" Class="mb-4" Style="width:25rem;">
@@ -25,7 +24,7 @@
                     <CardText Style="font-size: 38px">
                         <span style="color: red">@SnmpService.GetSnmpAlertsCount()</span>
                     </CardText>
-                    <Button Color="ButtonColor.Primary" To="/snmp" Type="ButtonType.Link" @onclick="() => NavbarHelper.SelectedChange(_snmpRecordsLink)">Show snmp records</Button>
+                    <Button Color="ButtonColor.Primary" @onclick="() => NavbarHelper.SelectedChange(_snmpRecordsLink)">Show snmp records</Button>
                 </CardBody>
             </Card>
             <Card TextAlignment="Alignment.Center" Class="mb-4" Style="width:25rem;">
@@ -34,7 +33,7 @@
                     <CardText Style="font-size: 38px">
                         <span style="color: red">@SyslogService.GetSyslogAlertCount()</span>
                     </CardText>
-                    <Button Color="ButtonColor.Primary" To="/syslog" Type="ButtonType.Link" @onclick="() => NavbarHelper.SelectedChange(_syslogLink)">Show syslogs</Button>
+                    <Button Color="ButtonColor.Primary" @onclick="() => NavbarHelper.SelectedChange(_syslogLink)">Show syslogs</Button>
                 </CardBody>
             </Card>
         </div>
