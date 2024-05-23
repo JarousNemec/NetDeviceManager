@@ -353,28 +353,6 @@ namespace NetDeviceManager.Database.Migrations
                     b.ToTable("LoginProfiles");
                 });
 
-            modelBuilder.Entity("NetDeviceManager.Database.Tables.OidIntegerLabel", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Label")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("Number")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Oid")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("OidIntegerLabels");
-                });
-
             modelBuilder.Entity("NetDeviceManager.Database.Tables.PhysicalDevice", b =>
                 {
                     b.Property<Guid>("Id")
