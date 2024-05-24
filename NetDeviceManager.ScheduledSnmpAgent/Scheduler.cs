@@ -6,6 +6,7 @@ using NetDeviceManager.Database.Tables;
 using NetDeviceManager.Lib.GlobalConstantsAndEnums;
 using NetDeviceManager.Lib.Interfaces;
 using NetDeviceManager.Lib.Services;
+using NetDeviceManager.Lib.Snmp.Utils;
 using NetDeviceManager.ScheduledSnmpAgent.Factories;
 using NetDeviceManager.ScheduledSnmpAgent.Helpers;
 using NetDeviceManager.ScheduledSnmpAgent.Jobs;
@@ -115,9 +116,9 @@ public class Scheduler
 
     private async Task ScheduleSnmpGetJob(SchedulerJob registeredJob, string readersGroup)
     {
-        var port = GetSnmpPort(registeredJob);
+        var port = SnmpUtils.GetSnmpPort(registeredJob.PhysicalDeviceId, _databaseService);
         if (port == null) return;
-        var loginProfile = _databaseService.GetPhysicalDeviceLoginProfile(registeredJob.PhysicalDevice.LoginProfileId);
+        var loginProfile = _databaseService.GetLoginProfile(registeredJob.PhysicalDevice.LoginProfileId);
         string id = registeredJob.Id.ToString();
 
         var sensorsInPhysicalDevice = _databaseService.GetSensorsOfPhysicalDevice(registeredJob.PhysicalDeviceId);
@@ -132,18 +133,5 @@ public class Scheduler
 
             await _scheduler.ScheduleJob(job, trigger);
         }
-    }
-
-    private Port? GetSnmpPort(SchedulerJob registeredJob)
-    {
-        var port = _databaseService.GetPortInPhysicalDevices(registeredJob.PhysicalDeviceId)
-            .FirstOrDefault(x => x.Port.Protocol == CommunicationProtocol.SNMP)?.Port;
-        if (port == null)
-        {
-            var defaultPorts = _databaseService.GetPortInPhysicalDevices(new Guid());
-            port = defaultPorts.FirstOrDefault(x => x.Port.Protocol == CommunicationProtocol.SNMP)?.Port;
-        }
-
-        return port;
     }
 }

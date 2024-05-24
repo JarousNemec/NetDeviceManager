@@ -1,5 +1,133 @@
-﻿<h3>AssignSensorModal</h3>
+﻿@using System.Reflection.Metadata
+@using Lextm.SharpSnmpLib
+@using NetDeviceManager.Database.Tables
+@using NetDeviceManager.Lib.GlobalConstantsAndEnums
+@using NetDeviceManager.Lib.Interfaces
+@using NetDeviceManager.Lib.Services
+@using NetDeviceManager.Lib.Snmp.Utils
+@rendermode InteractiveServer
+<Modal @ref="modal" Title="Assign sensor">
+    <BodyTemplate>
+        <div style="margin: 30px; margin-top: 0">
+            <EditForm Model="Pattern" method="post" OnValidSubmit="SubmitForm" FormName="New Relation" class="modal-form">
+                <DataAnnotationsValidator/>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Device<span class="important-symbol">*</span></label>
+                    <InputSelect TValue="Guid" Value="Pattern.PhysicalDeviceId" ValueExpression="() => Pattern.PhysicalDeviceId" ValueChanged="(value) => DeviceSelected(value)" class="input-modalform">
+                        @foreach (var device in Devices)
+                        {
+                            <option value="@device.Id">@($"{device.Name}({device.IpAddress})")</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="() => Pattern.PhysicalDeviceId"/>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Sensor<span class="important-symbol">*</span></label>
+                    <InputSelect TValue="Guid" Value="Pattern.SensorId" ValueExpression="() => Pattern.SensorId" ValueChanged="(value) => SensorSelected(value)" class="input-modalform">
+                        @foreach (var sensor in Sensors)
+                        {
+                            <option value="@sensor.Id">@($"{sensor.Name}({sensor.Oid})")</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="() => Pattern.SensorId"/>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Has toleration<span class="important-symbol">*</span></label>
+                    <InputCheckbox @bind-Value="Pattern.HasToleration" class="login-checkbox-input"/>
+                    <ValidationMessage For="() => Pattern.HasToleration"/>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Toleration</label>
+                    <InputNumber @bind-Value="Pattern.Toleration" class="input-modalform font-16"
+                               placeholder="Enter toleration..."/>
+                </div>
+                <div>
+                    <button type="submit" @onclick="GetCurrentSnmpData" class="btn-apply btn-style-normal font-16">Get current sensor data for future assertion</button>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Description</label>
+                    <InputTextArea @bind-Value="_data" class="input-modalform font-16" style="height: max-content"
+                               placeholder="Data for future assertion..." ></InputTextArea>
+                </div>
+                <div>
+                    <button type="submit" @onclick="ApplySubmitForm" class="btn-apply btn-style-confirm font-16">Apply</button>
+                </div>
+            </EditForm>
+        </div>
+    </BodyTemplate>
+</Modal>
 
-@code {
+@code{
+    private Modal modal = default!;
+
+    [Inject] public ISnmpService SnmpService { get; set; }
+    [Inject] public IDatabaseService DatabaseService { get; set; }
     
+    [Parameter] public CorrectDataPattern Pattern { get; set; }
+    private string _data = string.Empty;
+
+    [Parameter] public List<PhysicalDevice> Devices { get; set; }
+    [Parameter] public List<SnmpSensor> Sensors { get; set; }
+    [Parameter] public Action<CorrectDataPattern> OnApply { get; set; }
+
+    public async Task ShowModalAsync()
+    {
+        await modal.ShowAsync();
+    }
+
+    public async Task HideModalAsync()
+    {
+        await modal.HideAsync();
+    }
+
+    private void SubmitForm()
+    {
+        // if (!string.IsNullOrEmpty(_data))
+        // {
+        //     OnApply?.Invoke(Pattern);
+        // }
+    }
+    private void ApplySubmitForm()
+    {
+        if (!string.IsNullOrEmpty(_data))
+        {
+            OnApply?.Invoke(Pattern);
+        }
+    }
+    
+
+    private void DeviceSelected(Guid id)
+    {
+        Pattern.PhysicalDeviceId = id;
+    }
+
+    private void SensorSelected(Guid id)
+    {
+        Pattern.SensorId = id;
+    }
+
+    private void GetCurrentSnmpData()
+    {
+        var sensor = Sensors.FirstOrDefault(x => x.Id == Pattern.SensorId);
+        if(sensor == null)
+            return;
+        var device = Devices.FirstOrDefault(x => x.Id == Pattern.PhysicalDeviceId);
+        if (device == null)
+        {
+            return;
+        }
+
+        var profile = DatabaseService.GetLoginProfile(device.LoginProfileId);
+        if(profile == null)
+            return;
+        var port = SnmpUtils.GetSnmpPort(Pattern.PhysicalDeviceId, DatabaseService);
+        if (port == null)
+        {
+            return;
+        }
+        _data = SnmpService.GetSensorValue(sensor, profile, device, port) ?? string.Empty;
+        Pattern.Data = _data;
+        StateHasChanged();
+    }
+
 }

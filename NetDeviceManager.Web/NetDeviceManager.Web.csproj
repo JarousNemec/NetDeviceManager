@@ -35,7 +35,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Components\Cards\" />
       <Folder Include="Components\Public\" />
       <Folder Include="Models\" />
       <Folder Include="webdata\" />

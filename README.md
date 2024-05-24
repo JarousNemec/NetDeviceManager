@@ -97,6 +97,9 @@
   - https://stackoverflow.com/questions/60061703/when-i-specify-ports-in-a-docker-compose-yml-file-is-it-tcp-or-udp
   - https://hub.docker.com/r/linuxserver/syslog-ng
 
+## Application health check 
+- https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/health-checks?view=aspnetcore-8.0
+
 ## Use cases
   - Is device online/offline (is last record of this device maximum 20 minutes old, if not summon alarm)
     - When device was added, running job in scheduler will recognize that there is new device and it will get uptime value from it in user specified healthprobe intervals(for all devices same)

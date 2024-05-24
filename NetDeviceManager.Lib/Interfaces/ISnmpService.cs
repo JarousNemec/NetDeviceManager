@@ -8,33 +8,39 @@ public interface ISnmpService
 {
     #region CreateMethods
 
-    public OperationResult UpsertSnmpSensor(SnmpSensor model, out Guid id);
-    public OperationResult AssignSensorToDevice(SnmpSensorInPhysicalDevice model);
+     OperationResult UpsertSnmpSensor(SnmpSensor model, out Guid id);
+     OperationResult AssignSensorToDevice(CorrectDataPattern model);
 
     #endregion
 
     #region ReadMethods
 
-    List<SnmpVariableModel>? GetSensorValue(SnmpSensor sensor, LoginProfile profile, PhysicalDevice device, Port port);
-    public int GetSnmpAlertsCount();
+    string? GetSensorValue(SnmpSensor sensor, LoginProfile profile, PhysicalDevice device, Port port);
+     int GetSnmpAlertsCount();
     
-    public int GetDeviceSnmpAlertsCount(Guid id);
-    public int GetSensorSnmpAlertsCount(Guid id);
+     int GetDeviceSnmpAlertsCount(Guid id);
+     int GetSensorSnmpAlertsCount(Guid id);
 
-    public List<SnmpSensor> GetSensorsInDevice(Guid deviceId);
+     bool IsSensorOfDeviceOk(Guid deviceId, Guid sensorId);
+
+    List<SnmpSensor> GetSensorsInDevice(Guid deviceId);
     
-    public SnmpSensor GetSensor(Guid id);
+    SnmpSensor GetSensor(Guid id);
+
+    List<SnmpAlertModel> GetAlerts();
 
     #endregion
 
     #region UpdateMethods
 
-    public OperationResult UpdateSnmpSensor(SnmpSensor model);
+     OperationResult UpdateSnmpSensor(SnmpSensor model);
 
     #endregion
 
     #region DeleteMethods
-    public OperationResult RemoveSensorFromDevice(SnmpSensorInPhysicalDevice model);
+
+    void RemoveAlert(Guid id);
+     OperationResult RemoveSensorFromDevice(SnmpSensorInPhysicalDevice model);
 
     #endregion
 }

@@ -93,8 +93,11 @@ public class DatabaseService : IDatabaseService
         return id;
     }
 
-    public Guid AddSnmpSensorToPhysicalDevice(SnmpSensorInPhysicalDevice sensorInPhysicalDevice)
+    public Guid? AddSnmpSensorToPhysicalDevice(SnmpSensorInPhysicalDevice sensorInPhysicalDevice)
     {
+        if (!_database.SnmpSensorsInPhysicalDevices.All(x =>
+                x.PhysicalDeviceId != sensorInPhysicalDevice.PhysicalDeviceId && x.SnmpSensorId != sensorInPhysicalDevice.SnmpSensorId))
+            return null;
         var id = GenerateGuid();
         sensorInPhysicalDevice.Id = id;
         _database.SnmpSensorsInPhysicalDevices.Add(sensorInPhysicalDevice);
@@ -147,6 +150,20 @@ public class DatabaseService : IDatabaseService
         return id;
     }
 
+    public Guid? AddCorrectDataPattern(CorrectDataPattern pattern)
+    {
+        if (!_database.CorrectDataPatterns.All(x =>
+                x.PhysicalDeviceId != pattern.PhysicalDeviceId && x.SensorId != pattern.SensorId))
+            return null;
+        
+        var id = GenerateGuid();
+        pattern.Id = id;
+        pattern.CapturedTime = DateTime.Now;
+        _database.CorrectDataPatterns.Add(pattern);
+        _database.SaveChanges();
+        return id;
+    }
+
     public void UpdatePhysicalDevice(PhysicalDevice model)
     {
         if (_database.PhysicalDevices.Any(x => x.Id == model.Id))
@@ -184,6 +201,7 @@ public class DatabaseService : IDatabaseService
     {
         return _database.SnmpSensorsInPhysicalDevices
             .Where(x => x.PhysicalDeviceId == physicalDeviceId)
+            .Include(x => x.PhysicalDevice)
             .Include(x => x.SnmpSensor)
             .ToList();
     }
@@ -193,7 +211,7 @@ public class DatabaseService : IDatabaseService
         return _database.PhysicalDevicesHasPorts.Where(x => x.DeviceId == deviceId).Include(x => x.Port).ToList();
     }
 
-    public LoginProfile GetPhysicalDeviceLoginProfile(Guid id)
+    public LoginProfile? GetLoginProfile(Guid id)
     {
         return _database.LoginProfiles.FirstOrDefault(x => x.Id == id);
     }
@@ -207,6 +225,11 @@ public class DatabaseService : IDatabaseService
     public int GetRecordsCount()
     {
         return _database.SnmpSensorRecords.Count();
+    }
+
+    public bool IsAnySensorInDevice(Guid id)
+    {
+        return _database.SnmpSensorsInPhysicalDevices.Any(x => x.PhysicalDeviceId == id);
     }
 
     public List<SnmpSensorRecord> GetLastSnmpRecords(int count)
@@ -257,7 +280,7 @@ public class DatabaseService : IDatabaseService
 
     public List<CorrectDataPattern> GetPhysicalDevicesPatterns()
     {
-        return _database.CorrectDataPatterns.ToList();
+        return _database.CorrectDataPatterns.Include(x =>x.PhysicalDevice).Include(x=>x.Sensor).ToList();
     }
 
     public List<Guid> GetSyslogsBySeverity(int severity)
@@ -343,6 +366,12 @@ public class DatabaseService : IDatabaseService
         return _database.SnmpSensorsInPhysicalDevices.Count(x => x.SnmpSensorId == id);
     }
 
+    public CorrectDataPattern? GetSpecificPattern(Guid deviceId, Guid sensorId)
+    {
+        return _database.CorrectDataPatterns.FirstOrDefault(x =>
+            x.PhysicalDeviceId == deviceId && x.SensorId == sensorId);
+    }
+
     public OperationResult DeletePhysicalDevice(Guid id)
     {
         var device = _database.PhysicalDevices.FirstOrDefault(x => x.Id == id);
@@ -397,6 +426,25 @@ public class DatabaseService : IDatabaseService
         _database.SnmpSensors.Remove(sensor);
         _database.SaveChanges();
 
+        return new OperationResult();
+    }
+
+    public OperationResult DeleteSnmpSensorInPhysicalDevice(Guid id)
+    {
+        var relationship = _database.SnmpSensorsInPhysicalDevices.FirstOrDefault(x => x.Id == id);
+        if (relationship == null)
+            return new OperationResult() { IsSuccessful = false, Message = "Unknown id" };
+        _database.SnmpSensorsInPhysicalDevices.Remove(relationship);
+        _database.SaveChanges();
+        return new OperationResult();
+    }
+    public OperationResult DeleteCorrectDataPattern(Guid id)
+    {
+        var pattern = _database.CorrectDataPatterns.FirstOrDefault(x => x.Id == id);
+        if (pattern == null)
+            return new OperationResult() { IsSuccessful = false, Message = "Unknown id" };
+        _database.CorrectDataPatterns.Remove(pattern);
+        _database.SaveChanges();
         return new OperationResult();
     }
 

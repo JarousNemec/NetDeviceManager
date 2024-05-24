@@ -1,8 +1,10 @@
 ﻿using System.Net;
+using System.Text.Json;
 using Lextm.SharpSnmpLib;
 using Lextm.SharpSnmpLib.Messaging;
 using Lextm.SharpSnmpLib.Security;
 using NetDeviceManager.Database.Tables;
+using NetDeviceManager.Lib.GlobalConstantsAndEnums;
 using NetDeviceManager.Lib.Helpers;
 using NetDeviceManager.Lib.Interfaces;
 using NetDeviceManager.Lib.Model;
@@ -14,6 +16,7 @@ public class SnmpService : ISnmpService
 {
     private const int MESSANGER_GET_TIMEOUT = 10000;
     private readonly IDatabaseService _database;
+
     public SnmpService(IDatabaseService database)
     {
         _database = database;
@@ -32,23 +35,44 @@ public class SnmpService : ISnmpService
         return new OperationResult();
     }
 
-    public OperationResult AssignSensorToDevice(SnmpSensorInPhysicalDevice model)
+    public OperationResult AssignSensorToDevice(CorrectDataPattern model)
     {
-        throw new NotImplementedException();
+        _database.AddCorrectDataPattern(model);
+        var relationship = new SnmpSensorInPhysicalDevice()
+        {
+            PhysicalDeviceId = model.PhysicalDeviceId,
+            SnmpSensorId = model.SensorId
+        };
+        _database.AddSnmpSensorToPhysicalDevice(relationship);
+        return new OperationResult();
     }
 
-    public List<SnmpVariableModel>? GetSensorValue(SnmpSensor sensor, LoginProfile profile, PhysicalDevice device, Port port)
+    public string? GetSensorValue(SnmpSensor sensor, LoginProfile profile, PhysicalDevice device, Port port)
     {
+        List<SnmpVariableModel> freshData;
         if (sensor.SnmpVersion != VersionCode.V3)
-            return ReadSensorV1V2(sensor, device, port);
-        if (string.IsNullOrEmpty(profile.AuthenticationPassword) || string.IsNullOrEmpty(profile.PrivacyPassword) || string.IsNullOrEmpty(profile.SecurityName))
+            freshData = ReadSensorV1V2(sensor, device, port);
+        else if (string.IsNullOrEmpty(profile.AuthenticationPassword) ||
+                 string.IsNullOrEmpty(profile.PrivacyPassword) || string.IsNullOrEmpty(profile.SecurityName))
             return null;
-        return ReadSensorV3(sensor, profile, device, port);
+        else
+        {
+            freshData = ReadSensorV3(sensor, profile, device, port);
+        }
+
+        var data = new string[sensor.EndIndex - sensor.StartIndex + 1];
+        foreach (var item in freshData)
+        {
+            data[item.Index] = item.Value;
+        }
+
+        return JsonSerializer.Serialize(data);
     }
 
-    private readonly Dictionary<Guid, Guid> _devicesSnmpAlerts = new();
+    private readonly List<SnmpAlertModel> _devicesSnmpAlerts = new();
     private int _alertCount = 0;
     private DateTime _lastUpdate = new DateTime(2006, 8, 1, 20, 20, 20);
+
     public int GetSnmpAlertsCount()
     {
         CheckTimelinessOfData();
@@ -58,13 +82,19 @@ public class SnmpService : ISnmpService
     public int GetDeviceSnmpAlertsCount(Guid id)
     {
         CheckTimelinessOfData();
-        return _devicesSnmpAlerts.Count(x => x.Value == id);
+        return _devicesSnmpAlerts.Count(x => x.Device.Id == id);
     }
+
 
     public int GetSensorSnmpAlertsCount(Guid id)
     {
         CheckTimelinessOfData();
-        return _devicesSnmpAlerts.Count(x => x.Key == id);
+        return _devicesSnmpAlerts.Count(x => x.Sensor.Id == id);
+    }
+
+    public bool IsSensorOfDeviceOk(Guid deviceId, Guid sensorId)
+    {
+        return _devicesSnmpAlerts.All(x => x.Device.Id != deviceId && x.Sensor.Id != sensorId);
     }
 
     public List<SnmpSensor> GetSensorsInDevice(Guid deviceId)
@@ -77,13 +107,38 @@ public class SnmpService : ISnmpService
         throw new NotImplementedException();
     }
 
+    public List<SnmpAlertModel> GetAlerts()
+    {
+        return _devicesSnmpAlerts;
+    }
+
     public OperationResult UpdateSnmpSensor(SnmpSensor model)
     {
         throw new NotImplementedException();
     }
-    public OperationResult RemoveSensorFromDevice(SnmpSensorInPhysicalDevice model)
+
+    public void RemoveAlert(Guid id)
     {
-        throw new NotImplementedException();
+        var alert = _devicesSnmpAlerts.FirstOrDefault(x => x.Id == id);
+        if (alert != null)
+            _devicesSnmpAlerts.Remove(alert);
+    }
+
+    public OperationResult RemoveSensorFromDevice(SnmpSensorInPhysicalDevice relationShip)
+    {
+        var res = _database.DeleteSnmpSensorInPhysicalDevice(relationShip.Id);
+        if (!res.IsSuccessful)
+        {
+            return new OperationResult() { IsSuccessful = false, Message = "Bad id" };
+        }
+
+        var pattern = _database.GetSpecificPattern(relationShip.PhysicalDeviceId, relationShip.SnmpSensorId);
+        if (pattern == null)
+        {
+            return new OperationResult() { IsSuccessful = false, Message = "Bad pattern" };
+        }
+        _database.DeleteCorrectDataPattern(pattern.Id);
+        return new OperationResult();
     }
 
     private void CheckTimelinessOfData()
@@ -99,20 +154,21 @@ public class SnmpService : ISnmpService
     private List<SnmpVariableModel> ReadSensorV1V2(SnmpSensor sensor, PhysicalDevice device, Port port)
     {
         var results = new List<SnmpVariableModel>();
-            if (sensor.IsMulti)
+        if (sensor.IsMulti)
+        {
+            for (int i = sensor.StartIndex!; i <= sensor.EndIndex; i++)
             {
-                for (int i = sensor.StartIndex!; i <= sensor.EndIndex; i++)
-                {
-                    var orderOid = $"{sensor.Oid}{sensor.OidFilling}{i}";
-                    var value = SnmpGetV1V2(sensor, device, port, orderOid);
-                    results.Add(new SnmpVariableModel(){DeviceId = device.Id, Index = i, SensorId = sensor.Id, Value = value});
-                }
+                var orderOid = $"{sensor.Oid}{sensor.OidFilling}{i}";
+                var value = SnmpGetV1V2(sensor, device, port, orderOid);
+                results.Add(new SnmpVariableModel() { Index = i, Value = value });
             }
-            else
-            {
-                var value = SnmpGetV1V2(sensor, device, port, sensor.Oid);
-                results.Add(new SnmpVariableModel(){DeviceId = device.Id, Index = 0, SensorId = sensor.Id, Value = value});
-            }
+        }
+        else
+        {
+            var value = SnmpGetV1V2(sensor, device, port, sensor.Oid);
+            results.Add(new SnmpVariableModel() { Index = 0, Value = value });
+        }
+
         return results;
     }
 
@@ -135,7 +191,8 @@ public class SnmpService : ISnmpService
         }
     }
 
-    private List<SnmpVariableModel> ReadSensorV3(SnmpSensor sensor, LoginProfile profile, PhysicalDevice device, Port port)
+    private List<SnmpVariableModel> ReadSensorV3(SnmpSensor sensor, LoginProfile profile, PhysicalDevice device,
+        Port port)
     {
         var endpoint = new IPEndPoint(IPAddress.Parse(device.IpAddress), port.Number);
         var results = new List<SnmpVariableModel>();
@@ -145,14 +202,15 @@ public class SnmpService : ISnmpService
             {
                 var orderOid = $"{sensor.Oid}{sensor.OidFilling}{i}";
                 var value = SnmpGetV3(profile, device, endpoint, orderOid);
-                results.Add(new SnmpVariableModel(){DeviceId = device.Id, Index = i, SensorId = sensor.Id, Value = value});
+                results.Add(new SnmpVariableModel() { Index = i, Value = value });
             }
         }
         else
         {
             var value = SnmpGetV3(profile, device, endpoint, sensor.Oid);
-            results.Add(new SnmpVariableModel(){DeviceId = device.Id, Index = 0, SensorId = sensor.Id, Value = value});
+            results.Add(new SnmpVariableModel() { Index = 0, Value = value });
         }
+
         return results;
     }
 
@@ -167,16 +225,16 @@ public class SnmpService : ISnmpService
             var priv = new DESPrivacyProvider(new OctetString(profile.PrivacyPassword), auth);
 
             GetRequestMessage request = new GetRequestMessage(
-                VersionCode.V3, 
+                VersionCode.V3,
                 Messenger.NextMessageId,
-                Messenger.NextRequestId, 
+                Messenger.NextRequestId,
                 new OctetString(profile.Username),
-                new List<Variable> { new Variable(objectId) }, 
+                new List<Variable> { new Variable(objectId) },
                 priv,
                 Messenger.MaxMessageSize, report);
-        
+
             ISnmpMessage reply = request.GetResponse(MESSANGER_GET_TIMEOUT, endpoint);
-        
+
             if (reply.Pdu().ErrorStatus.ToInt32() != 0)
             {
                 throw ErrorException.Create(
@@ -184,6 +242,7 @@ public class SnmpService : ISnmpService
                     IPAddress.Parse(device.IpAddress),
                     reply);
             }
+
             var result = reply.Pdu().Variables[0];
             return result.Data.ToString();
         }

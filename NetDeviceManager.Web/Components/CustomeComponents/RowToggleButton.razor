@@ -1,0 +1,25 @@
+﻿@rendermode InteractiveServer
+
+<button @onclick="() => { State = !State; OnToggle?.Invoke(State); }" class="btn-container-wide-toggler font-16">
+    <span>@Label</span>
+    <div>
+        @if (!State)
+        {
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5.70478 6.99999L10.3269 11.7191C10.5332 11.9301 10.5315 12.2678 10.3226 12.4761L9.49555 13.3032C9.28501 13.5138 8.94309 13.5132 8.73255 13.3021L2.84985 7.38068C2.74485 7.27568 2.69209 7.13784 2.69209 6.99999C2.69209 6.86214 2.74485 6.7243 2.84985 6.6193L8.73255 0.697837C8.94255 0.486221 9.28447 0.485683 9.49555 0.69676L10.3226 1.52384C10.531 1.73222 10.5332 2.07038 10.3269 2.28091L5.70478 6.99999Z" fill="black"/>
+            </svg>
+        }
+        else
+        {
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6.99978 8.29499L11.7189 3.67284C11.9299 3.46661 12.2675 3.46822 12.4759 3.67715L13.303 4.50422C13.5135 4.71476 13.513 5.05668 13.3019 5.26722L7.38047 11.1499C7.27547 11.2549 7.13762 11.3077 6.99978 11.3077C6.86193 11.3077 6.72408 11.2549 6.61908 11.1499L0.697623 5.26722C0.486007 5.05722 0.485469 4.7153 0.696546 4.50422L1.52362 3.67715C1.73201 3.46876 2.07016 3.46661 2.2807 3.67284L6.99978 8.29499Z" fill="black"/>
+            </svg>
+        }
+    </div>
+</button>
+
+@code {
+    private bool State { get; set; } = false;
+    [Parameter] public string Label { get; set; }
+    [Parameter] public Action<bool> OnToggle { get; set; }
+}

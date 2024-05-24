@@ -22,7 +22,7 @@ public interface IDatabaseService
     Guid AddPortToPhysicalDevice(PhysicalDeviceHasPort physicalDeviceHasPort);
 
     Guid AddSnmpSensor(SnmpSensor sensor);
-    Guid AddSnmpSensorToPhysicalDevice(SnmpSensorInPhysicalDevice sensorInPhysicalDevice);
+    Guid? AddSnmpSensorToPhysicalDevice(SnmpSensorInPhysicalDevice sensorInPhysicalDevice);
 
     Guid AddSchedulerJob(SchedulerJob job);
 
@@ -32,6 +32,8 @@ public interface IDatabaseService
     Guid AddTicket(Ticket ticket);
 
     Guid AddTagOnPhysicalDevice(TagOnPhysicalDevice tagOnPhysicalDevice);
+
+    Guid? AddCorrectDataPattern(CorrectDataPattern pattern);
 
     #endregion
 
@@ -50,10 +52,11 @@ public interface IDatabaseService
     List<SnmpSensorInPhysicalDevice> GetSensorsOfPhysicalDevice(Guid physicalDeviceId);
     List<PhysicalDeviceHasPort> GetPortInPhysicalDevices(Guid deviceId);
 
-    LoginProfile GetPhysicalDeviceLoginProfile(Guid id);
+    LoginProfile? GetLoginProfile(Guid id);
     Guid GetSnmpSensorInPhysicalDeviceId(Guid sensor, Guid device);
 
     int GetRecordsCount();
+    
 
     List<SnmpSensorRecord> GetLastSnmpRecords(int count);
 
@@ -85,6 +88,8 @@ public interface IDatabaseService
 
     int GetSensorUsagesCount(Guid id);
 
+    CorrectDataPattern? GetSpecificPattern(Guid deviceId, Guid sensorId);
+
     #endregion
 
     #region Delete
@@ -93,6 +98,8 @@ public interface IDatabaseService
     OperationResult RemovePortFromDevice(Guid id);
 
     OperationResult DeleteSnmpSensor(Guid id);
+    OperationResult DeleteSnmpSensorInPhysicalDevice(Guid id);
+    OperationResult DeleteCorrectDataPattern(Guid id);
 
     #endregion
 
@@ -102,5 +109,6 @@ public interface IDatabaseService
     bool PortExists(Port port, out Guid id);
 
     bool PortAddDeviceRelationExists(Guid portId, Guid deviceId, out Guid id);
+    bool IsAnySensorInDevice(Guid id);
     #endregion
 }

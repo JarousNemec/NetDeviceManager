@@ -1,4 +1,7 @@
 ﻿using Lextm.SharpSnmpLib;
+using NetDeviceManager.Database.Tables;
+using NetDeviceManager.Lib.GlobalConstantsAndEnums;
+using NetDeviceManager.Lib.Interfaces;
 
 namespace NetDeviceManager.Lib.Snmp.Utils;
 
@@ -24,5 +27,18 @@ public static class SnmpUtils
         }
 
         return snmpVersion;
+    }
+
+    public static Port? GetSnmpPort(Guid deviceId, IDatabaseService _databaseService)
+    {
+        var port = _databaseService.GetPortInPhysicalDevices(deviceId)
+            .FirstOrDefault(x => x.Port.Protocol == CommunicationProtocol.SNMP)?.Port;
+        if (port == null)
+        {
+            var defaultPorts = _databaseService.GetPortInPhysicalDevices(new Guid());
+            port = defaultPorts.FirstOrDefault(x => x.Port.Protocol == CommunicationProtocol.SNMP)?.Port;
+        }
+
+        return port;
     }
 }

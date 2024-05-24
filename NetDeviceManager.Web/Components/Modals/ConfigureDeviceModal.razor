@@ -100,7 +100,9 @@
     public PhysicalDevice Device { get; set; }
     [Parameter] public List<Device> Devices { get; set; }
     [Parameter] public List<LoginProfile> LoginProfiles { get; set; }
+    
     [Parameter] public Action<PhysicalDevice> OnApply { get; set; }
+    
     [Parameter] public Action<PhysicalDevice> OnNewDevice { get; set; }
     [Parameter] public Action<PhysicalDevice> OnNewProfile { get; set; }
     [Parameter] public Action<PhysicalDevice> OnNewPort { get; set; }

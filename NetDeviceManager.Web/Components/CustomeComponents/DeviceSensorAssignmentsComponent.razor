@@ -1,0 +1,73 @@
+﻿@using NetDeviceManager.Database.Tables
+@using NetDeviceManager.Lib.Interfaces
+@rendermode InteractiveServer
+<div>
+    <RowToggleButton Label="@($"{Device.Name} ({Device.IpAddress})")" OnToggle="OnToggle"></RowToggleButton>
+    <Collapse @ref="_collapse" Horizontal="true" >
+        <Grid
+              TItem="SnmpSensorInPhysicalDevice"
+              Class="table table-hover table-bordered table-striped"
+              Data="Rows"
+              Responsive="true">
+
+            <GridColumn TItem="SnmpSensorInPhysicalDevice" HeaderText="Captured time" PropertyName="CapturedTime">
+                @context.SnmpSensor.Name
+            </GridColumn>
+            <GridColumn TItem="SnmpSensorInPhysicalDevice" HeaderText="Device" PropertyName="PhysicalDevice.IpAddress">
+                @context.SnmpSensor.Oid
+            </GridColumn>
+            <GridColumn TItem="SnmpSensorInPhysicalDevice" HeaderText="Sensor" PropertyName="Sensor.Oid">
+                @if (SnmpService.IsSensorOfDeviceOk(context.PhysicalDeviceId, context.SnmpSensorId))
+                {
+                    <span style="color: #75BC00">Ok</span>
+                }
+                else
+                {
+                    <span style="color: #FF0000">Error</span>
+                }
+            </GridColumn>
+            <GridColumn TItem="SnmpSensorInPhysicalDevice" HeaderText="Actions" PropertyName="Data">
+                <div style="display: flex; width: 100%; flex-direction: row-reverse;">
+                    <div class="btn-container-grid">
+                        <button class="btn-style-danger btn-action font-16" @onclick="() => RemoveSensorFromDevice?.Invoke(context)">X</button>
+                    </div>
+                    <div class="btn-container-grid">
+                        <button class="btn-style-normal btn-action font-16" @onclick="() => ConfigureSensorOfDevice?.Invoke(context)">Configure</button>
+                    </div>
+                </div>
+            </GridColumn>
+        </Grid>
+    </Collapse>
+</div>
+
+@code {
+    private Collapse _collapse = default!;
+    
+    [Inject] public IDeviceService DeviceService { get; set; }
+    [Inject] public ISnmpService SnmpService { get; set; }
+    [Inject] public IDatabaseService DatabaseService { get; set; }
+    [Inject] public NavigationManager NavigationManager { get; set; }
+    
+    [Parameter] public List<SnmpSensorInPhysicalDevice> Rows { get; set; }
+    [Parameter] public PhysicalDevice Device { get; set; }
+    [Parameter] public Action<SnmpSensorInPhysicalDevice> RemoveSensorFromDevice { get; set; }
+    [Parameter] public Action<SnmpSensorInPhysicalDevice> ConfigureSensorOfDevice { get; set; }
+
+    private async void OnToggle(bool obj)
+    {
+        if (obj)
+        {
+           await _collapse.ShowAsync();
+        }
+        else
+        {
+            await _collapse.HideAsync();
+        }
+    }
+
+}
+
+
+
+
+

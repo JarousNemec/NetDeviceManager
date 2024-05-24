@@ -4,25 +4,29 @@
 @using NetDeviceManager.Database.Tables
 
 @using NetDeviceManager.Lib.Interfaces
+@using NetDeviceManager.Lib.Model
 @using NetDeviceManager.Web.Components.Modals
+@using NetDeviceManager.Web.Components.CustomeComponents
 @attribute [Authorize]
 @rendermode InteractiveServer
 
 
 <ConfirmDialog @ref="_confirmDialog"/>
 <ConfigureSensorModal @ref="_configureSensorModal" OnApply="OnApplyConfigureSensor"/>
+<AssignSensorModal @ref="_assignSensorModal" Devices="Devices" Pattern="new CorrectDataPattern()" Sensors="Sensors" OnApply="OnApplySensorAssignment"></AssignSensorModal>
 <PageTitle>Snmp mngmt</PageTitle>
 <div>
     <div>
         <h2>Snmp sensors</h2>
         <div class="actions-div">
             <button class="btn-style-normal btn-action font-16" @onclick="CreateNewSensor">New sensor</button>
-        </div> 
+        </div>
         <Grid @ref="_gridSensors"
               TItem="SnmpSensor"
               Class="table table-hover table-bordered table-striped"
-              DataProvider="SensorsDataProvider"
-              Responsive="true">
+              Data="Sensors"
+              Responsive="true"
+              EmptyText="No sensors in system">
 
             <GridColumn TItem="SnmpSensor" HeaderText="Name" PropertyName="Name">
                 @context.Name
@@ -33,7 +37,7 @@
             <GridColumn TItem="SnmpSensor" HeaderText="Usages" PropertyName="Warnings">
                 @DatabaseService.GetSensorUsagesCount(context.Id)
             </GridColumn>
-            <GridColumn TItem="SnmpSensor" HeaderText="Data" PropertyName="Data">
+            <GridColumn TItem="SnmpSensor" HeaderText="Warnings" PropertyName="Data">
                 @SnmpService.GetSensorSnmpAlertsCount(context.Id)
             </GridColumn>
             <GridColumn TItem="SnmpSensor" HeaderText="Actions" PropertyName="Data">
@@ -45,75 +49,76 @@
                         <button class="btn-style-normal btn-action font-16" @onclick="() => ConfigureSensor(context)">Configure</button>
                     </div>
                 </div>
-            
+
             </GridColumn>
         </Grid>
     </div>
-    @* <div> *@
-    @*     <h2>Assigned sensors</h2> *@
-    @*     <div class="actions-div"> *@
-    @*         <button class="btn-style-normal btn-action font-16" @onclick="AssignSensor">Assign sensor</button> *@
-    @*     </div> *@
-    @*     <Grid @ref="_gridAssignments" *@
-    @*           TItem="SnmpSensorInPhysicalDevice" *@
-    @*           Class="table table-hover table-bordered table-striped" *@
-    @*           DataProvider="AssignedSensorsDataProvider" *@
-    @*           Responsive="true"> *@
-    @* *@
-    @*         <GridColumn TItem="SnmpSensorInPhysicalDevice" HeaderText="Captured time" PropertyName="CapturedTime"> *@
-    @*             @context.CapturedTime *@
-    @*         </GridColumn> *@
-    @*         <GridColumn TItem="SnmpSensorInPhysicalDevice" HeaderText="Device" PropertyName="PhysicalDevice.IpAddress"> *@
-    @*             @($"{context.PhysicalDevice.Name} ({@context.PhysicalDevice.IpAddress})") *@
-    @*         </GridColumn> *@
-    @*         <GridColumn TItem="SnmpSensorInPhysicalDevice" HeaderText="Sensor" PropertyName="Sensor.Oid"> *@
-    @*             @($"{context.Sensor.Name} ({@context.Sensor.Oid})") *@
-    @*         </GridColumn> *@
-    @*         <GridColumn TItem="SnmpSensorInPhysicalDevice" HeaderText="Data" PropertyName="Data"> *@
-    @*             @context.Data *@
-    @*         </GridColumn> *@
-    @*     </Grid> *@
-    @* </div> *@
-    @* <div> *@
-    @*     <h2>Alerts</h2> *@
-    @*     <Grid @ref="_gridAlert" *@
-    @*           TItem="SnmpSensorInPhysicalDevice" *@
-    @*           Class="table table-hover table-bordered table-striped" *@
-    @*           DataProvider="AlertsDataProvider" *@
-    @*           Responsive="true"> *@
-    @* *@
-    @*         <GridColumn TItem="SnmpSensorInPhysicalDevice" HeaderText="Captured time" PropertyName="CapturedTime"> *@
-    @*             @context.CapturedTime *@
-    @*         </GridColumn> *@
-    @*         <GridColumn TItem="SnmpSensorInPhysicalDevice" HeaderText="Device" PropertyName="PhysicalDevice.IpAddress"> *@
-    @*             @($"{context.PhysicalDevice.Name} ({@context.PhysicalDevice.IpAddress})") *@
-    @*         </GridColumn> *@
-    @*         <GridColumn TItem="SnmpSensorInPhysicalDevice" HeaderText="Sensor" PropertyName="Sensor.Oid"> *@
-    @*             @($"{context.Sensor.Name} ({@context.Sensor.Oid})") *@
-    @*         </GridColumn> *@
-    @*         <GridColumn TItem="SnmpSensorInPhysicalDevice" HeaderText="Data" PropertyName="Data"> *@
-    @*             @context.Data *@
-    @*         </GridColumn> *@
-    @*     </Grid> *@
-    @* </div> *@
+    <div>
+        <h2>Assigned sensors</h2>
+        <div class="actions-div">
+            <button class="btn-style-normal btn-action font-16" @onclick="AssignSensor">Assign sensor</button>
+        </div>
+        @foreach (var device in Devices)
+        {
+            @if (DatabaseService.IsAnySensorInDevice(device.Id))
+            {
+                <DeviceSensorAssignmentsComponent Device="device" Rows="DatabaseService.GetSensorsOfPhysicalDevice(device.Id)" ConfigureSensorOfDevice="OnConfigureSensorOfDevice" RemoveSensorFromDevice="OnRemoveSensorFromDevice"/>
+            }
+        }
+
+    </div>
+    <div>
+        <h2>Alerts</h2>
+        <Grid @ref="_gridAlert"
+              TItem="SnmpAlertModel"
+              Class="table table-hover table-bordered table-striped"
+              DataProvider="AlertsDataProvider"
+              Responsive="true"
+              EmptyText="No alerts registered">
+
+            <GridColumn TItem="SnmpAlertModel" HeaderText="Device" PropertyName="DeviceName">
+                @($"{context.Device.Name} ({@context.Device.IpAddress})")
+            </GridColumn>
+            <GridColumn TItem="SnmpAlertModel" HeaderText="Sensor" PropertyName="SensorName">
+                @($"{context.Sensor.Name} ({@context.Sensor.Oid})")
+            </GridColumn>
+            <GridColumn TItem="SnmpAlertModel" HeaderText="Expected data" PropertyName="Expected">
+                @context.Expected
+            </GridColumn>
+            <GridColumn TItem="SnmpAlertModel" HeaderText="Current data" PropertyName="Current">
+                @context.Current
+            </GridColumn>
+            <GridColumn TItem="SnmpAlertModel" HeaderText="Actions" PropertyName="Data">
+                <div style="display: flex; width: 100%; flex-direction: row-reverse;">
+                    <div class="btn-container-grid">
+                        <button class="btn-style-danger btn-action font-16" @onclick="() => RemoveAlert(context.Id)">X</button>
+                    </div>
+                </div>
+            </GridColumn>
+        </Grid>
+    </div>
 </div>
 
 @code{
-    
+    private AssignSensorModal _assignSensorModal = default!;
+
     [Inject] public IDeviceService DeviceService { get; set; }
     [Inject] public ISnmpService SnmpService { get; set; }
     [Inject] public IDatabaseService DatabaseService { get; set; }
     [Inject] public NavigationManager NavigationManager { get; set; }
 
-    Grid<SnmpSensorInPhysicalDevice> _gridAlert = default!;
-    Grid<SnmpSensorInPhysicalDevice> _gridAssignments = default!;
+    Grid<SnmpAlertModel> _gridAlert = default!;
     Grid<SnmpSensor> _gridSensors = default!;
     private IEnumerable<SnmpSensor> _sensors = default!;
     private IEnumerable<SnmpSensorInPhysicalDevice> _assignments = default!;
-    private IEnumerable<SnmpSensorInPhysicalDevice> _alerts = default!;
-    
+    private IEnumerable<SnmpAlertModel> _alerts = default!;
+
     private ConfigureSensorModal _configureSensorModal = default!;
     private ConfirmDialog _confirmDialog = default!;
+
+    private List<PhysicalDevice> Devices = new List<PhysicalDevice>();
+    private List<SnmpSensor> Sensors = new List<SnmpSensor>();
+    private CorrectDataPattern Pattern = new CorrectDataPattern();
 
     protected override void OnAfterRender(bool firstRender)
     {
@@ -123,52 +128,27 @@
             InvokeAsync(StateHasChanged);
         }
     }
+
     private void UpdateCurrentData()
     {
-        // DevicesList = DatabaseService.GetDevices();
-        // ProfilesList = DatabaseService.GetLoginProfiles();
-        // IconsList = DatabaseService.GetIcons();
-        // PortsInSystem = DatabaseService.GetPortsInSystem();
-        // DevicesPorts = new List<PhysicalDeviceHasPort>();
-        // _tempDevicePorts = new List<Port>();
+        Devices = DatabaseService.GetPhysicalDevices();
+        Sensors = DatabaseService.GetSensors();
     }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    private async Task<GridDataProviderResult<SnmpSensor>> SensorsDataProvider(GridDataProviderRequest<SnmpSensor> request)
-    {
-        _sensors = GetSensors();
-        return await Task.FromResult(request.ApplyTo(_sensors));
-    }
-
-    private IEnumerable<SnmpSensor> GetSensors()
-    {
-        var sensors = DatabaseService.GetSensors();
-        return sensors;
-    }
-
-    private async Task<GridDataProviderResult<SnmpSensorInPhysicalDevice>> AssignedSensorsDataProvider(GridDataProviderRequest<SnmpSensorInPhysicalDevice> request)
-    {
-        _assignments = GetAssignments();
-        return await Task.FromResult(request.ApplyTo(_assignments));
-    }
-
-    private IEnumerable<SnmpSensorInPhysicalDevice> GetAssignments()
-    {
-        throw new NotImplementedException();
-    }
-
-    private async Task<GridDataProviderResult<SnmpSensorInPhysicalDevice>> AlertsDataProvider(GridDataProviderRequest<SnmpSensorInPhysicalDevice> request)
+    private async Task<GridDataProviderResult<SnmpAlertModel>> AlertsDataProvider(GridDataProviderRequest<SnmpAlertModel> request)
     {
         _alerts = GetAlerts();
         return await Task.FromResult(request.ApplyTo(_alerts));
     }
 
-    private IEnumerable<SnmpSensorInPhysicalDevice> GetAlerts()
+    private IEnumerable<SnmpAlertModel> GetAlerts()
     {
-        throw new NotImplementedException();
+        return SnmpService.GetAlerts();
     }
 
     private async void CreateNewSensor()
@@ -177,9 +157,10 @@
         await _configureSensorModal.ShowModalAsync();
     }
 
-    private void AssignSensor()
+    private async void AssignSensor()
     {
-        throw new NotImplementedException();
+        _assignSensorModal.Pattern = new CorrectDataPattern();
+        await _assignSensorModal.ShowModalAsync();
     }
 
     private async void DeleteSensor(Guid sensorId)
@@ -188,6 +169,7 @@
             DatabaseService.DeleteSnmpSensor(sensorId);
         NavigationManager.NavigateTo(NavigationManager.Uri, true);
     }
+
     private async Task<bool> ShowConfirmationAsync()
     {
         var options = new ConfirmDialogOptions
@@ -216,6 +198,34 @@
     {
         SnmpService.UpsertSnmpSensor(obj, out var id);
         await _configureSensorModal.HideModalAsync();
+        NavigationManager.NavigateTo(NavigationManager.Uri, true);
+    }
+
+    private void RemoveAlert(Guid id)
+    {
+        SnmpService.RemoveAlert(id);
+        NavigationManager.NavigateTo(NavigationManager.Uri, true);
+    }
+
+    private async void OnConfigureSensorOfDevice(SnmpSensorInPhysicalDevice obj)
+    {
+        var pattern = DatabaseService.GetSpecificPattern(obj.PhysicalDeviceId, obj.SnmpSensorId);
+        if(pattern == null)
+            return;
+        _assignSensorModal.Pattern = pattern;
+        await _assignSensorModal.ShowModalAsync();
+    }
+
+    private void OnRemoveSensorFromDevice(SnmpSensorInPhysicalDevice relationship)
+    {
+        SnmpService.RemoveSensorFromDevice(relationship);
+        NavigationManager.NavigateTo(NavigationManager.Uri, true);
+    }
+
+    private async void OnApplySensorAssignment(CorrectDataPattern obj)
+    {
+        SnmpService.AssignSensorToDevice(obj);
+        await _assignSensorModal.HideModalAsync();
         NavigationManager.NavigateTo(NavigationManager.Uri, true);
     }
 

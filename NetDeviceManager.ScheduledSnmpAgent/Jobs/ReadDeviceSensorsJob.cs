@@ -29,18 +29,14 @@ public class ReadDeviceSensorsJob : IJob
 
         foreach (var sensor in _sensors)
         {
-            var results = _snmpService.GetSensorValue(sensor, _login, _device, _port);
-            var time = DateTime.Now;
-            var record = new SnmpSensorRecord();
-            var data = new string[sensor.EndIndex-sensor.StartIndex+1];
-            foreach (var result in results)
+            var data = _snmpService.GetSensorValue(sensor, _login, _device, _port) ?? string.Empty;
+            var record = new SnmpSensorRecord
             {
-                data[result.Index] = result.Value;
-            }
-            record.Data = JsonSerializer.Serialize(data);
-            record.CapturedTime = time;
-            record.PhysicalDeviceId = _device.Id;
-            record.SensorId = sensor.Id;
+                Data = data,
+                CapturedTime = DateTime.Now,
+                PhysicalDeviceId = _device.Id,
+                SensorId = sensor.Id
+            };
             _databaseService.AddSnmpRecord(record);
         }
 

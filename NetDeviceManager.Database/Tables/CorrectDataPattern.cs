@@ -1,4 +1,6 @@
-﻿namespace NetDeviceManager.Database.Tables;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace NetDeviceManager.Database.Tables;
 
 public class CorrectDataPattern
 {
@@ -7,12 +9,12 @@ public class CorrectDataPattern
     public string Data { get; set; }
     public DateTime CapturedTime { get; set; }
 
-    public bool HasToleration { get; set; }
+    [Required] public bool HasToleration { get; set; } = false;
     public int Toleration { get; set; }
 
-    public Guid PhysicalDeviceId { get; set; }
+    [Required]public Guid PhysicalDeviceId { get; set; }
     public virtual PhysicalDevice PhysicalDevice { get; set; }
     
-    public Guid SensorId { get; set; }
+    [Required]public Guid SensorId { get; set; }
     public virtual SnmpSensor Sensor { get; set; }
 }
