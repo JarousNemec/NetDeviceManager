@@ -33,7 +33,7 @@ public interface IDatabaseService
 
     Guid AddTagOnPhysicalDevice(TagOnPhysicalDevice tagOnPhysicalDevice);
 
-    Guid? AddCorrectDataPattern(CorrectDataPattern pattern);
+    Guid? UpsertCorrectDataPattern(CorrectDataPattern pattern);
 
     #endregion
 
@@ -48,7 +48,9 @@ public interface IDatabaseService
 
     List<Device> GetDevices();
     List<LoginProfile> GetLoginProfiles();
-    List<SchedulerJob> GetSnmpReadJobs();
+    List<SchedulerJob> GetSchedulerJobs();
+    
+    SchedulerJob? GetPhysicalDeviceSchedulerJob(Guid id);
     List<SnmpSensorInPhysicalDevice> GetSensorsOfPhysicalDevice(Guid physicalDeviceId);
     List<PhysicalDeviceHasPort> GetPortInPhysicalDevices(Guid deviceId);
 
@@ -56,6 +58,8 @@ public interface IDatabaseService
     Guid GetSnmpSensorInPhysicalDeviceId(Guid sensor, Guid device);
 
     int GetRecordsCount();
+
+    int GetDeviceSensorsCount(Guid id);
     
 
     List<SnmpSensorRecord> GetLastSnmpRecords(int count);
@@ -100,6 +104,8 @@ public interface IDatabaseService
     OperationResult DeleteSnmpSensor(Guid id);
     OperationResult DeleteSnmpSensorInPhysicalDevice(Guid id);
     OperationResult DeleteCorrectDataPattern(Guid id);
+
+    OperationResult DeleteDeviceSchedulerJob(Guid id);
 
     #endregion
 

@@ -16,10 +16,12 @@ public class SnmpService : ISnmpService
 {
     private const int MESSANGER_GET_TIMEOUT = 10000;
     private readonly IDatabaseService _database;
+    private readonly SettingsService _settingsService;
 
-    public SnmpService(IDatabaseService database)
+    public SnmpService(IDatabaseService database, SettingsService settingsService)
     {
         _database = database;
+        _settingsService = settingsService;
     }
 
     public OperationResult UpsertSnmpSensor(SnmpSensor model, out Guid id)
@@ -37,13 +39,23 @@ public class SnmpService : ISnmpService
 
     public OperationResult AssignSensorToDevice(CorrectDataPattern model)
     {
-        _database.AddCorrectDataPattern(model);
+        _database.UpsertCorrectDataPattern(model);
         var relationship = new SnmpSensorInPhysicalDevice()
         {
             PhysicalDeviceId = model.PhysicalDeviceId,
             SnmpSensorId = model.SensorId
         };
         _database.AddSnmpSensorToPhysicalDevice(relationship);
+
+        var job = _database.GetPhysicalDeviceSchedulerJob(model.PhysicalDeviceId);
+        if (job != null) return new OperationResult(){IsSuccessful = false, Message = "Cannot create job!!!"};
+        
+        var newJob = new SchedulerJob();
+        newJob.PhysicalDeviceId = model.PhysicalDeviceId;
+        newJob.Type = SchedulerJobType.SNMPGET;
+        newJob.Cron = _settingsService.GetSettings().ReportSensorInterval;
+        _database.AddSchedulerJob(newJob);
+
         return new OperationResult();
     }
 
@@ -138,6 +150,13 @@ public class SnmpService : ISnmpService
             return new OperationResult() { IsSuccessful = false, Message = "Bad pattern" };
         }
         _database.DeleteCorrectDataPattern(pattern.Id);
+
+        
+        if (_database.GetDeviceSensorsCount(relationShip.PhysicalDeviceId) == 0)
+        {
+            _database.DeleteDeviceSchedulerJob(relationShip.PhysicalDeviceId);
+        }
+        
         return new OperationResult();
     }
 

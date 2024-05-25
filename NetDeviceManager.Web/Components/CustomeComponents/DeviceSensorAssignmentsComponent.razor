@@ -3,7 +3,7 @@
 @rendermode InteractiveServer
 <div>
     <RowToggleButton Label="@($"{Device.Name} ({Device.IpAddress})")" OnToggle="OnToggle"></RowToggleButton>
-    <Collapse @ref="_collapse" Horizontal="true" >
+    <Collapse @ref="_collapse">
         <Grid
               TItem="SnmpSensorInPhysicalDevice"
               Class="table table-hover table-bordered table-striped"

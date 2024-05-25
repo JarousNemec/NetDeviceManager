@@ -150,8 +150,14 @@ public class DatabaseService : IDatabaseService
         return id;
     }
 
-    public Guid? AddCorrectDataPattern(CorrectDataPattern pattern)
+    public Guid? UpsertCorrectDataPattern(CorrectDataPattern pattern)
     {
+        if (pattern.Id != null && pattern.Id != new Guid())
+        {
+            _database.CorrectDataPatterns.Update(pattern);
+            _database.SaveChanges();
+            return pattern.Id;
+        }
         if (!_database.CorrectDataPatterns.All(x =>
                 x.PhysicalDeviceId != pattern.PhysicalDeviceId && x.SensorId != pattern.SensorId))
             return null;
@@ -192,9 +198,14 @@ public class DatabaseService : IDatabaseService
         return _database.LoginProfiles.ToList();
     }
 
-    public List<SchedulerJob> GetSnmpReadJobs()
+    public List<SchedulerJob> GetSchedulerJobs()
     {
         return _database.SchedulerJobs.Include(x => x.PhysicalDevice).ToList();
+    }
+
+    public SchedulerJob? GetPhysicalDeviceSchedulerJob(Guid id)
+    {
+        return _database.SchedulerJobs.Include(x => x.PhysicalDevice).FirstOrDefault(x => x.PhysicalDeviceId == id);
     }
 
     public List<SnmpSensorInPhysicalDevice> GetSensorsOfPhysicalDevice(Guid physicalDeviceId)
@@ -225,6 +236,11 @@ public class DatabaseService : IDatabaseService
     public int GetRecordsCount()
     {
         return _database.SnmpSensorRecords.Count();
+    }
+
+    public int GetDeviceSensorsCount(Guid id)
+    {
+        return _database.SnmpSensorsInPhysicalDevices.Count(x => x.PhysicalDeviceId == id);
     }
 
     public bool IsAnySensorInDevice(Guid id)
@@ -445,6 +461,18 @@ public class DatabaseService : IDatabaseService
             return new OperationResult() { IsSuccessful = false, Message = "Unknown id" };
         _database.CorrectDataPatterns.Remove(pattern);
         _database.SaveChanges();
+        return new OperationResult();
+    }
+
+    public OperationResult DeleteDeviceSchedulerJob(Guid id)
+    {
+        var job = _database.SchedulerJobs.FirstOrDefault(x => x.PhysicalDeviceId == id);
+        if (job != null)
+        {
+            _database.SchedulerJobs.Remove(job);
+            _database.SaveChanges();
+        }
+
         return new OperationResult();
     }
 

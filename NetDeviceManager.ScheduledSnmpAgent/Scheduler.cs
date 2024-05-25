@@ -73,7 +73,7 @@ public class Scheduler
 
     private async void ScheduleJobs()
     {
-        var registeredJobs = _databaseService.GetSnmpReadJobs();
+        var registeredJobs = _databaseService.GetSchedulerJobs();
         var group = ConfigurationHelper.GetValue("JobGroupName");
         if (group == null)
         {

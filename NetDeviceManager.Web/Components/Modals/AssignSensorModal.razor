@@ -46,8 +46,9 @@
                 </div>
                 <div class="labelinput-modalform">
                     <label class="label-menu font-16">Description</label>
-                    <InputTextArea @bind-Value="_data" class="input-modalform font-16" style="height: max-content"
-                               placeholder="Data for future assertion..." ></InputTextArea>
+                    <InputTextArea @bind-Value="Pattern.Data" class="input-modalform font-16" style="height: max-content"
+                                   placeholder="Data for future assertion..." ></InputTextArea>
+                    <ValidationMessage For="() => Pattern.Data"/>
                 </div>
                 <div>
                     <button type="submit" @onclick="ApplySubmitForm" class="btn-apply btn-style-confirm font-16">Apply</button>
@@ -64,7 +65,6 @@
     [Inject] public IDatabaseService DatabaseService { get; set; }
     
     [Parameter] public CorrectDataPattern Pattern { get; set; }
-    private string _data = string.Empty;
 
     [Parameter] public List<PhysicalDevice> Devices { get; set; }
     [Parameter] public List<SnmpSensor> Sensors { get; set; }
@@ -82,14 +82,10 @@
 
     private void SubmitForm()
     {
-        // if (!string.IsNullOrEmpty(_data))
-        // {
-        //     OnApply?.Invoke(Pattern);
-        // }
     }
     private void ApplySubmitForm()
     {
-        if (!string.IsNullOrEmpty(_data))
+        if (!string.IsNullOrEmpty(Pattern.Data))
         {
             OnApply?.Invoke(Pattern);
         }
@@ -125,8 +121,7 @@
         {
             return;
         }
-        _data = SnmpService.GetSensorValue(sensor, profile, device, port) ?? string.Empty;
-        Pattern.Data = _data;
+        Pattern.Data =SnmpService.GetSensorValue(sensor, profile, device, port) ?? string.Empty;
         StateHasChanged();
     }
 
