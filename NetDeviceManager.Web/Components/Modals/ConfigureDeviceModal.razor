@@ -3,7 +3,7 @@
 <Modal @ref="modal" Title="Device configuration">
     <BodyTemplate>
         <div style="margin: 30px; margin-top: 0">
-            <EditForm Model="Device" method="post" OnValidSubmit="SubmitForm" FormName="Config" class="modal-form">
+            <EditForm id="deviceconfigform" Model="Device"  method="post" OnValidSubmit="SubmitForm" FormName="Config" class="modal-form">
                 <DataAnnotationsValidator />
                 <div class="labelinput-modalform">
                     <label class="label-menu font-16">Name<span class="important-symbol">*</span></label>
@@ -88,7 +88,7 @@
                 </div>
             </div>
             <div>
-                <button type="submit" @onclick="SubmitForm" class="btn-apply btn-style-confirm font-16">Apply</button>
+                <button type="submit" form="deviceconfigform" class="btn-apply btn-style-confirm font-16">Apply</button>
             </div>
         </div>
     </BodyTemplate>

@@ -1,4 +1,5 @@
-﻿using NetDeviceManager.Database.Models;
+﻿using NetDeviceManager.Database.Identity;
+using NetDeviceManager.Database.Models;
 using NetDeviceManager.Database.Tables;
 using NetDeviceManager.Lib.Model;
 
@@ -17,7 +18,7 @@ public interface IDatabaseService
 
     Guid AddPhysicalDevice(PhysicalDevice physicalDevice);
 
-    Guid AddPort(Port port);
+    Guid UpsertPort(Port port);
 
     Guid AddPortToPhysicalDevice(PhysicalDeviceHasPort physicalDeviceHasPort);
 
@@ -34,6 +35,8 @@ public interface IDatabaseService
     Guid AddTagOnPhysicalDevice(TagOnPhysicalDevice tagOnPhysicalDevice);
 
     Guid? UpsertCorrectDataPattern(CorrectDataPattern pattern);
+
+    void SetConfigValue(string key, string value);
 
     #endregion
 
@@ -87,12 +90,15 @@ public interface IDatabaseService
     List<DeviceIcon> GetIcons();
 
     List<Port> GetPortsInSystem();
+    
+    List<Port> GetDefaultPorts();
 
     List<SnmpSensor> GetSensors();
 
     int GetSensorUsagesCount(Guid id);
 
     CorrectDataPattern? GetSpecificPattern(Guid deviceId, Guid sensorId);
+
 
     #endregion
 
@@ -101,11 +107,15 @@ public interface IDatabaseService
     OperationResult DeletePhysicalDevice(Guid id);
     OperationResult RemovePortFromDevice(Guid id);
 
+    OperationResult RemoveDefaultPort(Guid id);
+
     OperationResult DeleteSnmpSensor(Guid id);
     OperationResult DeleteSnmpSensorInPhysicalDevice(Guid id);
     OperationResult DeleteCorrectDataPattern(Guid id);
 
     OperationResult DeleteDeviceSchedulerJob(Guid id);
+
+    OperationResult DeleteUser(string id);
 
     #endregion
 
@@ -114,7 +124,7 @@ public interface IDatabaseService
     bool AnyPhysicalDeviceWithIp(string ip);
     bool PortExists(Port port, out Guid id);
 
-    bool PortAddDeviceRelationExists(Guid portId, Guid deviceId, out Guid id);
+    bool PortAndDeviceRelationExists(Guid portId, Guid deviceId, out Guid id);
     bool IsAnySensorInDevice(Guid id);
     #endregion
 }

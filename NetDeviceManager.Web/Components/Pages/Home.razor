@@ -41,11 +41,11 @@
 </div>
 
 @code{
-    [Inject] public  IDeviceService DeviceService { get; set; }
-    [Inject] public ISnmpService SnmpService { get; set; }
-    [Inject] public ISyslogService SyslogService { get; set; }
-    [Inject] public NavbarHelper NavbarHelper { get; set; }
-    [Inject] public NavigationManager NavigationManager { get; set; }
+    [Inject]   IDeviceService DeviceService { get; set; }
+    [Inject]  ISnmpService SnmpService { get; set; }
+    [Inject]  ISyslogService SyslogService { get; set; }
+    [Inject]  NavbarHelper NavbarHelper { get; set; }
+    [Inject]  NavigationManager NavigationManager { get; set; }
 
     private const string _syslogLink = "syslog";
     private const string _snmpRecordsLink = "snmprecords";

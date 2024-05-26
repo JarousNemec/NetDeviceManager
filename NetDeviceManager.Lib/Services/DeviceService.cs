@@ -61,13 +61,9 @@ public class DeviceService : IDeviceService
 
     public OperationResult AddPortToDevice(Port model, Guid deviceId)
     {
-        Guid portId;
-        if (!_database.PortExists(model, out portId))
-        {
-            portId = _database.AddPort(model);
-        }
+        var portId = _database.UpsertPort(model);
 
-        if (!_database.PortAddDeviceRelationExists(portId, deviceId, out _))
+        if (!_database.PortAndDeviceRelationExists(portId, deviceId, out _))
         {
             var relationship = new PhysicalDeviceHasPort()
             {

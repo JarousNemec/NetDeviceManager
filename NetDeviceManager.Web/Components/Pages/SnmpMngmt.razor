@@ -102,10 +102,10 @@
 @code{
     private AssignSensorModal _assignSensorModal = default!;
 
-    [Inject] public IDeviceService DeviceService { get; set; }
-    [Inject] public ISnmpService SnmpService { get; set; }
-    [Inject] public IDatabaseService DatabaseService { get; set; }
-    [Inject] public NavigationManager NavigationManager { get; set; }
+    [Inject]  IDeviceService DeviceService { get; set; }
+    [Inject]  ISnmpService SnmpService { get; set; }
+    [Inject]  IDatabaseService DatabaseService { get; set; }
+    [Inject]  NavigationManager NavigationManager { get; set; }
 
     Grid<SnmpAlertModel> _gridAlert = default!;
     Grid<SnmpSensor> _gridSensors = default!;

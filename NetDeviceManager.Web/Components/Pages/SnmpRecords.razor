@@ -60,9 +60,9 @@
 </style>
 
 @code{
-    [Inject] public IDeviceService DeviceService { get; set; }
-    [Inject] public ISnmpService SnmpService { get; set; }
-    [Inject] public IDatabaseService DatabaseService { get; set; }
+    [Inject]  IDeviceService DeviceService { get; set; }
+    [Inject]  ISnmpService SnmpService { get; set; }
+    [Inject]  IDatabaseService DatabaseService { get; set; }
 
     [SupplyParameterFromForm] private SnmpRecordFilterModel Filter { get; set; } = new();
 

@@ -47,6 +47,7 @@ builder.Services.AddScoped<ISnmpService, SnmpService>();
 builder.Services.AddScoped<ISyslogService, SyslogService>();
 builder.Services.AddSingleton<NavbarHelper>();
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+builder.Services.AddScoped<SettingsService>();
 
 var app = builder.Build();
 

@@ -7,7 +7,6 @@ namespace NetDeviceManager.Lib.Services;
 public class SyslogService : ISyslogService
 {
     private readonly IDatabaseService _database;
-    private readonly int[] DEFAULT_SEVERITIES = new[] { 0, 1, 2, 3, 4 };
     public SyslogService(IDatabaseService database)
     {
         _database = database;
@@ -33,23 +32,5 @@ public class SyslogService : ISyslogService
             SyslogServiceHelper.CalculateAlertSyslogs(_database, _devicesSyslogAlerts);
             _lastUpdate = DateTime.Now;
         }
-    }
-    private int[] LoadDesiredSeveritiesConfig()
-    {
-        int[] severities;
-        var toSave = _database.GetConfigValue("DesiredSeverities");
-        if (string.IsNullOrEmpty(toSave))
-        {
-            severities = DEFAULT_SEVERITIES;
-        }
-        else
-        {
-            var data = JsonSerializer.Deserialize<int[]>(toSave);
-            if (data == null)
-                severities = DEFAULT_SEVERITIES;
-            else
-                severities = data;
-        }
-        return severities;
     }
 }

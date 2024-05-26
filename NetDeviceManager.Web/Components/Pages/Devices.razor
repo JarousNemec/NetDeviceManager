@@ -13,7 +13,7 @@
 <NewDeviceModelModal @ref="_newDeviceModelModal" Device="new Device()" Icons="IconsList" OnApply="OnApplyNewDeviceModal" OnNewIcon="OnNewIcon"></NewDeviceModelModal>
 <NewLoginProfileModal @ref="_newLoginProfileModal" Profile="new LoginProfile()" OnApply="OnApplyNewLoginProfile"></NewLoginProfileModal>
 <NewIconModal @ref="_newIconModal" Icon="new CreateDeviceIconModel()" OnApply="OnApplyNewDeviceIcon"></NewIconModal>
-<AddPortModal @ref="_addPortModal" Port="new Port()" OnApply="OnApplyNewPort" PortsInSystem="PortsInSystem"></AddPortModal>
+<AddPortModal @ref="_addPortModal" OnApply="OnApplyNewPort"></AddPortModal>
 <div>
     <h2>Devices</h2>
     <div class="actions-div">
@@ -53,11 +53,11 @@
 </div>
 
 @code{
-    [Inject] public IDeviceService DeviceService { get; set; }
-    [Inject] public ISnmpService SnmpService { get; set; }
-    [Inject] public ISyslogService SyslogService { get; set; }
-    [Inject] public IDatabaseService DatabaseService { get; set; }
-    [Inject] public NavigationManager NavigationManager { get; set; }
+    [Inject]  IDeviceService DeviceService { get; set; }
+    [Inject]  ISnmpService SnmpService { get; set; }
+    [Inject]  ISyslogService SyslogService { get; set; }
+    [Inject]  IDatabaseService DatabaseService { get; set; }
+    [Inject]  NavigationManager NavigationManager { get; set; }
 
     private Grid<PhysicalDevice> _grid = default!;
     private IEnumerable<PhysicalDevice> _records = default!;
@@ -117,6 +117,7 @@
     private async void CreateNewDevice()
     {
         _configureDeviceModal.Device = new PhysicalDevice();
+        _configureDeviceModal.SpecialDevicePorts = new List<PhysicalDeviceHasPort>();
         await _configureDeviceModal.ShowModalAsync();
     }
 
@@ -155,6 +156,7 @@
     private async void OnNewDevice(PhysicalDevice obj)
     {
         _tempPhDevice = obj;
+        
         await _configureDeviceModal.HideModalAsync();
         await _newDeviceModelModal.ShowModalAsync();
     }
@@ -186,7 +188,7 @@
         if (tempPort != null)
             _tempDevicePorts.Remove(tempPort);
         else
-            DatabaseService.RemovePortFromDevice(relation.Id);
+            DatabaseService.RemovePortFromDevice(relation.PortId);
     }
 
 

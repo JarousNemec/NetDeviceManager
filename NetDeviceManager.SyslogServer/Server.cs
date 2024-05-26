@@ -7,7 +7,7 @@ public class Server
 {
     private readonly ServerCache _cache;
 
-    public Server(ServerCache cache, IDatabaseService database)
+    public Server(ServerCache cache)
     {
         _cache = cache;
     }

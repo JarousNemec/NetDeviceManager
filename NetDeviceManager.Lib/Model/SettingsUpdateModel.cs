@@ -1,8 +1,8 @@
 ﻿namespace NetDeviceManager.Lib.Model;
 
-public class SettingsModel
+public class SettingsUpdateModel
 {
-    public int[] DesiredSeverities { get; set; }
+    public string DesiredSeverities { get; set; }
     public string ReportLogInterval { get; set; }
     public string ReportSensorInterval { get; set; }
 }

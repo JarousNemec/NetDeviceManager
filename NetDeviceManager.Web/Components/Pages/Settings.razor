@@ -2,124 +2,162 @@
 @using System.Text
 @using System.Text.Encodings.Web
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Connections
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
 @using NetDeviceManager.Database.Identity
 
 @using Microsoft.AspNetCore.Identity.EntityFrameworkCore
+@using NetDeviceManager.Database.Tables
+@using NetDeviceManager.Lib.Interfaces
+@using NetDeviceManager.Lib.Model
+@using NetDeviceManager.Lib.Services
 @using NetDeviceManager.Web.Components.Account
 @using NetDeviceManager.Web.Models
-
-@inject UserManager<ApplicationUser> UserManager
-@inject IUserStore<ApplicationUser> UserStore
-@inject SignInManager<ApplicationUser> SignInManager
-@inject IEmailSender<ApplicationUser> EmailSender
-@inject NavigationManager NavigationManager
-@inject IdentityRedirectManager RedirectManager
-
+@using NetDeviceManager.Web.Components.Modals
+@rendermode InteractiveServer
 @attribute [Authorize]
+
+<ConfirmDialog @ref="_confirmDialog"/>
+<AddPortModal @ref="_addPortModal" OnApply="OnApplyNewDefaultPort"></AddPortModal>
+<NewUserModal @ref="_newUserModal" OnApply="OnApplyNewUser"></NewUserModal>
+<Toasts class="p-3" Messages="messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight"/>
 <PageTitle>settings</PageTitle>
 <div style="margin: 30px; margin-top: 0">
-    <EditForm Model="Device" method="post" OnValidSubmit="SubmitForm" FormName="Config" class="modal-form">
-        <DataAnnotationsValidator />
-        <div class="labelinput-modalform">
-            <label class="label-menu font-16">Name<span class="important-symbol">*</span></label>
-            <InputText @bind-Value="Device.Name" class="input-modalform font-16"
-                       placeholder="Enter your device name..."/>
-            <ValidationMessage For="() => Device.Name"/>
-        </div>
-        <div class="labelinput-modalform">
-            <label class="label-menu font-16">Description</label>
-            <InputText @bind-Value="Device.Description" class="input-modalform font-16"
-                       placeholder="Enter description..."/>
-        </div>
-        <div class="labelinput-modalform">
-            <label class="label-menu font-16">Ip Address<span class="important-symbol">*</span></label>
-            <InputText @bind-Value="Device.IpAddress" class="input-modalform font-16"
-                       placeholder="Enter device ip address..."/>
-            <ValidationMessage For="() => Device.IpAddress"/>
-        </div>
-        <div class="labelinput-modalform">
-            <label class="label-menu font-16">Mac Address</label>
-            <InputText @bind-Value="Device.MacAddress" class="input-modalform font-16"
-                       placeholder="Enter device mac address..."/>
-        </div>
-        <div class="labelinput-modalform">
-            <label class="label-menu font-16">Select device type<span class="important-symbol">*</span>:</label>
-            <InputSelect id="device" @bind-Value="Device.DeviceId" class="input-modalform">
-                @foreach (var device in Devices)
-                {
-                <option value="@device.Id">@($"{device.Name}({device.Model})")</option>
-                }
-            </InputSelect>
-            <ValidationMessage For="() => Device.DeviceId"/>
-            <div class="btn-container-modalform">
-                <button class="btn-action btn-style-normal font-16" @onclick="() => OnNewDevice?.Invoke(Device)">
-                    New device
-                </button>
+
+    <div style="width: 50%; margin: 10px 0">
+        <EditForm EditContext="new EditContext(SettingsModel)" method="post" OnValidSubmit="SubmitForm" FormName="Settings" class="modal-form">
+            <div class="labelinput-menu">
+                <label class="label-menu font-16">Desired syslog severities (Json array)</label>
+                <InputText @bind-Value="SettingsModel.DesiredSeverities" class="input-modalform font-16"
+                           placeholder="Enter severities..."/>
             </div>
-        </div>
-        <div class="labelinput-modalform">
-            <label class="label-menu font-16">Select login profile<span class="important-symbol">*</span>:</label>
-            <InputSelect id="profile" @bind-Value="Device.LoginProfileId" class="input-modalform">
-                @foreach (var profile in LoginProfiles)
-                {
-                <option value="@profile.Id">@profile.Name</option>
-                }
-            </InputSelect>
-            <ValidationMessage For="() => Device.LoginProfileId"/>
-            <div class="btn-container-modalform">
-                <button class="btn-action btn-style-normal font-16" @onclick="() => OnNewProfile?.Invoke(Device)">
-                    New
-                    profile
-                </button>
+            <div class="labelinput-menu">
+                <label class="label-menu font-16">Logs report interval (CRON format)</label>
+                <InputText @bind-Value="SettingsModel.ReportLogInterval" class="input-modalform font-16"
+                           placeholder="Enter interval..."/>
             </div>
-        </div>
-    </EditForm>
-    <div class="labelinput-modalform">
-        <label class="label-menu font-16">Special ports:</label>
-        <Grid @ref="_grid"
-              TItem="PhysicalDeviceHasPort"
+            <div class="labelinput-menu">
+                <label class="label-menu font-16">Snmp sensors read interval (CRON format)</label>
+                <InputText @bind-Value="SettingsModel.ReportSensorInterval" class="input-modalform font-16"
+                           placeholder="Enter interval..."/>
+            </div>
+        </EditForm>
+    </div>
+    <div class="labelinput-menu">
+        <label class="label-menu font-16">Users</label>
+        <Grid @ref="_users"
+              TItem="ApplicationUser"
               Class="table table-hover table-bordered table-striped"
-              DataProvider="RecordsDataProvider"
+              Data="UserManager.Users.ToList()"
               Responsive="true">
 
-            <GridColumn TItem="PhysicalDeviceHasPort" HeaderText="Number" PropertyName="Number">
-                @context.Port.Number
+            <GridColumn TItem="ApplicationUser" HeaderText="Name" PropertyName="Number">
+                @context.UserName
             </GridColumn>
-            <GridColumn TItem="PhysicalDeviceHasPort" HeaderText="Protocol" PropertyName="Protocol">
-                @context.Port.Protocol.ToString()
+            <GridColumn TItem="ApplicationUser" HeaderText="ApiKey" PropertyName="Protocol">
+                @context.ApiKey
             </GridColumn>
-            <GridColumn TItem="PhysicalDeviceHasPort" HeaderText="Actions" PropertyName="Data">
+            <GridColumn TItem="ApplicationUser" HeaderText="Actions" PropertyName="Data">
+                @if (_users.Data.Count() > 1)
+                {
+                    <div style="display: flex; width: 100%; flex-direction: row-reverse;">
+                        <div class="btn-container-grid">
+                            <button class="btn-style-danger btn-action font-16" @onclick="() => RemoveUser(context)">X</button>
+                        </div>
+                    </div>
+                }
+            </GridColumn>
+        </Grid>
+        <div class="btn-container-modalform">
+            <button class="btn-action btn-style-normal font-16" @onclick="() => AddUser()">
+                Add user
+            </button>
+        </div>
+    </div>
+
+    <div class="labelinput-menu">
+        <label class="label-menu font-16">Default ports</label>
+        <Grid @ref="_ports"
+              TItem="Port"
+              Class="table table-hover table-bordered table-striped"
+              Data="DatabaseService.GetDefaultPorts()"
+              Responsive="true">
+
+            <GridColumn TItem="Port" HeaderText="Number" PropertyName="Number">
+                @context.Number
+            </GridColumn>
+            <GridColumn TItem="Port" HeaderText="Protocol" PropertyName="Protocol">
+                @context.Protocol.ToString()
+            </GridColumn>
+            <GridColumn TItem="Port" HeaderText="Actions" PropertyName="Data">
+
                 <div style="display: flex; width: 100%; flex-direction: row-reverse;">
                     <div class="btn-container-grid">
-                        <button class="btn-style-danger btn-action font-16" @onclick="() => RemoveSpecialPort(context)">X</button>
+                        <button class="btn-style-danger btn-action font-16" @onclick="() => RemoveDefaultPort(context)">X</button>
                     </div>
                 </div>
             </GridColumn>
         </Grid>
         <div class="btn-container-modalform">
-            <button class="btn-action btn-style-normal font-16" @onclick="() => OnNewPort?.Invoke(Device)">
+            <button class="btn-action btn-style-normal font-16" @onclick="() => AddDefaultPort()">
                 Add port
             </button>
         </div>
     </div>
+
     <div>
-        <button type="submit" @onclick="SubmitForm" class="btn-apply btn-style-confirm font-16">Apply</button>
+        <button type="submit" @onclick="SubmitForm" class="btn-apply btn-style-confirm font-16">Apply changes</button>
     </div>
 </div>
 
 @code{
-    
+    [Inject] IDeviceService DeviceService { get; set; }
+    [Inject] ISnmpService SnmpService { get; set; }
+    [Inject] IDatabaseService DatabaseService { get; set; }
+    [Inject] NavigationManager NavigationManager { get; set; }
+    [Inject] UserManager<ApplicationUser> UserManager { get; set; }
+    [Inject] IUserStore<ApplicationUser> UserStore { get; set; }
+    [Inject] SignInManager<ApplicationUser> SignInManager { get; set; }
+    [Inject] IdentityRedirectManager RedirectManager { get; set; }
+    [Inject] SettingsService SettingsService { get; set; }
 
-    public async Task<bool> RegisterUser(EditContext editContext, UserCreateModel input)
+    public SettingsUpdateModel SettingsModel { get; set; } = new SettingsUpdateModel();
+    private ConfirmDialog _confirmDialog = default!;
+    private Grid<Port> _ports = default!;
+    private Grid<ApplicationUser> _users = default!;
+
+    private AddPortModal _addPortModal = default!;
+    private NewUserModal _newUserModal = default!;
+
+    List<ToastMessage> messages = new List<ToastMessage>();
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            SettingsModel = SettingsService.GetSettingsUpdateModel();
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    public async Task RegisterUser(UserCreateModel input)
     {
         var user = CreateUser();
 
         await UserStore.SetUserNameAsync(user, input.Username, CancellationToken.None);
+        user.ApiKey = Guid.NewGuid().ToString();
         var result = await UserManager.CreateAsync(user, input.Password);
+        if (result.Succeeded)
+        {
+            ShowToast(ToastType.Success, "User successfully added");
+        }
+        else
+        {
+            ShowToast(ToastType.Danger, result.Errors.ToList()[0].Description);
+        }
 
-        return result.Succeeded;
+        await InvokeAsync(StateHasChanged);
     }
 
     private ApplicationUser CreateUser()
@@ -134,4 +172,85 @@
                                                 $"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor.");
         }
     }
+
+    private void ShowToast(ToastType toastType, string message) => messages.Add(CreateToastMessage(toastType, message));
+
+    private ToastMessage CreateToastMessage(ToastType toastType, string message)
+        => new ToastMessage
+        {
+            Type = toastType,
+            Title = toastType.ToString(),
+            HelpText = $"{DateTime.Now}",
+            Message = message,
+        };
+
+    private void SubmitForm()
+    {
+        SettingsService.UpdateSettings(SettingsModel);
+    }
+
+    private async void AddUser()
+    {
+        await _newUserModal.ShowModalAsync();
+    }
+
+    private async void RemoveUser(ApplicationUser user)
+    {
+        if (await ShowConfirmationAsync())
+            DatabaseService.DeleteUser(user.Id);
+        UpdateTables();
+    }
+
+    private async void OnApplyNewDefaultPort(Port port)
+    {
+        await _addPortModal.HideModalAsync();
+        port.IsDefault = true;
+        DatabaseService.UpsertPort(port);
+        UpdateTables();
+    }
+
+    private async void OnApplyNewUser(UserCreateModel user)
+    {
+        await _newUserModal.HideModalAsync();
+        await RegisterUser(user);
+        UpdateTables();
+    }
+
+    private async void RemoveDefaultPort(Port context)
+    {
+        if (await ShowConfirmationAsync())
+            DatabaseService.RemoveDefaultPort(context.Id);
+        UpdateTables();
+    }
+
+    private async void AddDefaultPort()
+    {
+        await _addPortModal.ShowModalAsync();
+    }
+
+    private async void UpdateTables()
+    {
+        _users.Data = UserManager.Users.ToList();
+        _ports.Data = DatabaseService.GetDefaultPorts();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task<bool> ShowConfirmationAsync()
+    {
+        var options = new ConfirmDialogOptions
+        {
+            YesButtonText = "Yes",
+            YesButtonColor = ButtonColor.Success,
+            NoButtonText = "No",
+            NoButtonColor = ButtonColor.Danger
+        };
+
+        var confirmation = await _confirmDialog.ShowAsync(
+            title: "Confirm dialog",
+            message1: "Are u sure u wanna to do it?",
+            confirmDialogOptions: options);
+
+        return confirmation;
+    }
+
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NetDeviceManager.Database;
+using NetDeviceManager.Database.Identity;
 using NetDeviceManager.Database.Models;
 using NetDeviceManager.Database.Tables;
 using NetDeviceManager.Lib.Interfaces;
@@ -66,13 +67,27 @@ public class DatabaseService : IDatabaseService
         return id;
     }
 
-    public Guid AddPort(Port port)
+    public Guid UpsertPort(Port port)
     {
-        var id = GenerateGuid();
-        port.Id = id;
-        _database.Ports.Add(port);
-        _database.SaveChanges();
-        return id;
+        if (PortExists(port, out Guid id))
+        {
+            if (port.IsDefault)
+                return id;
+            var existingPort = _database.Ports.FirstOrDefault(x => x.Id == id);
+            existingPort.IsDefault = port.IsDefault;
+            _database.Ports.Update(port);
+            _database.SaveChanges();
+            return id;
+        }
+        else
+        {
+            id = GenerateGuid();
+
+            port.Id = id;
+            _database.Ports.Add(port);
+            _database.SaveChanges();
+            return id;
+        }
     }
 
     public Guid AddPortToPhysicalDevice(PhysicalDeviceHasPort physicalDeviceHasPort)
@@ -96,7 +111,8 @@ public class DatabaseService : IDatabaseService
     public Guid? AddSnmpSensorToPhysicalDevice(SnmpSensorInPhysicalDevice sensorInPhysicalDevice)
     {
         if (!_database.SnmpSensorsInPhysicalDevices.All(x =>
-                x.PhysicalDeviceId != sensorInPhysicalDevice.PhysicalDeviceId && x.SnmpSensorId != sensorInPhysicalDevice.SnmpSensorId))
+                x.PhysicalDeviceId != sensorInPhysicalDevice.PhysicalDeviceId &&
+                x.SnmpSensorId != sensorInPhysicalDevice.SnmpSensorId))
             return null;
         var id = GenerateGuid();
         sensorInPhysicalDevice.Id = id;
@@ -158,16 +174,36 @@ public class DatabaseService : IDatabaseService
             _database.SaveChanges();
             return pattern.Id;
         }
+
         if (!_database.CorrectDataPatterns.All(x =>
                 x.PhysicalDeviceId != pattern.PhysicalDeviceId && x.SensorId != pattern.SensorId))
             return null;
-        
+
         var id = GenerateGuid();
         pattern.Id = id;
         pattern.CapturedTime = DateTime.Now;
         _database.CorrectDataPatterns.Add(pattern);
         _database.SaveChanges();
         return id;
+    }
+
+    public void SetConfigValue(string key, string value)
+    {
+        var record = _database.Settings.FirstOrDefault(x => x.Key == key);
+        if (record != null)
+        {
+            record.Value = value;
+            _database.Settings.Update(record);
+            _database.SaveChanges();
+            return;
+        }
+
+        var newRecord = new Setting();
+        newRecord.Id = GenerateGuid();
+        newRecord.Key = key;
+        newRecord.Value = value;
+        _database.Settings.Add(newRecord);
+        _database.SaveChanges();
     }
 
     public void UpdatePhysicalDevice(PhysicalDevice model)
@@ -296,7 +332,7 @@ public class DatabaseService : IDatabaseService
 
     public List<CorrectDataPattern> GetPhysicalDevicesPatterns()
     {
-        return _database.CorrectDataPatterns.Include(x =>x.PhysicalDevice).Include(x=>x.Sensor).ToList();
+        return _database.CorrectDataPatterns.Include(x => x.PhysicalDevice).Include(x => x.Sensor).ToList();
     }
 
     public List<Guid> GetSyslogsBySeverity(int severity)
@@ -333,7 +369,7 @@ public class DatabaseService : IDatabaseService
             query = query.Where(x => x.Sensor.Name == model.SensorName);
         }
 
-        return query.OrderByDescending(x =>x.CapturedTime).Take(count).ToList();
+        return query.OrderByDescending(x => x.CapturedTime).Take(count).ToList();
     }
 
     public List<SyslogRecord> GetSyslogRecordsWithFilter(SyslogRecordFilterModel model, int count)
@@ -359,7 +395,7 @@ public class DatabaseService : IDatabaseService
             query = query.Where(x => x.Severity == model.Severity);
         }
 
-        return query.OrderByDescending(x =>x.ProcessedDate).Take(count).ToList();
+        return query.OrderByDescending(x => x.ProcessedDate).Take(count).ToList();
     }
 
     public List<DeviceIcon> GetIcons()
@@ -370,6 +406,11 @@ public class DatabaseService : IDatabaseService
     public List<Port> GetPortsInSystem()
     {
         return _database.Ports.ToList();
+    }
+
+    public List<Port> GetDefaultPorts()
+    {
+        return _database.Ports.Where(x => x.IsDefault).ToList();
     }
 
     public List<SnmpSensor> GetSensors()
@@ -414,15 +455,48 @@ public class DatabaseService : IDatabaseService
 
     public OperationResult RemovePortFromDevice(Guid id)
     {
-        var record = _database.PhysicalDevicesHasPorts.FirstOrDefault(x => x.Id == id);
+        var record = _database.PhysicalDevicesHasPorts.FirstOrDefault(x => x.PortId == id);
         if (record != null)
         {
             _database.PhysicalDevicesHasPorts.Remove(record);
             _database.SaveChanges();
+
+            if (_database.PhysicalDevicesHasPorts.Count(x => x.PortId == record.PortId) == 0)
+            {
+                var port = _database.Ports.FirstOrDefault(x => x.Id == record.PortId);
+                if (port != null)
+                {
+                    _database.Ports.Remove(port);
+                    _database.SaveChanges();
+                }
+            }
+
             return new OperationResult();
         }
 
         return new OperationResult() { IsSuccessful = false, Message = "Cannot remove port" };
+    }
+
+    public OperationResult RemoveDefaultPort(Guid id)
+    {
+        var port = _database.Ports.FirstOrDefault(x => x.Id == id);
+        if (port != null)
+        {
+            if (_database.PhysicalDevicesHasPorts.Count(x => x.PortId == port.Id) == 0)
+            {
+                    _database.Ports.Remove(port);
+                    _database.SaveChanges();
+            }
+            else
+            {
+                port.IsDefault = false;
+                _database.Ports.Update(port);
+                _database.SaveChanges();
+            }
+            return new OperationResult();
+        }
+
+        return new OperationResult() { IsSuccessful = false, Message = "Unknown id" };
     }
 
     public OperationResult DeleteSnmpSensor(Guid id)
@@ -454,6 +528,7 @@ public class DatabaseService : IDatabaseService
         _database.SaveChanges();
         return new OperationResult();
     }
+
     public OperationResult DeleteCorrectDataPattern(Guid id)
     {
         var pattern = _database.CorrectDataPatterns.FirstOrDefault(x => x.Id == id);
@@ -476,6 +551,19 @@ public class DatabaseService : IDatabaseService
         return new OperationResult();
     }
 
+    public OperationResult DeleteUser(string id)
+    {
+        var user = _database.Users.FirstOrDefault(x => x.Id == id);
+        if (user != null)
+        {
+            _database.Users.Remove(user);
+            _database.SaveChanges();
+            return new OperationResult();
+        }
+
+        return new OperationResult() { IsSuccessful = false, Message = "Unknown id" };
+    }
+
     public bool AnyPhysicalDeviceWithIp(string ip)
     {
         return _database.PhysicalDevices.Any(x => x.IpAddress == ip);
@@ -494,7 +582,7 @@ public class DatabaseService : IDatabaseService
         return true;
     }
 
-    public bool PortAddDeviceRelationExists(Guid portId, Guid deviceId, out Guid id)
+    public bool PortAndDeviceRelationExists(Guid portId, Guid deviceId, out Guid id)
     {
         var existing =
             _database.PhysicalDevicesHasPorts.FirstOrDefault(x => x.DeviceId == deviceId && x.PortId == portId);

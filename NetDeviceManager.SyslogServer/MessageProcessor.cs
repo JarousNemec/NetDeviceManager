@@ -16,7 +16,7 @@ public class MessageProcessor
 {
     private readonly ServerCache _cache;
     private readonly IDatabaseService _database;
-    private readonly int[] DEFAULT_SEVERITIES = new[] { 0, 1, 2, 3, 4 };
+    private readonly SettingsService SettingsService;
 
     public MessageProcessor(ServerCache cache, string dbConnString)
     {
@@ -26,6 +26,7 @@ public class MessageProcessor
             .Options;
         var context = new ApplicationDbContext(options);
         _database = new DatabaseService(context);
+        SettingsService = new SettingsService(_database);
     }
 
     public async void Run()
@@ -33,8 +34,7 @@ public class MessageProcessor
         Console.WriteLine("Running processor...");
         try
         {
-            
-            int[] severities = LoadDesiredSeveritiesConfig();
+            var severities = SettingsService.GetSettings().DesiredSeverities;
 
             while (true)
             {
@@ -51,7 +51,7 @@ public class MessageProcessor
                         Console.WriteLine($"Processing message.... ({Message.Ip}) : {Message.Message}");
                         var record = ParseRecord(Message);
                         
-                        if (severities.Contains(record.Severity))
+                        if (severities.Contains(record.Severity) || record.Severity == -1)
                         {
                             _database.AddSyslogRecord(record);
                         }
@@ -68,41 +68,21 @@ public class MessageProcessor
             Run();
         }
     }
-
-    private int[] LoadDesiredSeveritiesConfig()
-    {
-        int[] severities;
-        var toSave = _database.GetConfigValue("DesiredSeverities");
-        if (string.IsNullOrEmpty(toSave))
-        {
-            severities = DEFAULT_SEVERITIES;
-        }
-        else
-        {
-            var data = JsonSerializer.Deserialize<int[]>(toSave);
-            if (data == null)
-                severities = DEFAULT_SEVERITIES;
-            else
-                severities = data;
-        }
-        return severities;
-    }
-
     private SyslogRecord ParseRecord(CacheMessageModel message)
     {
         var device = _database.GetPhysicalDeviceByIp(message.Ip);
 
         SyslogRecord record;
-        switch (_database.GetConfigValue("SyslogFormat")?.ToLower())
-        {
-            case "cisco":
-                record = CiscoFormatParseRecord(message, device);
-                break;
-            default:
-                record = CiscoFormatParseRecord(message, device);
-                break;
-        }
-        
+        // switch (_database.GetConfigValue("SyslogFormat")?.ToLower())
+        // {
+        //     case "cisco":
+        //         record = CiscoFormatParseRecord(message, device);
+        //         break;
+        //     default:
+        //         record = CiscoFormatParseRecord(message, device);
+        //         break;
+        // }
+        record = CiscoFormatParseRecord(message, device);
         return record;
 
     }
@@ -115,6 +95,11 @@ public class MessageProcessor
         if (priority == -1)
         {
             severity = CiscoFormatParseSeverityFromText(message.Message);
+        }
+
+        if (severity == -1)
+        {
+            facility = -1;
         }
         var record = new SyslogRecord()
         {
