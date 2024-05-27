@@ -431,7 +431,7 @@ public class DatabaseService : IDatabaseService
 
     public OperationResult DeletePhysicalDevice(Guid id)
     {
-        var device = _database.PhysicalDevices.AsNoTracking().FirstOrDefault(x => x.Id == id);
+        var device = _database.PhysicalDevices.FirstOrDefault(x => x.Id == id);
         if (device == null)
             return new OperationResult() { IsSuccessful = false, Message = "Unknown Id" };
 
@@ -455,15 +455,15 @@ public class DatabaseService : IDatabaseService
 
     public OperationResult RemovePortFromDevice(Guid id)
     {
-        var record = _database.PhysicalDevicesHasPorts.AsNoTracking().FirstOrDefault(x => x.PortId == id);
+        var record = _database.PhysicalDevicesHasPorts.FirstOrDefault(x => x.PortId == id);
         if (record != null)
         {
             _database.PhysicalDevicesHasPorts.Remove(record);
             _database.SaveChanges();
 
-            if (_database.PhysicalDevicesHasPorts.AsNoTracking().Count(x => x.PortId == record.PortId) == 0)
+            if (_database.PhysicalDevicesHasPorts.Count(x => x.PortId == record.PortId) == 0)
             {
-                var port = _database.Ports.AsNoTracking().FirstOrDefault(x => x.Id == record.PortId);
+                var port = _database.Ports.FirstOrDefault(x => x.Id == record.PortId);
                 if (port != null)
                 {
                     _database.Ports.Remove(port);
@@ -479,10 +479,10 @@ public class DatabaseService : IDatabaseService
 
     public OperationResult RemoveDefaultPort(Guid id)
     {
-        var port = _database.Ports.AsNoTracking().FirstOrDefault(x => x.Id == id);
+        var port = _database.Ports.FirstOrDefault(x => x.Id == id);
         if (port != null)
         {
-            if (_database.PhysicalDevicesHasPorts.AsNoTracking().Count(x => x.PortId == port.Id) == 0)
+            if (_database.PhysicalDevicesHasPorts.Count(x => x.PortId == port.Id) == 0)
             {
                     _database.Ports.Remove(port);
                     _database.SaveChanges();
@@ -501,16 +501,16 @@ public class DatabaseService : IDatabaseService
 
     public OperationResult DeleteSnmpSensor(Guid id)
     {
-        var sensor = _database.SnmpSensors.AsNoTracking().FirstOrDefault(x => x.Id == id);
+        var sensor = _database.SnmpSensors.FirstOrDefault(x => x.Id == id);
         if (sensor == null)
         {
             return new OperationResult() { IsSuccessful = false, Message = "Unknown Id" };
         }
 
-        var records = _database.SnmpSensorRecords.AsNoTracking().Where(x => x.SensorId == id);
+        var records = _database.SnmpSensorRecords.Where(x => x.SensorId == id);
         _database.SnmpSensorRecords.RemoveRange(records);
 
-        var relationShips = _database.SnmpSensorsInPhysicalDevices.AsNoTracking().Where(x => x.SnmpSensorId == id);
+        var relationShips = _database.SnmpSensorsInPhysicalDevices.Where(x => x.SnmpSensorId == id);
         _database.SnmpSensorsInPhysicalDevices.RemoveRange(relationShips);
 
         _database.SnmpSensors.Remove(sensor);
@@ -521,7 +521,7 @@ public class DatabaseService : IDatabaseService
 
     public OperationResult DeleteSnmpSensorInPhysicalDevice(Guid id)
     {
-        var relationship = _database.SnmpSensorsInPhysicalDevices.AsNoTracking().FirstOrDefault(x => x.Id == id);
+        var relationship = _database.SnmpSensorsInPhysicalDevices.FirstOrDefault(x => x.Id == id);
         if (relationship == null)
             return new OperationResult() { IsSuccessful = false, Message = "Unknown id" };
         _database.SnmpSensorsInPhysicalDevices.Remove(relationship);
@@ -531,7 +531,7 @@ public class DatabaseService : IDatabaseService
 
     public OperationResult DeleteCorrectDataPattern(Guid id)
     {
-        var pattern = _database.CorrectDataPatterns.AsNoTracking().FirstOrDefault(x => x.Id == id);
+        var pattern = _database.CorrectDataPatterns.FirstOrDefault(x => x.Id == id);
         if (pattern == null)
             return new OperationResult() { IsSuccessful = false, Message = "Unknown id" };
         _database.CorrectDataPatterns.Remove(pattern);
@@ -541,7 +541,7 @@ public class DatabaseService : IDatabaseService
 
     public OperationResult DeleteDeviceSchedulerJob(Guid id)
     {
-        var job = _database.SchedulerJobs.AsNoTracking().FirstOrDefault(x => x.PhysicalDeviceId == id);
+        var job = _database.SchedulerJobs.FirstOrDefault(x => x.PhysicalDeviceId == id);
         if (job != null)
         {
             _database.SchedulerJobs.Remove(job);
@@ -553,7 +553,7 @@ public class DatabaseService : IDatabaseService
 
     public OperationResult DeleteUser(string id)
     {
-        var user = _database.Users.AsNoTracking().FirstOrDefault(x => x.Id == id);
+        var user = _database.Users.FirstOrDefault(x => x.Id == id);
         if (user != null)
         {
             _database.Users.Remove(user);

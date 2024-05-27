@@ -12,6 +12,7 @@ using Quartz.Impl;
 using Quartz.Impl.Matchers;
 using ScheduledDatabaseReporter.Factories;
 using ScheduledDatabaseReporter.Helpers;
+using ScheduledDatabaseReporter.Jobs;
 using ScheduledDatabaseReporter.Utils;
 using Timer = System.Timers.Timer;
 
@@ -47,7 +48,9 @@ public class Scheduler
     private ServiceProvider SetupServiceCollection(string? connectionString)
     {
         var serviceCollection = new ServiceCollection();
-        serviceCollection.AddSingleton<IDatabaseService, DatabaseService>();
+        serviceCollection.AddScoped<IDatabaseService, DatabaseService>();
+        serviceCollection.AddScoped<SettingsService>();
+        serviceCollection.AddScoped<ReporterJob>();
         serviceCollection.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(connectionString));
         var serviceProvider = serviceCollection.BuildServiceProvider();
@@ -88,6 +91,7 @@ public class Scheduler
             await StartNewReportJob(group, reportCron);
             _actualCron = reportCron;
             Console.WriteLine($"New cron is: {_actualCron}");
+            
         }
     }
 

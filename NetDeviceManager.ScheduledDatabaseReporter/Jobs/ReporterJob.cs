@@ -1,4 +1,5 @@
-﻿using NetDeviceManager.Lib.Interfaces;
+﻿using NetDeviceManager.Database.Tables;
+using NetDeviceManager.Lib.Interfaces;
 using Quartz;
 
 namespace ScheduledDatabaseReporter.Jobs;
@@ -16,13 +17,15 @@ public class ReporterJob : IJob
 
     public async Task Execute(IJobExecutionContext context)
     {
-        InitializeJob(context);
+        // InitializeJob(context);
 
         /////////////////////////////
         await Console.Out.WriteLineAsync("Reporting data bro.......");
-        // if (!Directory.Exists(_path))
-        //     Directory.CreateDirectory(_path);
-        // File.Create(Path.Combine(_path, $"{DateTime.Now}.report"));
+        if (!Directory.Exists("./reports"))
+            Directory.CreateDirectory("./reports");
+        File.Create(Path.Combine("./reports", $"{DateTime.Now.Ticks}.report"));
+        _databaseService.AddDeviceIcon(new DeviceIcon()
+            { Description = DateTime.Now.ToString(), Name = "iconka ze scheduleru" });
     }
 
     private void InitializeJob(IJobExecutionContext context)

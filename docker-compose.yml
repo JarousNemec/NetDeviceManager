@@ -43,6 +43,8 @@ services:
     ports:
       - "10001:8080"
       - "10011:8081"  
+    volumes:
+      - ./reports:/app/reports
     depends_on:
       database:
         condition: service_healthy
@@ -53,7 +55,7 @@ services:
       context: .
       dockerfile: ./NetDeviceManager.ScheduledDatabaseReporter/Dockerfile
     volumes:
-      - ./reports:/reports
+      - ./reports:/app/reports
     depends_on:
       database:
         condition: service_healthy

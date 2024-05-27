@@ -46,7 +46,8 @@ public class Scheduler
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddScoped<ReadDeviceSensorsJob>();
         serviceCollection.AddScoped<ISnmpService, SnmpService>();
-        serviceCollection.AddSingleton<IDatabaseService, DatabaseService>();
+        serviceCollection.AddScoped<IDatabaseService, DatabaseService>();
+        serviceCollection.AddScoped<SettingsService>();
         serviceCollection.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(connectionString));
         var serviceProvider = serviceCollection.BuildServiceProvider();
