@@ -36,11 +36,17 @@
                 <label class="label-menu font-16">Logs report interval (CRON format)</label>
                 <InputText @bind-Value="SettingsModel.ReportLogInterval" class="input-modalform font-16"
                            placeholder="Enter interval..."/>
+                <div class="btn-container-modalform">
+                    <a href="https://www.freeformatter.com/cron-expression-generator-quartz.html" target="_blank" class="btn-action btn-style-normal font-16">Open CRON generator</a>
+                </div>
             </div>
             <div class="labelinput-menu">
                 <label class="label-menu font-16">Snmp sensors read interval (CRON format)</label>
                 <InputText @bind-Value="SettingsModel.ReportSensorInterval" class="input-modalform font-16"
                            placeholder="Enter interval..."/>
+                <div class="btn-container-modalform">
+                    <a href="https://www.freeformatter.com/cron-expression-generator-quartz.html" target="_blank" class="btn-action btn-style-normal font-16">Open CRON generator</a>
+                </div>
             </div>
         </EditForm>
     </div>

@@ -1,33 +1,36 @@
-﻿using NetDeviceManager.Database;
-using System.Timers;
+﻿using System.Timers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using NetDeviceManager.Database;
 using NetDeviceManager.Database.Tables;
 using NetDeviceManager.Lib.GlobalConstantsAndEnums;
 using NetDeviceManager.Lib.Interfaces;
 using NetDeviceManager.Lib.Services;
 using NetDeviceManager.Lib.Snmp.Utils;
-using NetDeviceManager.ScheduledSnmpAgent.Factories;
-using NetDeviceManager.ScheduledSnmpAgent.Helpers;
-using NetDeviceManager.ScheduledSnmpAgent.Jobs;
-using NetDeviceManager.ScheduledSnmpAgent.Utils;
 using Quartz;
 using Quartz.Impl;
 using Quartz.Impl.Matchers;
+using ScheduledDatabaseReporter.Factories;
+using ScheduledDatabaseReporter.Helpers;
+using ScheduledDatabaseReporter.Utils;
 using Timer = System.Timers.Timer;
 
-namespace NetDeviceManager.ScheduledSnmpAgent;
+namespace ScheduledDatabaseReporter;
 
 public class Scheduler
 {
     private readonly IDatabaseService _databaseService;
     private readonly Timer _timer;
     private IScheduler _scheduler;
+    private const string _jobId = "myReportJob";
+    private string _actualCron = string.Empty;
+    private readonly SettingsService _settingsService;
 
-    public Scheduler(IDatabaseService databaseService, Timer timer)
+    public Scheduler(IDatabaseService databaseService, Timer timer, SettingsService settingsService)
     {
         _databaseService = databaseService;
         _timer = timer;
+        _settingsService = settingsService;
         SetupTimer(20000); //todo: change for production
         SetupScheduler();
     }
@@ -44,8 +47,6 @@ public class Scheduler
     private ServiceProvider SetupServiceCollection(string? connectionString)
     {
         var serviceCollection = new ServiceCollection();
-        serviceCollection.AddScoped<ReadDeviceSensorsJob>();
-        serviceCollection.AddScoped<ISnmpService, SnmpService>();
         serviceCollection.AddSingleton<IDatabaseService, DatabaseService>();
         serviceCollection.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(connectionString));
@@ -62,18 +63,17 @@ public class Scheduler
 
     private void TimerOnElapsed(object? sender, ElapsedEventArgs e)
     {
-        Console.WriteLine("Watching for new schedulers...");
+        Console.WriteLine("Checking report scheduler job");
         Schedule();
     }
 
     public void Schedule()
     {
-        ScheduleJobs();
+        ScheduleJob();
     }
 
-    private async void ScheduleJobs()
+    private async void ScheduleJob()
     {
-        var registeredJobs = _databaseService.GetSchedulerJobs();
         var group = ConfigurationHelper.GetValue("JobGroupName");
         if (group == null)
         {
@@ -81,57 +81,54 @@ public class Scheduler
             return;
         }
 
-        await StartNewJobsIfThereAre(group, registeredJobs);
-        await KillOldJobsIfThereAre(group, registeredJobs);
+        var reportCron = _settingsService.GetSettings().ReportLogInterval;
+        if (reportCron != _actualCron)
+        {
+            await KillOldReportJob(group);
+            await StartNewReportJob(group, reportCron);
+            _actualCron = reportCron;
+            Console.WriteLine($"New cron is: {_actualCron}");
+        }
     }
 
-    private async Task StartNewJobsIfThereAre(string group, List<SchedulerJob> registeredJobs)
+    private async Task StartNewReportJob(string group, string cron)
     {
         var jobKeys = _scheduler
             .GetJobKeys(GroupMatcher<JobKey>.GroupEquals(group)).Result.ToList();
-        foreach (var registeredJob in registeredJobs)
+        if (jobKeys.All(x => x.Name != _jobId))
         {
-            if (jobKeys.All(x => x.Name != registeredJob.Id.ToString()))
-            {
-                if (registeredJob.Type == SchedulerJobType.SNMPGET)
-                {
-                    await ScheduleSnmpGetJob(registeredJob, group);
-                    
-                }
-            }
+            await ScheduleReportJob(cron, group);
+            Console.WriteLine($"New job started with cron:{cron}");
         }
     }
-    private async Task KillOldJobsIfThereAre(string group, List<SchedulerJob> registeredJobs)
+
+    private async Task KillOldReportJob(string group)
     {
         var jobKeys = _scheduler
             .GetJobKeys(GroupMatcher<JobKey>.GroupEquals(group)).Result.ToList();
         foreach (var jobKey in jobKeys)
         {
-            if (registeredJobs.All(x => x.Id.ToString() != jobKey.Name))
+            if (jobKeys.Any(x => x.Name == _jobId))
             {
                 await _scheduler.Interrupt(jobKey);
+                Console.WriteLine($"Old job interrupted...");
             }
         }
     }
 
-    private async Task ScheduleSnmpGetJob(SchedulerJob registeredJob, string readersGroup)
+    private async Task ScheduleReportJob(string cron, string group)
     {
-        var port = SnmpUtils.GetSnmpPort(registeredJob.PhysicalDeviceId, _databaseService);
-        if (port == null) return;
-        var loginProfile = _databaseService.GetLoginProfile(registeredJob.PhysicalDevice.LoginProfileId);
-        string id = registeredJob.Id.ToString();
+        var path = ConfigurationHelper.GetPath();
+        
+        if(string.IsNullOrEmpty(path))
+            return;
+        Console.WriteLine($"Path for new job is: {path}");
+        Console.WriteLine($"Example path: {Path.Combine(path, "file.exe")}");
+        var job = SchedulerUtil.CreateReportJob(_jobId, path,
+            group);
+        var trigger = SchedulerUtil.CreateJobTrigger(_jobId, cron,
+            group);
 
-        var sensorsInPhysicalDevice = _databaseService.GetSensorsOfPhysicalDevice(registeredJob.PhysicalDeviceId);
-
-        if (sensorsInPhysicalDevice.Any())
-        {
-            var job = SchedulerUtil.CreateReadDeviceSensorJob(id, registeredJob.PhysicalDevice,
-                sensorsInPhysicalDevice, port, loginProfile,
-                readersGroup);
-            var trigger = SchedulerUtil.CreateJobTrigger(id, registeredJob.Cron,
-                readersGroup);
-
-            await _scheduler.ScheduleJob(job, trigger);
-        }
+        await _scheduler.ScheduleJob(job, trigger);
     }
 }

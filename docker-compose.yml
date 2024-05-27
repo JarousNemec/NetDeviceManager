@@ -47,6 +47,17 @@ services:
       database:
         condition: service_healthy
         
+  reporter:
+    restart: always
+    build:
+      context: .
+      dockerfile: ./NetDeviceManager.ScheduledDatabaseReporter/Dockerfile
+    volumes:
+      - ./reports:/reports
+    depends_on:
+      database:
+        condition: service_healthy
+        
   database:
     image: postgres:16.2
     restart: always

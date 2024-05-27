@@ -226,22 +226,22 @@ public class DatabaseService : IDatabaseService
 
     public List<Device> GetDevices()
     {
-        return _database.Devices.ToList();
+        return _database.Devices.AsNoTracking().ToList();
     }
 
     public List<LoginProfile> GetLoginProfiles()
     {
-        return _database.LoginProfiles.ToList();
+        return _database.LoginProfiles.AsNoTracking().ToList();
     }
 
     public List<SchedulerJob> GetSchedulerJobs()
     {
-        return _database.SchedulerJobs.Include(x => x.PhysicalDevice).ToList();
+        return _database.SchedulerJobs.AsNoTracking().Include(x => x.PhysicalDevice).ToList();
     }
 
     public SchedulerJob? GetPhysicalDeviceSchedulerJob(Guid id)
     {
-        return _database.SchedulerJobs.Include(x => x.PhysicalDevice).FirstOrDefault(x => x.PhysicalDeviceId == id);
+        return _database.SchedulerJobs.AsNoTracking().Include(x => x.PhysicalDevice).FirstOrDefault(x => x.PhysicalDeviceId == id);
     }
 
     public List<SnmpSensorInPhysicalDevice> GetSensorsOfPhysicalDevice(Guid physicalDeviceId)
@@ -255,73 +255,73 @@ public class DatabaseService : IDatabaseService
 
     public List<PhysicalDeviceHasPort> GetPortInPhysicalDevices(Guid deviceId)
     {
-        return _database.PhysicalDevicesHasPorts.Where(x => x.DeviceId == deviceId).Include(x => x.Port).ToList();
+        return _database.PhysicalDevicesHasPorts.AsNoTracking().Where(x => x.DeviceId == deviceId).Include(x => x.Port).ToList();
     }
 
     public LoginProfile? GetLoginProfile(Guid id)
     {
-        return _database.LoginProfiles.FirstOrDefault(x => x.Id == id);
+        return _database.LoginProfiles.AsNoTracking().FirstOrDefault(x => x.Id == id);
     }
 
     public Guid GetSnmpSensorInPhysicalDeviceId(Guid sensorId, Guid deviceId)
     {
-        return _database.SnmpSensorsInPhysicalDevices.FirstOrDefault(x =>
+        return _database.SnmpSensorsInPhysicalDevices.AsNoTracking().FirstOrDefault(x =>
             x.PhysicalDeviceId == deviceId && x.SnmpSensorId == sensorId).Id;
     }
 
     public int GetRecordsCount()
     {
-        return _database.SnmpSensorRecords.Count();
+        return _database.SnmpSensorRecords.AsNoTracking().Count();
     }
 
     public int GetDeviceSensorsCount(Guid id)
     {
-        return _database.SnmpSensorsInPhysicalDevices.Count(x => x.PhysicalDeviceId == id);
+        return _database.SnmpSensorsInPhysicalDevices.AsNoTracking().Count(x => x.PhysicalDeviceId == id);
     }
 
     public bool IsAnySensorInDevice(Guid id)
     {
-        return _database.SnmpSensorsInPhysicalDevices.Any(x => x.PhysicalDeviceId == id);
+        return _database.SnmpSensorsInPhysicalDevices.AsNoTracking().Any(x => x.PhysicalDeviceId == id);
     }
 
     public List<SnmpSensorRecord> GetLastSnmpRecords(int count)
     {
-        return _database.SnmpSensorRecords.Include(x => x.PhysicalDevice).Include(x => x.Sensor)
+        return _database.SnmpSensorRecords.AsNoTracking().Include(x => x.PhysicalDevice).Include(x => x.Sensor)
             .OrderByDescending(x => x.CapturedTime).Take(count).ToList();
     }
 
     public List<SyslogRecord> GetLastSyslogRecords(int count)
     {
-        var data = _database.SyslogRecords.Include(x => x.PhysicalDevice)
+        var data = _database.SyslogRecords.AsNoTracking().Include(x => x.PhysicalDevice)
             .OrderByDescending(x => x.ProcessedDate).Take(count).ToList();
         return data;
     }
 
     public PhysicalDevice? GetPhysicalDeviceByIp(string ip)
     {
-        return _database.PhysicalDevices.FirstOrDefault(x => x.IpAddress == ip);
+        return _database.PhysicalDevices.AsNoTracking().FirstOrDefault(x => x.IpAddress == ip);
     }
 
     public string? GetConfigValue(string key)
     {
-        return _database.Settings.FirstOrDefault(x => x.Key == key)?.Value;
+        return _database.Settings.AsNoTracking().FirstOrDefault(x => x.Key == key)?.Value;
     }
 
     public SnmpSensorRecord? GetLastDeviceRecord(Guid id)
     {
-        return _database.SnmpSensorRecords.Where(x => x.PhysicalDeviceId == id).OrderByDescending(x => x.CapturedTime)
+        return _database.SnmpSensorRecords.AsNoTracking().Where(x => x.PhysicalDeviceId == id).OrderByDescending(x => x.CapturedTime)
             .FirstOrDefault();
     }
 
     public List<PhysicalDevice> GetPhysicalDevices()
     {
-        var data = _database.PhysicalDevices.Include(x => x.Device).ToList();
+        var data = _database.PhysicalDevices.AsNoTracking().Include(x => x.Device).ToList();
         return data;
     }
 
     public List<PhysicalDevice> GetCompletePhysicalDevices(Guid id)
     {
-        return _database.PhysicalDevices.Where(x => x.Id == id)
+        return _database.PhysicalDevices.AsNoTracking().Where(x => x.Id == id)
             .Include(x => x.Device)
             .Include(x => x.LoginProfile)
             .Include(x => x.PortsInDevice)
@@ -332,22 +332,22 @@ public class DatabaseService : IDatabaseService
 
     public List<CorrectDataPattern> GetPhysicalDevicesPatterns()
     {
-        return _database.CorrectDataPatterns.Include(x => x.PhysicalDevice).Include(x => x.Sensor).ToList();
+        return _database.CorrectDataPatterns.AsNoTracking().Include(x => x.PhysicalDevice).Include(x => x.Sensor).ToList();
     }
 
     public List<Guid> GetSyslogsBySeverity(int severity)
     {
-        return _database.SyslogRecords.Where(x => x.Severity == severity).Select(x => x.Id).ToList();
+        return _database.SyslogRecords.AsNoTracking().Where(x => x.Severity == severity).Select(x => x.Id).ToList();
     }
 
     public List<Guid> GetSyslogs()
     {
-        return _database.SyslogRecords.Select(x => x.Id).ToList();
+        return _database.SyslogRecords.AsNoTracking().Select(x => x.Id).ToList();
     }
 
     public List<SnmpSensorRecord> GetSnmpRecordsWithFilter(SnmpRecordFilterModel model, int count)
     {
-        IQueryable<SnmpSensorRecord> query = _database.SnmpSensorRecords.Include(x => x.PhysicalDevice)
+        IQueryable<SnmpSensorRecord> query = _database.SnmpSensorRecords.AsNoTracking().Include(x => x.PhysicalDevice)
             .Include(x => x.Sensor);
         if (!string.IsNullOrEmpty(model.DeviceName))
         {
@@ -374,7 +374,7 @@ public class DatabaseService : IDatabaseService
 
     public List<SyslogRecord> GetSyslogRecordsWithFilter(SyslogRecordFilterModel model, int count)
     {
-        IQueryable<SyslogRecord> query = _database.SyslogRecords.Include(x => x.PhysicalDevice);
+        IQueryable<SyslogRecord> query = _database.SyslogRecords.AsNoTracking().Include(x => x.PhysicalDevice);
         if (!string.IsNullOrEmpty(model.DeviceName))
         {
             query = query.Where(x => x.PhysicalDevice.Name == model.DeviceName);
@@ -400,38 +400,38 @@ public class DatabaseService : IDatabaseService
 
     public List<DeviceIcon> GetIcons()
     {
-        return _database.DeviceIcons.ToList();
+        return _database.DeviceIcons.AsNoTracking().ToList();
     }
 
     public List<Port> GetPortsInSystem()
     {
-        return _database.Ports.ToList();
+        return _database.Ports.AsNoTracking().ToList();
     }
 
     public List<Port> GetDefaultPorts()
     {
-        return _database.Ports.Where(x => x.IsDefault).ToList();
+        return _database.Ports.AsNoTracking().Where(x => x.IsDefault).ToList();
     }
 
     public List<SnmpSensor> GetSensors()
     {
-        return _database.SnmpSensors.ToList();
+        return _database.SnmpSensors.AsNoTracking().ToList();
     }
 
     public int GetSensorUsagesCount(Guid id)
     {
-        return _database.SnmpSensorsInPhysicalDevices.Count(x => x.SnmpSensorId == id);
+        return _database.SnmpSensorsInPhysicalDevices.AsNoTracking().Count(x => x.SnmpSensorId == id);
     }
 
     public CorrectDataPattern? GetSpecificPattern(Guid deviceId, Guid sensorId)
     {
-        return _database.CorrectDataPatterns.FirstOrDefault(x =>
+        return _database.CorrectDataPatterns.AsNoTracking().FirstOrDefault(x =>
             x.PhysicalDeviceId == deviceId && x.SensorId == sensorId);
     }
 
     public OperationResult DeletePhysicalDevice(Guid id)
     {
-        var device = _database.PhysicalDevices.FirstOrDefault(x => x.Id == id);
+        var device = _database.PhysicalDevices.AsNoTracking().FirstOrDefault(x => x.Id == id);
         if (device == null)
             return new OperationResult() { IsSuccessful = false, Message = "Unknown Id" };
 
@@ -455,15 +455,15 @@ public class DatabaseService : IDatabaseService
 
     public OperationResult RemovePortFromDevice(Guid id)
     {
-        var record = _database.PhysicalDevicesHasPorts.FirstOrDefault(x => x.PortId == id);
+        var record = _database.PhysicalDevicesHasPorts.AsNoTracking().FirstOrDefault(x => x.PortId == id);
         if (record != null)
         {
             _database.PhysicalDevicesHasPorts.Remove(record);
             _database.SaveChanges();
 
-            if (_database.PhysicalDevicesHasPorts.Count(x => x.PortId == record.PortId) == 0)
+            if (_database.PhysicalDevicesHasPorts.AsNoTracking().Count(x => x.PortId == record.PortId) == 0)
             {
-                var port = _database.Ports.FirstOrDefault(x => x.Id == record.PortId);
+                var port = _database.Ports.AsNoTracking().FirstOrDefault(x => x.Id == record.PortId);
                 if (port != null)
                 {
                     _database.Ports.Remove(port);
@@ -479,10 +479,10 @@ public class DatabaseService : IDatabaseService
 
     public OperationResult RemoveDefaultPort(Guid id)
     {
-        var port = _database.Ports.FirstOrDefault(x => x.Id == id);
+        var port = _database.Ports.AsNoTracking().FirstOrDefault(x => x.Id == id);
         if (port != null)
         {
-            if (_database.PhysicalDevicesHasPorts.Count(x => x.PortId == port.Id) == 0)
+            if (_database.PhysicalDevicesHasPorts.AsNoTracking().Count(x => x.PortId == port.Id) == 0)
             {
                     _database.Ports.Remove(port);
                     _database.SaveChanges();
@@ -501,16 +501,16 @@ public class DatabaseService : IDatabaseService
 
     public OperationResult DeleteSnmpSensor(Guid id)
     {
-        var sensor = _database.SnmpSensors.FirstOrDefault(x => x.Id == id);
+        var sensor = _database.SnmpSensors.AsNoTracking().FirstOrDefault(x => x.Id == id);
         if (sensor == null)
         {
             return new OperationResult() { IsSuccessful = false, Message = "Unknown Id" };
         }
 
-        var records = _database.SnmpSensorRecords.Where(x => x.SensorId == id);
+        var records = _database.SnmpSensorRecords.AsNoTracking().Where(x => x.SensorId == id);
         _database.SnmpSensorRecords.RemoveRange(records);
 
-        var relationShips = _database.SnmpSensorsInPhysicalDevices.Where(x => x.SnmpSensorId == id);
+        var relationShips = _database.SnmpSensorsInPhysicalDevices.AsNoTracking().Where(x => x.SnmpSensorId == id);
         _database.SnmpSensorsInPhysicalDevices.RemoveRange(relationShips);
 
         _database.SnmpSensors.Remove(sensor);
@@ -521,7 +521,7 @@ public class DatabaseService : IDatabaseService
 
     public OperationResult DeleteSnmpSensorInPhysicalDevice(Guid id)
     {
-        var relationship = _database.SnmpSensorsInPhysicalDevices.FirstOrDefault(x => x.Id == id);
+        var relationship = _database.SnmpSensorsInPhysicalDevices.AsNoTracking().FirstOrDefault(x => x.Id == id);
         if (relationship == null)
             return new OperationResult() { IsSuccessful = false, Message = "Unknown id" };
         _database.SnmpSensorsInPhysicalDevices.Remove(relationship);
@@ -531,7 +531,7 @@ public class DatabaseService : IDatabaseService
 
     public OperationResult DeleteCorrectDataPattern(Guid id)
     {
-        var pattern = _database.CorrectDataPatterns.FirstOrDefault(x => x.Id == id);
+        var pattern = _database.CorrectDataPatterns.AsNoTracking().FirstOrDefault(x => x.Id == id);
         if (pattern == null)
             return new OperationResult() { IsSuccessful = false, Message = "Unknown id" };
         _database.CorrectDataPatterns.Remove(pattern);
@@ -541,7 +541,7 @@ public class DatabaseService : IDatabaseService
 
     public OperationResult DeleteDeviceSchedulerJob(Guid id)
     {
-        var job = _database.SchedulerJobs.FirstOrDefault(x => x.PhysicalDeviceId == id);
+        var job = _database.SchedulerJobs.AsNoTracking().FirstOrDefault(x => x.PhysicalDeviceId == id);
         if (job != null)
         {
             _database.SchedulerJobs.Remove(job);
@@ -553,7 +553,7 @@ public class DatabaseService : IDatabaseService
 
     public OperationResult DeleteUser(string id)
     {
-        var user = _database.Users.FirstOrDefault(x => x.Id == id);
+        var user = _database.Users.AsNoTracking().FirstOrDefault(x => x.Id == id);
         if (user != null)
         {
             _database.Users.Remove(user);
@@ -566,12 +566,12 @@ public class DatabaseService : IDatabaseService
 
     public bool AnyPhysicalDeviceWithIp(string ip)
     {
-        return _database.PhysicalDevices.Any(x => x.IpAddress == ip);
+        return _database.PhysicalDevices.AsNoTracking().Any(x => x.IpAddress == ip);
     }
 
     public bool PortExists(Port port, out Guid id)
     {
-        var existing = _database.Ports.FirstOrDefault(x => x.Number == port.Number && x.Protocol == port.Protocol);
+        var existing = _database.Ports.AsNoTracking().FirstOrDefault(x => x.Number == port.Number && x.Protocol == port.Protocol);
         if (existing == null)
         {
             id = new Guid();
@@ -585,7 +585,7 @@ public class DatabaseService : IDatabaseService
     public bool PortAndDeviceRelationExists(Guid portId, Guid deviceId, out Guid id)
     {
         var existing =
-            _database.PhysicalDevicesHasPorts.FirstOrDefault(x => x.DeviceId == deviceId && x.PortId == portId);
+            _database.PhysicalDevicesHasPorts.AsNoTracking().FirstOrDefault(x => x.DeviceId == deviceId && x.PortId == portId);
         if (existing == null)
         {
             id = new Guid();

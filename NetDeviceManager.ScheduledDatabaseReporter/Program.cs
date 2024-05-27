@@ -1,11 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NetDeviceManager.Database;
 using NetDeviceManager.Lib.Interfaces;
 using NetDeviceManager.Lib.Services;
-using NetDeviceManager.ScheduledSnmpAgent;
-using NetDeviceManager.ScheduledSnmpAgent.Helpers;
+using ScheduledDatabaseReporter;
+using ScheduledDatabaseReporter.Helpers;
 using Timer = System.Timers.Timer;
 
 Console.WriteLine("Initializing...");
@@ -19,6 +20,7 @@ builder.Services.AddSingleton<Scheduler>();
 builder.Services.AddSingleton<Timer>();
 builder.Services.AddScoped<ISnmpService, SnmpService>();
 builder.Services.AddScoped<IDatabaseService, DatabaseService>();
+builder.Services.AddScoped<SettingsService>();
 
 Console.WriteLine("Initialized!");
 
