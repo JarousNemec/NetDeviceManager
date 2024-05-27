@@ -241,7 +241,8 @@ public class DatabaseService : IDatabaseService
 
     public SchedulerJob? GetPhysicalDeviceSchedulerJob(Guid id)
     {
-        return _database.SchedulerJobs.AsNoTracking().Include(x => x.PhysicalDevice).FirstOrDefault(x => x.PhysicalDeviceId == id);
+        return _database.SchedulerJobs.AsNoTracking().Include(x => x.PhysicalDevice)
+            .FirstOrDefault(x => x.PhysicalDeviceId == id);
     }
 
     public List<SnmpSensorInPhysicalDevice> GetSensorsOfPhysicalDevice(Guid physicalDeviceId)
@@ -255,7 +256,8 @@ public class DatabaseService : IDatabaseService
 
     public List<PhysicalDeviceHasPort> GetPortInPhysicalDevices(Guid deviceId)
     {
-        return _database.PhysicalDevicesHasPorts.AsNoTracking().Where(x => x.DeviceId == deviceId).Include(x => x.Port).ToList();
+        return _database.PhysicalDevicesHasPorts.AsNoTracking().Where(x => x.DeviceId == deviceId).Include(x => x.Port)
+            .ToList();
     }
 
     public LoginProfile? GetLoginProfile(Guid id)
@@ -309,7 +311,8 @@ public class DatabaseService : IDatabaseService
 
     public SnmpSensorRecord? GetLastDeviceRecord(Guid id)
     {
-        return _database.SnmpSensorRecords.AsNoTracking().Where(x => x.PhysicalDeviceId == id).OrderByDescending(x => x.CapturedTime)
+        return _database.SnmpSensorRecords.AsNoTracking().Where(x => x.PhysicalDeviceId == id)
+            .OrderByDescending(x => x.CapturedTime)
             .FirstOrDefault();
     }
 
@@ -332,7 +335,8 @@ public class DatabaseService : IDatabaseService
 
     public List<CorrectDataPattern> GetPhysicalDevicesPatterns()
     {
-        return _database.CorrectDataPatterns.AsNoTracking().Include(x => x.PhysicalDevice).Include(x => x.Sensor).ToList();
+        return _database.CorrectDataPatterns.AsNoTracking().Include(x => x.PhysicalDevice).Include(x => x.Sensor)
+            .ToList();
     }
 
     public List<Guid> GetSyslogsBySeverity(int severity)
@@ -395,6 +399,8 @@ public class DatabaseService : IDatabaseService
             query = query.Where(x => x.Severity == model.Severity);
         }
 
+        if (count == -1)
+            return query.OrderByDescending(x => x.ProcessedDate).ToList();
         return query.OrderByDescending(x => x.ProcessedDate).Take(count).ToList();
     }
 
@@ -484,8 +490,8 @@ public class DatabaseService : IDatabaseService
         {
             if (_database.PhysicalDevicesHasPorts.Count(x => x.PortId == port.Id) == 0)
             {
-                    _database.Ports.Remove(port);
-                    _database.SaveChanges();
+                _database.Ports.Remove(port);
+                _database.SaveChanges();
             }
             else
             {
@@ -493,6 +499,7 @@ public class DatabaseService : IDatabaseService
                 _database.Ports.Update(port);
                 _database.SaveChanges();
             }
+
             return new OperationResult();
         }
 
@@ -571,7 +578,8 @@ public class DatabaseService : IDatabaseService
 
     public bool PortExists(Port port, out Guid id)
     {
-        var existing = _database.Ports.AsNoTracking().FirstOrDefault(x => x.Number == port.Number && x.Protocol == port.Protocol);
+        var existing = _database.Ports.AsNoTracking()
+            .FirstOrDefault(x => x.Number == port.Number && x.Protocol == port.Protocol);
         if (existing == null)
         {
             id = new Guid();
@@ -585,7 +593,8 @@ public class DatabaseService : IDatabaseService
     public bool PortAndDeviceRelationExists(Guid portId, Guid deviceId, out Guid id)
     {
         var existing =
-            _database.PhysicalDevicesHasPorts.AsNoTracking().FirstOrDefault(x => x.DeviceId == deviceId && x.PortId == portId);
+            _database.PhysicalDevicesHasPorts.AsNoTracking()
+                .FirstOrDefault(x => x.DeviceId == deviceId && x.PortId == portId);
         if (existing == null)
         {
             id = new Guid();

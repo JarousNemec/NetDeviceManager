@@ -11,6 +11,9 @@ public class DeviceService : IDeviceService
     private readonly IDatabaseService _database;
     private readonly IFileStorageService _fileStorageService;
 
+    private readonly List<PhysicalDevice> _onlineDevices = new List<PhysicalDevice>();
+    private readonly List<PhysicalDevice> _offlineDevices = new List<PhysicalDevice>();
+    private DateTime _lastUpdate = new DateTime(2006, 8, 1, 20, 20, 20);
     public DeviceService(IDatabaseService database, IFileStorageService fileStorageService)
     {
         _database = database;
@@ -79,9 +82,6 @@ public class DeviceService : IDeviceService
 
     #region GetMethods
 
-    private readonly List<PhysicalDevice> _onlineDevices = new List<PhysicalDevice>();
-    private readonly List<PhysicalDevice> _offlineDevices = new List<PhysicalDevice>();
-    private DateTime _lastUpdate = new DateTime(2006, 8, 1, 20, 20, 20);
 
     public int GetOnlineDevicesCount()
     {
