@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetDeviceManager.Lib", "Net
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetDeviceManager.ScheduledDatabaseReporter", "NetDeviceManager.ScheduledDatabaseReporter\NetDeviceManager.ScheduledDatabaseReporter.csproj", "{AF1685D2-34B7-4F0C-A429-65FC6E700733}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sql", "Sql", "{B442D30D-2FC7-400C-8EA1-DAEE887FEE95}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

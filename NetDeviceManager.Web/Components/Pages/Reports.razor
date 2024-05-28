@@ -1,6 +1,54 @@
 ﻿@page "/reports"
+@using System.Net
+@using System.Runtime.CompilerServices
+@using System.Text.Json
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize]
-<PageTitle>reports</PageTitle>
+<PageTitle>Reports</PageTitle>
+<div>
+    <h2>Reports for download</h2>
 
-<h1>Hello, world! - reports</h1>
+    <Grid TItem="string"
+          Class="table table-hover table-bordered table-striped"
+          Data="_reports"
+          Responsive="true">
+
+        <GridColumn TItem="string" HeaderText="Report date" PropertyName="ReportDate">
+            @context
+        </GridColumn>
+        <GridColumn TItem="string" HeaderText="Action" PropertyName="action">
+            <div class="btn-container-modalform">
+                <a href=@($"http://api/Api/GetReport?id={context}") target="_blank" class="btn-action btn-style-normal font-16">Download</a>
+            </div>
+        </GridColumn>
+    </Grid>
+</div>
+
+<style>
+    .filter-form {
+        display: flex;
+        align-items: flex-end;
+        margin-bottom: 8px;
+    }
+</style>
+
+@code{
+[Inject] public HttpClient HttpClient { get; set; }
+
+private IEnumerable<string> _reports = new string[1];
+
+protected override async Task OnAfterRenderAsync(bool firstRender)
+{
+await base.OnAfterRenderAsync(firstRender);
+_reports = await GetReportNames();
+}
+
+private async Task<string[]> GetReportNames()
+{
+    var response = await HttpClient.GetAsync($"http://api/Api/GetReportsList");
+    response.EnsureSuccessStatusCode();
+    var responseBody = await response.Content.ReadAsStringAsync();
+    return JsonSerializer.Deserialize<string[]>(responseBody);
+}
+
+}

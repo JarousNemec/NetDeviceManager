@@ -117,6 +117,10 @@ public interface IDatabaseService
 
     OperationResult DeleteUser(string id);
 
+    OperationResult DeleteAllSyslogs();
+
+    OperationResult DeleteAllSnmpRecords();
+
     #endregion
 
     #region Special

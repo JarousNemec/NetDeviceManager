@@ -571,6 +571,28 @@ public class DatabaseService : IDatabaseService
         return new OperationResult() { IsSuccessful = false, Message = "Unknown id" };
     }
 
+    public OperationResult DeleteAllSyslogs()
+    {
+        foreach (var record in _database.SyslogRecords)
+        {
+            _database.SyslogRecords.Remove(record);
+        }
+
+        _database.SaveChanges();
+        return new OperationResult();
+    }
+
+    public OperationResult DeleteAllSnmpRecords()
+    {
+        foreach (var record in _database.SnmpSensorRecords)
+        {
+            _database.SnmpSensorRecords.Remove(record);
+        }
+
+        _database.SaveChanges();
+        return new OperationResult();
+    }
+
     public bool AnyPhysicalDeviceWithIp(string ip)
     {
         return _database.PhysicalDevices.AsNoTracking().Any(x => x.IpAddress == ip);

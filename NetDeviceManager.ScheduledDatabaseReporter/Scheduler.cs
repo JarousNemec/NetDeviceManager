@@ -6,7 +6,6 @@ using NetDeviceManager.Database.Tables;
 using NetDeviceManager.Lib.GlobalConstantsAndEnums;
 using NetDeviceManager.Lib.Interfaces;
 using NetDeviceManager.Lib.Services;
-using NetDeviceManager.Lib.Snmp.Utils;
 using Quartz;
 using Quartz.Impl;
 using Quartz.Impl.Matchers;
@@ -114,7 +113,7 @@ public class Scheduler
         {
             if (jobKeys.Any(x => x.Name == _jobId))
             {
-                await _scheduler.Interrupt(jobKey);
+                await _scheduler.DeleteJob(jobKey);
                 Console.WriteLine($"Old job interrupted...");
             }
         }

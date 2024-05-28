@@ -3,7 +3,7 @@ using NetDeviceManager.Database.Tables;
 using NetDeviceManager.Lib.GlobalConstantsAndEnums;
 using NetDeviceManager.Lib.Interfaces;
 
-namespace NetDeviceManager.Lib.Snmp.Utils;
+namespace NetDeviceManager.Lib.Utils;
 
 public static class SnmpUtils
 {

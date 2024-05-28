@@ -6,7 +6,7 @@ using NetDeviceManager.Database.Tables;
 using NetDeviceManager.Lib.GlobalConstantsAndEnums;
 using NetDeviceManager.Lib.Interfaces;
 using NetDeviceManager.Lib.Services;
-using NetDeviceManager.Lib.Snmp.Utils;
+using NetDeviceManager.Lib.Utils;
 using NetDeviceManager.ScheduledSnmpAgent.Factories;
 using NetDeviceManager.ScheduledSnmpAgent.Helpers;
 using NetDeviceManager.ScheduledSnmpAgent.Jobs;
@@ -110,7 +110,7 @@ public class Scheduler
         {
             if (registeredJobs.All(x => x.Id.ToString() != jobKey.Name))
             {
-                await _scheduler.Interrupt(jobKey);
+                await _scheduler.DeleteJob(jobKey);
             }
         }
     }

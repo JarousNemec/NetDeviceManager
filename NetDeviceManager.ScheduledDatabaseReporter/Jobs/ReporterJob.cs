@@ -1,7 +1,9 @@
-﻿using System.Text.Json;
+﻿using System.Text;
+using System.Text.Json;
 using NetDeviceManager.Database.Models;
 using NetDeviceManager.Database.Tables;
 using NetDeviceManager.Lib.Interfaces;
+using NetDeviceManager.Lib.Utils;
 using Quartz;
 
 namespace ScheduledDatabaseReporter.Jobs;
@@ -11,8 +13,7 @@ public class ReporterJob : IJob
     private string _id = string.Empty;
     private string _path = string.Empty;
     private readonly IDatabaseService _databaseService;
-    private const string SYSLOG_REPORT_FILENAME = "syslogs.json";
-    private const string SNMP_REPORT_FILENAME = "snmps.json";
+    private const string SYSLOG_REPORT_FILENAME = "syslogs.log";
 
     public ReporterJob(IDatabaseService databaseService)
     {
@@ -24,33 +25,57 @@ public class ReporterJob : IJob
         InitializeJob(context);
         await Console.Out.WriteLineAsync("Reporting data bro.......");
 
+        if (!Directory.Exists(_path))
+            Directory.CreateDirectory(_path);
+
+        var date = DateTime.Now;
+        
+        var currentdatepath = Path.Combine(_path, date.ToString("MM.dd.yyyy HH-mm-ss"));
+        if (!Directory.Exists(currentdatepath))
+            Directory.CreateDirectory(currentdatepath);
+        
         var devices = _databaseService.GetPhysicalDevices();
         foreach (var device in devices)
         {
-            if (!Directory.Exists(_path))
-                Directory.CreateDirectory(_path);
+            var devicedirpath = PrepareReportDirectoryPath(device, currentdatepath);
             
-            var currentdatepath = Path.Combine(_path, DateTime.Now.ToString("MM.dd.yyyy HH-mm-ss"));
-            if (!Directory.Exists(currentdatepath))
-                Directory.CreateDirectory(currentdatepath);
-            
-            var devicedirpath = Path.Combine(currentdatepath, device.IpAddress);
-            if (!Directory.Exists(devicedirpath))
-                Directory.CreateDirectory(devicedirpath);
-
-            var snmppath = Path.Combine(devicedirpath, SNMP_REPORT_FILENAME);
             var syslogpath = Path.Combine(devicedirpath, SYSLOG_REPORT_FILENAME);
 
-            var syslogs =
-                _databaseService.GetSyslogRecordsWithFilter(
-                    new SyslogRecordFilterModel() { IpAddress = device.IpAddress }, -1);
-            await File.WriteAllTextAsync(syslogpath, JsonSerializer.Serialize(syslogs));
-
-            var snmps = _databaseService.GetSnmpRecordsWithFilter(
-                new SnmpRecordFilterModel() { IpAddress = device.IpAddress }, -1);
-
-            await File.WriteAllTextAsync(snmppath, JsonSerializer.Serialize(snmps));
+            await ReportAllSyslogs(device, syslogpath);
         }
+        _databaseService.DeleteAllSyslogs();
+        
+        var zipPath = Path.Combine(_path, $"{date}.zip");
+        var error = FileUtil.ArchiveDirectory(zipPath, currentdatepath);
+        Console.WriteLine(error);
+        Directory.Delete(currentdatepath);
+    }
+
+    private string PrepareReportDirectoryPath(PhysicalDevice device, string currentdatepath)
+    {
+        
+            
+        var devicedirpath = Path.Combine(currentdatepath, device.IpAddress);
+        if (!Directory.Exists(devicedirpath))
+            Directory.CreateDirectory(devicedirpath);
+        return devicedirpath;
+    }
+
+    private async Task ReportAllSyslogs(PhysicalDevice device, string syslogpath)
+    {
+        var syslogs =
+            _databaseService.GetSyslogRecordsWithFilter(
+                new SyslogRecordFilterModel() { IpAddress = device.IpAddress }, -1);
+        StringBuilder builder = new StringBuilder();
+        foreach (var log in syslogs)
+        {
+            builder.AppendLine($"{log.ProcessedDate.ToString("MM.dd.yyyy HH-mm-ss")} - {log.CompletMessage}");
+        }
+
+        var data = builder.ToString();
+        if (string.IsNullOrEmpty(data))
+            data = "No new logs...";
+        await File.WriteAllTextAsync(syslogpath, data);
     }
 
     private void InitializeJob(IJobExecutionContext context)

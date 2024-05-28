@@ -1,4 +1,4 @@
-﻿namespace NetDeviceManager.Lib.Snmp.Utils;
+﻿namespace NetDeviceManager.Lib.Utils;
 
 public static class EnumUtil
 {

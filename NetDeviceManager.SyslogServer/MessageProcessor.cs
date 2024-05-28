@@ -3,6 +3,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using NetDeviceManager.Database;
 using NetDeviceManager.Database.Tables;
 using NetDeviceManager.Lib.Interfaces;
@@ -24,6 +25,7 @@ public class MessageProcessor
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseNpgsql(dbConnString)
             .Options;
+            
         var context = new ApplicationDbContext(options);
         _database = new DatabaseService(context);
         SettingsService = new SettingsService(_database);
