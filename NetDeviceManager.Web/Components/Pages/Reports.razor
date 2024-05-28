@@ -3,6 +3,8 @@
 @using System.Runtime.CompilerServices
 @using System.Text.Json
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@using NetDeviceManager.Database.Identity
 @attribute [Authorize]
 <PageTitle>Reports</PageTitle>
 <div>
@@ -18,7 +20,7 @@
         </GridColumn>
         <GridColumn TItem="string" HeaderText="Action" PropertyName="action">
             <div class="btn-container-modalform">
-                <a href=@($"http://api/Api/GetReport?id={context}") target="_blank" class="btn-action btn-style-normal font-16">Download</a>
+                <a href=@($"http://api/Api/GetReport?id={context}&key={_key}") target="_blank" class="btn-action btn-style-normal font-16">Download</a>
             </div>
         </GridColumn>
     </Grid>
@@ -33,22 +35,26 @@
 </style>
 
 @code{
-[Inject] public HttpClient HttpClient { get; set; }
+    [Inject] public HttpClient HttpClient { get; set; }
+    [Inject] public UserManager<ApplicationUser> UserManager { get; set; }
+    [Inject] public IHttpContextAccessor Accessor { get; set; }
+    private string? _key = string.Empty;
+    private IEnumerable<string> _reports = new string[1];
 
-private IEnumerable<string> _reports = new string[1];
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        _reports = await GetReportNames();
+        if (Accessor.HttpContext?.User != null)
+            _key = UserManager.GetUserAsync(Accessor.HttpContext.User).Result?.ApiKey;
+    }
 
-protected override async Task OnAfterRenderAsync(bool firstRender)
-{
-await base.OnAfterRenderAsync(firstRender);
-_reports = await GetReportNames();
-}
-
-private async Task<string[]> GetReportNames()
-{
-    var response = await HttpClient.GetAsync($"http://api/Api/GetReportsList");
-    response.EnsureSuccessStatusCode();
-    var responseBody = await response.Content.ReadAsStringAsync();
-    return JsonSerializer.Deserialize<string[]>(responseBody);
-}
+    private async Task<string[]> GetReportNames()
+    {
+        var response = await HttpClient.GetAsync($"http://api/Api/GetReportsList?key={_key}");
+        response.EnsureSuccessStatusCode();
+        var responseBody = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<string[]>(responseBody);
+    }
 
 }
