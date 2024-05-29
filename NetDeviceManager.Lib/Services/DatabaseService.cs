@@ -121,14 +121,14 @@ public class DatabaseService : IDatabaseService
         return id;
     }
 
-    public Guid AddSchedulerJob(SchedulerJob job)
-    {
-        var id = GenerateGuid();
-        job.Id = id;
-        _database.SchedulerJobs.Add(job);
-        _database.SaveChanges();
-        return id;
-    }
+    // public Guid AddSchedulerJob(SchedulerJob job)
+    // {
+    //     var id = GenerateGuid();
+    //     job.Id = id;
+    //     _database.SchedulerJobs.Add(job);
+    //     _database.SaveChanges();
+    //     return id;
+    // }
 
     public Guid AddSyslogRecord(SyslogRecord record)
     {
@@ -139,32 +139,32 @@ public class DatabaseService : IDatabaseService
         return id;
     }
 
-    public Guid AddTag(Tag tag)
-    {
-        var id = GenerateGuid();
-        tag.Id = id;
-        _database.Tags.Add(tag);
-        _database.SaveChanges();
-        return id;
-    }
+    // public Guid AddTag(Tag tag)
+    // {
+    //     var id = GenerateGuid();
+    //     tag.Id = id;
+    //     _database.Tags.Add(tag);
+    //     _database.SaveChanges();
+    //     return id;
+    // }
 
-    public Guid AddTicket(Ticket ticket)
-    {
-        var id = GenerateGuid();
-        ticket.Id = id;
-        _database.Tickets.Add(ticket);
-        _database.SaveChanges();
-        return id;
-    }
-
-    public Guid AddTagOnPhysicalDevice(TagOnPhysicalDevice tagOnPhysicalDevice)
-    {
-        var id = GenerateGuid();
-        tagOnPhysicalDevice.Id = id;
-        _database.TagsOnPhysicalDevices.Add(tagOnPhysicalDevice);
-        _database.SaveChanges();
-        return id;
-    }
+    // public Guid AddTicket(Ticket ticket)
+    // {
+    //     var id = GenerateGuid();
+    //     ticket.Id = id;
+    //     _database.Tickets.Add(ticket);
+    //     _database.SaveChanges();
+    //     return id;
+    // }
+    //
+    // public Guid AddTagOnPhysicalDevice(TagOnPhysicalDevice tagOnPhysicalDevice)
+    // {
+    //     var id = GenerateGuid();
+    //     tagOnPhysicalDevice.Id = id;
+    //     _database.TagsOnPhysicalDevices.Add(tagOnPhysicalDevice);
+    //     _database.SaveChanges();
+    //     return id;
+    // }
 
     public Guid? UpsertCorrectDataPattern(CorrectDataPattern pattern)
     {
@@ -234,16 +234,16 @@ public class DatabaseService : IDatabaseService
         return _database.LoginProfiles.AsNoTracking().ToList();
     }
 
-    public List<SchedulerJob> GetSchedulerJobs()
-    {
-        return _database.SchedulerJobs.AsNoTracking().Include(x => x.PhysicalDevice).ToList();
-    }
-
-    public SchedulerJob? GetPhysicalDeviceSchedulerJob(Guid id)
-    {
-        return _database.SchedulerJobs.AsNoTracking().Include(x => x.PhysicalDevice)
-            .FirstOrDefault(x => x.PhysicalDeviceId == id);
-    }
+    // public List<SchedulerJob> GetSchedulerJobs()
+    // {
+    //     return _database.SchedulerJobs.AsNoTracking().Include(x => x.PhysicalDevice).ToList();
+    // }
+    //
+    // public SchedulerJob? GetPhysicalDeviceSchedulerJob(Guid id)
+    // {
+    //     return _database.SchedulerJobs.AsNoTracking().Include(x => x.PhysicalDevice)
+    //         .FirstOrDefault(x => x.PhysicalDeviceId == id);
+    // }
 
     public List<SnmpSensorInPhysicalDevice> GetSensorsOfPhysicalDevice(Guid physicalDeviceId)
     {
@@ -441,14 +441,14 @@ public class DatabaseService : IDatabaseService
         if (device == null)
             return new OperationResult() { IsSuccessful = false, Message = "Unknown Id" };
 
-        var tickets = _database.Tickets.Where(x => x.DeviceId == id);
-        _database.Tickets.RemoveRange(tickets);
-        var tags = _database.TagsOnPhysicalDevices.Where(x => x.DeviceId == id);
-        _database.TagsOnPhysicalDevices.RemoveRange(tags);
-        var sensorsInPd = _database.SnmpSensorsInPhysicalDevices.Where(x => x.PhysicalDeviceId == id);
-        _database.SnmpSensorsInPhysicalDevices.RemoveRange(sensorsInPd);
-        var jobs = _database.SchedulerJobs.Where(x => x.PhysicalDeviceId == id);
-        _database.SchedulerJobs.RemoveRange(jobs);
+        // var tickets = _database.Tickets.Where(x => x.DeviceId == id);
+        // _database.Tickets.RemoveRange(tickets);
+        // var tags = _database.TagsOnPhysicalDevices.Where(x => x.DeviceId == id);
+        // _database.TagsOnPhysicalDevices.RemoveRange(tags);
+        // var sensorsInPd = _database.SnmpSensorsInPhysicalDevices.Where(x => x.PhysicalDeviceId == id);
+        // _database.SnmpSensorsInPhysicalDevices.RemoveRange(sensorsInPd);
+        // var jobs = _database.SchedulerJobs.Where(x => x.PhysicalDeviceId == id);
+        // _database.SchedulerJobs.RemoveRange(jobs);
         var pdHasPorts = _database.PhysicalDevicesHasPorts.Where(x => x.DeviceId == id);
         _database.PhysicalDevicesHasPorts.RemoveRange(pdHasPorts);
         var patterns = _database.CorrectDataPatterns.Where(x => x.PhysicalDeviceId == id);
@@ -546,17 +546,17 @@ public class DatabaseService : IDatabaseService
         return new OperationResult();
     }
 
-    public OperationResult DeleteDeviceSchedulerJob(Guid id)
-    {
-        var job = _database.SchedulerJobs.FirstOrDefault(x => x.PhysicalDeviceId == id);
-        if (job != null)
-        {
-            _database.SchedulerJobs.Remove(job);
-            _database.SaveChanges();
-        }
-
-        return new OperationResult();
-    }
+    // public OperationResult DeleteDeviceSchedulerJob(Guid id)
+    // {
+    //     var job = _database.SchedulerJobs.FirstOrDefault(x => x.PhysicalDeviceId == id);
+    //     if (job != null)
+    //     {
+    //         _database.SchedulerJobs.Remove(job);
+    //         _database.SaveChanges();
+    //     }
+    //
+    //     return new OperationResult();
+    // }
 
     public OperationResult DeleteUser(string id)
     {

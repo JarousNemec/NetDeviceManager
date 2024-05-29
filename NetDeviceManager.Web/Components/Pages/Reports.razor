@@ -6,6 +6,7 @@
 @using Microsoft.AspNetCore.Identity
 @using NetDeviceManager.Database.Identity
 @attribute [Authorize]
+@rendermode InteractiveServer
 <PageTitle>Reports</PageTitle>
 <div>
     <h2>Reports for download</h2>
@@ -13,14 +14,15 @@
     <Grid TItem="string"
           Class="table table-hover table-bordered table-striped"
           Data="_reports"
-          Responsive="true">
+          Responsive="true"
+          EmptyText="No reports">
 
         <GridColumn TItem="string" HeaderText="Report date" PropertyName="ReportDate">
             @context
         </GridColumn>
         <GridColumn TItem="string" HeaderText="Action" PropertyName="action">
             <div class="btn-container-modalform">
-                <a href=@($"http://api/Api/GetReport?id={context}&key={_key}") target="_blank" class="btn-action btn-style-normal font-16">Download</a>
+                <a href=@($"http://localhost:10001/Api/GetReport?id={context}&key={_key}") target="_blank" class="btn-action btn-style-normal font-16">Download</a>
             </div>
         </GridColumn>
     </Grid>
@@ -39,22 +41,33 @@
     [Inject] public UserManager<ApplicationUser> UserManager { get; set; }
     [Inject] public IHttpContextAccessor Accessor { get; set; }
     private string? _key = string.Empty;
-    private IEnumerable<string> _reports = new string[1];
+    private List<string>? _reports { get; set; } = new List<string>();
+
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await base.OnAfterRenderAsync(firstRender);
-        _reports = await GetReportNames();
+        
         if (Accessor.HttpContext?.User != null)
             _key = UserManager.GetUserAsync(Accessor.HttpContext.User).Result?.ApiKey;
+        _reports = await GetReportNames();
+        await InvokeAsync(StateHasChanged);
     }
 
-    private async Task<string[]> GetReportNames()
+    private async Task<List<string>?> GetReportNames()
     {
-        var response = await HttpClient.GetAsync($"http://api/Api/GetReportsList?key={_key}");
-        response.EnsureSuccessStatusCode();
-        var responseBody = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<string[]>(responseBody);
+        try
+        {
+            var response = await HttpClient.GetAsync($"http://api:8080/Api/GetReportsList?key={_key}");
+            response.EnsureSuccessStatusCode();
+            var responseBody = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<List<string>>(responseBody);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            return new List
+                <string>();
+        }
     }
 
 }

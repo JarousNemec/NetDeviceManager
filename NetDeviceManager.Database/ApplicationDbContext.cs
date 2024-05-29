@@ -21,15 +21,15 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     
     public DbSet<PhysicalDevice> PhysicalDevices { get; set; }
     public DbSet<SnmpSensor> SnmpSensors { get; set; }
-    public DbSet<SchedulerJob> SchedulerJobs { get; set; }
+    // public DbSet<SchedulerJob> SchedulerJobs { get; set; }
     public DbSet<SnmpSensorInPhysicalDevice> SnmpSensorsInPhysicalDevices { get; set; }
     
     public DbSet<SnmpSensorRecord> SnmpSensorRecords { get; set; }
     public DbSet<SyslogRecord> SyslogRecords { get; set; }
     
-    public DbSet<Tag> Tags { get; set; }
-    public DbSet<Ticket> Tickets { get; set; }
-    public DbSet<TagOnPhysicalDevice> TagsOnPhysicalDevices { get; set; }
+    // public DbSet<Tag> Tags { get; set; }
+    // public DbSet<Ticket> Tickets { get; set; }
+    // public DbSet<TagOnPhysicalDevice> TagsOnPhysicalDevices { get; set; }
     
     public DbSet<Port> Ports { get; set; }
     public DbSet<PhysicalDeviceHasPort> PhysicalDevicesHasPorts { get; set; }

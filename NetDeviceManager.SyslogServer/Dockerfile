@@ -10,7 +10,7 @@ COPY ["NetDeviceManager.SyslogServer/NetDeviceManager.SyslogServer.csproj", "Net
 RUN dotnet restore "NetDeviceManager.SyslogServer/NetDeviceManager.SyslogServer.csproj"
 COPY . .
 WORKDIR "/src/NetDeviceManager.SyslogServer"
-RUN dotnet build "NetDeviceManager.SyslogServer.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "NetDeviceManager.SyslogServer.csproj" --no-cache -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release

@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.IO.Compression;
+using System.Text;
 using System.Text.Json;
 using NetDeviceManager.Database.Models;
 using NetDeviceManager.Database.Tables;
@@ -29,39 +30,38 @@ public class ReporterJob : IJob
             Directory.CreateDirectory(_path);
 
         var date = DateTime.Now;
-        
+
         var currentdatepath = Path.Combine(_path, date.ToString("MM.dd.yyyy HH-mm-ss"));
         if (!Directory.Exists(currentdatepath))
             Directory.CreateDirectory(currentdatepath);
-        
+
         var devices = _databaseService.GetPhysicalDevices();
         foreach (var device in devices)
         {
             var devicedirpath = PrepareReportDirectoryPath(device, currentdatepath);
-            
+
             var syslogpath = Path.Combine(devicedirpath, SYSLOG_REPORT_FILENAME);
 
-            await ReportAllSyslogs(device, syslogpath);
+            ReportAllSyslogs(device, syslogpath);
         }
+
         _databaseService.DeleteAllSyslogs();
-        
-        var zipPath = Path.Combine(_path, $"{date}.zip");
-        var error = FileUtil.ArchiveDirectory(zipPath, currentdatepath);
-        Console.WriteLine(error);
+
+        var zipPath = Path.Combine(_path, $"{date.ToString("MM.dd.yyyy HH-mm-ss")}.zip");
+        FileUtil.ZipDirectory(currentdatepath, zipPath);
         Directory.Delete(currentdatepath);
     }
 
+
     private string PrepareReportDirectoryPath(PhysicalDevice device, string currentdatepath)
     {
-        
-            
         var devicedirpath = Path.Combine(currentdatepath, device.IpAddress);
         if (!Directory.Exists(devicedirpath))
             Directory.CreateDirectory(devicedirpath);
         return devicedirpath;
     }
 
-    private async Task ReportAllSyslogs(PhysicalDevice device, string syslogpath)
+    private async void ReportAllSyslogs(PhysicalDevice device, string syslogpath)
     {
         var syslogs =
             _databaseService.GetSyslogRecordsWithFilter(

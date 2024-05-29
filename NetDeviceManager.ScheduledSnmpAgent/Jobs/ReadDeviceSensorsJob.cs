@@ -9,7 +9,7 @@ namespace NetDeviceManager.ScheduledSnmpAgent.Jobs;
 
 public class ReadDeviceSensorsJob : IJob
 {
-    private List<SnmpSensor> _sensors;
+    private List<SnmpSensorInPhysicalDevice> _relationShips;
     private Port _port;
     private LoginProfile _login;
     private PhysicalDevice _device;
@@ -27,15 +27,15 @@ public class ReadDeviceSensorsJob : IJob
     {
         InitializeJob(context);
 
-        foreach (var sensor in _sensors)
+        foreach (var relationShip in _relationShips)
         {
-            var data = _snmpService.GetSensorValue(sensor, _login, _device, _port) ?? string.Empty;
+            var data = _snmpService.GetSensorValue(relationShip.SnmpSensor, _login, _device, _port) ?? string.Empty;
             var record = new SnmpSensorRecord
             {
                 Data = data,
                 CapturedTime = DateTime.Now,
                 PhysicalDeviceId = _device.Id,
-                SensorId = sensor.Id
+                SensorId = relationShip.SnmpSensorId
             };
             _databaseService.AddSnmpRecord(record);
         }
@@ -49,12 +49,12 @@ public class ReadDeviceSensorsJob : IJob
 
         _id = (string)dataMap["id"];
         _device = (PhysicalDevice)dataMap["physicalDevice"];
-        _sensors = (List<SnmpSensor>)dataMap["sensors"];
+        _relationShips = _databaseService.GetSensorsOfPhysicalDevice(_device.Id);
         _port = (Port)dataMap["port"];
         _login = (LoginProfile)dataMap["loginProfile"];
 
         Console.Out.WriteLine($"{_id} - ({DateTime.Now}) - Job started...");
         Console.Out.WriteLine($"Device name: {_device.Name}");
-        Console.Out.WriteLine($"Sensors count: {_sensors.Count()}");
+        Console.Out.WriteLine($"Sensors count: {_relationShips.Count()}");
     }
 }

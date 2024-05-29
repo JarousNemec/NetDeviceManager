@@ -10,7 +10,7 @@ RUN dotnet restore "NetDeviceManager.Web/NetDeviceManager.Web.csproj"
 COPY . .
 WORKDIR "/src/NetDeviceManager.Web"
 
-RUN dotnet build "NetDeviceManager.Web.csproj" -c Release -o /app/build
+RUN dotnet build "NetDeviceManager.Web.csproj" --no-cache -c Release -o /app/build
 
 FROM build AS publish
 RUN dotnet publish "NetDeviceManager.Web.csproj" -c Release -o /app/publish /p:UseAppHost=false

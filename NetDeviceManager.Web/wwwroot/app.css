@@ -97,6 +97,7 @@ h1:focus {
 .btn-action {
     padding: 0 10px;
     border-radius: 5px;
+    text-decoration: none;
 }
 
 .btn-apply {

@@ -46,7 +46,7 @@ builder.Services.AddScoped<ISyslogService, SyslogService>();
 builder.Services.AddSingleton<NavbarHelper>();
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<SettingsService>();
-
+builder.Services.AddSingleton<HttpClient>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

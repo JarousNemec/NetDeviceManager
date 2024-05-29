@@ -1,29 +1,52 @@
-﻿using Aspose.Zip;
+﻿using System.IO.Compression;
+using Aspose.Zip;
 using Microsoft.Extensions.Logging;
 
 namespace NetDeviceManager.Lib.Utils;
 
 public static class FileUtil
 {
-    public static string ArchiveDirectory(string destination, string target)
+    public static void ZipDirectory(string sourceDir, string zipPath)
     {
-        try
+        if (Directory.Exists(sourceDir))
         {
-            using (FileStream zipFile = File.Open(destination, FileMode.Create))
+            try
             {
-                using (Archive archive = new Archive())
+                // Vytvoření nebo otevření zip souboru
+                using (FileStream zipToOpen = new FileStream(zipPath, FileMode.Create))
+                using (ZipArchive archive = new ZipArchive(zipToOpen, ZipArchiveMode.Create))
                 {
-                    DirectoryInfo dirToArchive = new DirectoryInfo(target);
-                    archive.CreateEntries(dirToArchive);
-                    archive.Save(zipFile);
+                    DirectoryInfo dirInfo = new DirectoryInfo(sourceDir);
+                    // Rekurzivní přidání souborů a složek do zip archivu
+                    AddDirectoryToArchive(archive, dirInfo, dirInfo.FullName);
                 }
+                Console.WriteLine("Složka byla úspěšně zazipována.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                Console.WriteLine($"Došlo k chybě při zazipování složky: {ex.Message}");
             }
         }
-        catch (Exception e)
+        else
         {
-            return e.Message;
+            Console.WriteLine("Zdrojová složka neexistuje.");
+        }
+    }
+
+    private static void AddDirectoryToArchive(ZipArchive archive, DirectoryInfo dirInfo, string basePath)
+    {
+        // Přidání všech souborů v aktuální složce
+        foreach (FileInfo file in dirInfo.GetFiles())
+        {
+            string entryName = Path.GetRelativePath(basePath, file.FullName);
+            archive.CreateEntryFromFile(file.FullName, entryName);
         }
 
-        return string.Empty;
+        // Rekurzivní přidání podsložek
+        foreach (DirectoryInfo subDir in dirInfo.GetDirectories())
+        {
+            AddDirectoryToArchive(archive, subDir, basePath);
+        }
     }
 }

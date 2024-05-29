@@ -35,11 +35,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Components\Public\" />
-      <Folder Include="webdata\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <_ContentIncludedByDefault Remove="wwwroot\bootstrappp\bootstrap.min.css" />
       <_ContentIncludedByDefault Remove="wwwroot\bootstrappp\bootstrap.min.css.map" />
     </ItemGroup>

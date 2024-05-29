@@ -45,7 +45,7 @@
                     <button type="submit" @onclick="GetCurrentSnmpData" class="btn-apply btn-style-normal font-16">Get current sensor data for future assertion</button>
                 </div>
                 <div class="labelinput-modalform">
-                    <label class="label-menu font-16">Description</label>
+                    <label class="label-menu font-16">Reference data</label>
                     <InputTextArea @bind-Value="Pattern.Data" class="input-modalform font-16" style="height: max-content"
                                    placeholder="Data for future assertion..." ></InputTextArea>
                     <ValidationMessage For="() => Pattern.Data"/>

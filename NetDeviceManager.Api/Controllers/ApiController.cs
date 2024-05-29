@@ -8,48 +8,61 @@ public class ApiController : Controller
 {
     private readonly ILogger<ApiController> _logger;
     private readonly string _path = string.Empty;
-    private readonly IHostEnvironment _environment;
     private readonly ApplicationDbContext _database;
 
-    public ApiController(ApplicationDbContext context, ILogger<ApiController> logger, IConfiguration configurationManager,
+    public ApiController(ApplicationDbContext context, ILogger<ApiController> logger,
         IHostEnvironment environment)
     {
         _logger = logger;
-        _path = Path.Combine(environment.ContentRootPath, "reports");
-        _environment = environment;
+        _path = "reports";
         Console.WriteLine(environment.ContentRootPath);
         _database = context;
     }
 
     public IActionResult GetReportsList(string key)
     {
-        if (_database.Users.All(x => x.ApiKey != key))
-            return Unauthorized();
-        if (Directory.Exists(_path))
+        try
         {
-            var list = Directory.GetFiles(_path);
-            List<string> output = new List<string>();
-            foreach (var item in list)
+            if (_database.Users.All(x => x.ApiKey != key))
+                return Unauthorized();
+            if (Directory.Exists(_path))
             {
-                var info = new FileInfo(item);
-                output.Add(info.Name);
+                var list = Directory.GetFiles(_path);
+                List<string> output = new List<string>();
+                foreach (var item in list)
+                {
+                    var info = new FileInfo(item);
+                    output.Add(info.Name);
+                }
+
+
+                return Json(output.ToArray());
             }
-
-
-            return Json(output.ToArray());
+        }
+        catch (Exception e)
+        {
+            return BadRequest();
         }
 
-        return Json(_path);
+        return BadRequest();
     }
 
     public IActionResult GetReport(string id, string key)
     {
-        if (_database.Users.All(x => x.ApiKey != key))
-            return Unauthorized();
-        Console.WriteLine($"Id: {id}");
-        var path = Path.Combine(_path, id);
-        if (System.IO.File.Exists(path))
-            return File(System.IO.File.ReadAllBytes(path), "application/zip", System.IO.Path.GetFileName(path));
+        try
+        {
+            if (_database.Users.All(x => x.ApiKey != key))
+                return Unauthorized();
+            Console.WriteLine($"Id: {id}");
+            var path = Path.Combine(_path, id);
+            if (System.IO.File.Exists(path))
+                return File(System.IO.File.ReadAllBytes(path), "application/zip", id);
+        }
+        catch (Exception e)
+        {
+            return BadRequest();
+        }
+
         return BadRequest();
     }
 }

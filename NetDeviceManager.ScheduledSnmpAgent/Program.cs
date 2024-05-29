@@ -24,6 +24,7 @@ builder.Services.AddSingleton<Scheduler>();
 builder.Services.AddSingleton<Timer>();
 builder.Services.AddScoped<ISnmpService, SnmpService>();
 builder.Services.AddScoped<IDatabaseService, DatabaseService>();
+builder.Services.AddScoped<SettingsService>();
 
 Console.WriteLine("Initialized!");
 

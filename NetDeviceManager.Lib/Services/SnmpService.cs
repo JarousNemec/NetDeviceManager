@@ -47,14 +47,14 @@ public class SnmpService : ISnmpService
         };
         _database.AddSnmpSensorToPhysicalDevice(relationship);
 
-        var job = _database.GetPhysicalDeviceSchedulerJob(model.PhysicalDeviceId);
-        if (job != null) return new OperationResult(){IsSuccessful = false, Message = "Cannot create job!!!"};
-        
-        var newJob = new SchedulerJob();
-        newJob.PhysicalDeviceId = model.PhysicalDeviceId;
-        newJob.Type = SchedulerJobType.SNMPGET;
-        newJob.Cron = _settingsService.GetSettings().ReportSensorInterval;
-        _database.AddSchedulerJob(newJob);
+        // var job = _database.GetPhysicalDeviceSchedulerJob(model.PhysicalDeviceId);
+        // if (job != null) return new OperationResult(){IsSuccessful = false, Message = "Cannot create job!!!"};
+        //
+        // var newJob = new SchedulerJob();
+        // newJob.PhysicalDeviceId = model.PhysicalDeviceId;
+        // newJob.Type = SchedulerJobType.SNMPGET;
+        // newJob.Cron = _settingsService.GetSettings().ReportSensorInterval;
+        // _database.AddSchedulerJob(newJob);
 
         return new OperationResult();
     }
@@ -68,10 +68,8 @@ public class SnmpService : ISnmpService
                  string.IsNullOrEmpty(profile.PrivacyPassword) || string.IsNullOrEmpty(profile.SecurityName))
             return null;
         else
-        {
             freshData = ReadSensorV3(sensor, profile, device, port);
-        }
-
+        
         var data = new string[sensor.EndIndex - sensor.StartIndex + 1];
         foreach (var item in freshData)
         {
@@ -149,14 +147,15 @@ public class SnmpService : ISnmpService
         {
             return new OperationResult() { IsSuccessful = false, Message = "Bad pattern" };
         }
-        _database.DeleteCorrectDataPattern(pattern.Id);
 
-        
-        if (_database.GetDeviceSensorsCount(relationShip.PhysicalDeviceId) == 0)
-        {
-            _database.DeleteDeviceSchedulerJob(relationShip.PhysicalDeviceId);
-        }
-        
+        _database.DeleteCorrectDataPattern(pattern.Id);
+        //
+        //
+        // if (_database.GetDeviceSensorsCount(relationShip.PhysicalDeviceId) == 0)
+        // {
+        //     _database.DeleteDeviceSchedulerJob(relationShip.PhysicalDeviceId);
+        // }
+
         return new OperationResult();
     }
 
