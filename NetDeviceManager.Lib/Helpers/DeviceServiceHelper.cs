@@ -19,7 +19,11 @@ public static class DeviceServiceHelper
                 offline.Add(device);
                 continue;
             }
-
+            if (lastRecord.Data == "[\"-1\"]" )
+            {
+                offline.Add(device);
+                continue;
+            }
             if ((DateTime.Now - lastRecord.CapturedTime).Ticks > maxAge)
             {
                 offline.Add(device);
