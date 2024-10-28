@@ -1,0 +1,42 @@
+TODO:
+
+clean code
+rozdělit velké metody do sub metod viz Execute v Database Reporter Jobu
+přesunout všechny utils a helpers atd do lib a dále používat jenom reference na projekt viz configuration helper pro schedulery
+podívat se na pojmenování jednotlivých tříd, objektů a jejich metod viz get settings v settings service
+
+tunning
+vytvořit jedno místo na konstatny pro web a pak pro backend
+upravit na webu používání klíče pro volání api a dávat ho do headrů
+pořádně vyzkoušet snmp agenta
+přidat middle ware pro api key v projektu API
+utilita na skládání cest k jednotlivým adresářům ať je jedno místo kde se to tvoří, používá se to na více místech a je to chaos
+
+fix
+opravit názvy některých metod viz getconfigurationstring v confhelperu
+syslog server rozběhne receiver ale když není connection string tak nenaběhne processor a nikdo o tom nedá vědět (wtf moment)
+fix síťování syslogu přicházejícího do dokru source ip je docker gateway
+vylepšit loggovátní = texty zpráv, vůbec logovat místy + popisky
+
+
+přidání funkcionality
+přidat render mapy do tabu map
+vytvořit agenta pro načítání netmapy z jednotlivých deviců
+rozšířit databázi o nové tabulky a vazby pro reprezentaci netmapy
+předělat testy
+	lepší organizace - rozházet do class
+	přidat workflow pro test on commit
+	rozšířit záběr testů
+	předhazovat mock databázi 
+	předávat connection do databáze atributem / decoratorem
+
+
+ 
+
+ 
+
+
+
+
+
+

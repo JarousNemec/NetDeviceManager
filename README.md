@@ -1,5 +1,8 @@
 # NetDeviceManager
 
+### Trello todo-list:
+- https://trello.com/b/Lqor3Bzd/netdevicemanager
+
 ## O projektu
 - Aplikace má dopomoci správcům malých sítí k jednodužšímu a rychlejšímu řešení problémů s různými typy síťových zařízení. Systém správci poskytuje data převážně za pomoci protokolu Snmp a Syslogů.
 - Projekt je rozdělen na 5 mikroservis (Web, Snmp Agent, Syslog Server, Database Reporter, Api) a knihovnu pro jednodužší sdílení funkcionality mezi jednotlivými programy. 
