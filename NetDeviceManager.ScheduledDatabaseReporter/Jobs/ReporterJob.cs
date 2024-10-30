@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.Hosting;
 using NetDeviceManager.Database.Models;
 using NetDeviceManager.Database.Tables;
 using NetDeviceManager.Lib.Interfaces;
@@ -14,6 +15,7 @@ public class ReporterJob : IJob
     private string _path = string.Empty;
     private readonly IDatabaseService _databaseService;
     private const string SYSLOG_REPORT_FILENAME = "syslogs.log";
+    
 
     public ReporterJob(IDatabaseService databaseService)
     {
@@ -24,13 +26,13 @@ public class ReporterJob : IJob
     {
         InitializeJob(context);
         await Console.Out.WriteLineAsync("Reporting data bro.......");
-
+        
         if (!Directory.Exists(_path))
             Directory.CreateDirectory(_path);
 
-        var date = DateTime.Now;
+        var date = DateTime.Now.ToString("MM-dd-yyyy_HH-mm-ss");
         
-        var currentdatepath = Path.Combine(_path, date.ToString("MM.dd.yyyy HH-mm-ss"));
+        var currentdatepath = Path.Combine(_path, date);
         if (!Directory.Exists(currentdatepath))
             Directory.CreateDirectory(currentdatepath);
         

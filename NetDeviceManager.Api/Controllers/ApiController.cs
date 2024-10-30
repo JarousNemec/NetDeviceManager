@@ -16,15 +16,18 @@ public class ApiController : Controller
     {
         _logger = logger;
         _path = Path.Combine(environment.ContentRootPath, "reports");
+        
+        //todo: remove for production
+        if(environment.IsDevelopment())
+            _path = Path.Combine("C:\\Users\\mortar\\RiderProjects\\NetDeviceManager", "reports");
+        
         _environment = environment;
         Console.WriteLine(environment.ContentRootPath);
         _database = context;
     }
 
-    public IActionResult GetReportsList(string key)
+    public IActionResult GetReportsList()
     {
-        if (_database.Users.All(x => x.ApiKey != key))
-            return Unauthorized();
         if (Directory.Exists(_path))
         {
             var list = Directory.GetFiles(_path);
@@ -34,18 +37,15 @@ public class ApiController : Controller
                 var info = new FileInfo(item);
                 output.Add(info.Name);
             }
-
-
+            
             return Json(output.ToArray());
         }
 
-        return Json(_path);
+        return Json(Array.Empty<string>());
     }
 
-    public IActionResult GetReport(string id, string key)
+    public IActionResult GetReport(string id)
     {
-        if (_database.Users.All(x => x.ApiKey != key))
-            return Unauthorized();
         Console.WriteLine($"Id: {id}");
         var path = Path.Combine(_path, id);
         if (System.IO.File.Exists(path))

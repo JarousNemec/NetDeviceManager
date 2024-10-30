@@ -1,6 +1,7 @@
 ﻿using System.Timers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using NetDeviceManager.Database;
 using NetDeviceManager.Database.Tables;
 using NetDeviceManager.Lib.GlobalConstantsAndEnums;
@@ -25,9 +26,10 @@ public class Scheduler
     private const string _jobId = "myReportJob";
     private string _actualCron = string.Empty;
     private readonly SettingsService _settingsService;
-
-    public Scheduler(IDatabaseService databaseService, Timer timer, SettingsService settingsService)
+    private readonly IHostEnvironment _environment;
+    public Scheduler(IDatabaseService databaseService, Timer timer, SettingsService settingsService, IHostEnvironment environment)
     {
+        _environment = environment;
         _databaseService = databaseService;
         _timer = timer;
         _settingsService = settingsService;
@@ -84,6 +86,7 @@ public class Scheduler
         }
 
         var reportCron = _settingsService.GetSettings().ReportLogInterval;
+        
         if (reportCron != _actualCron)
         {
             await KillOldReportJob(group);

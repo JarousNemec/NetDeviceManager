@@ -183,6 +183,9 @@ třeba v docker-compose.yml namapovat složku na výstupní složku reports, kte
 ### Application health check 
 - https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/health-checks?view=aspnetcore-8.0
 
+### What is api key and how it is named in production 
+- https://swagger.io/docs/specification/v2_0/authentication/api-keys/
+
 ### UI use cases
   - Is device online/offline (is last record of this device maximum 20 minutes old, if not summon alarm)
     - When device was added, running job in scheduler will recognize that there is new device and it will get uptime value from it in user specified healthprobe intervals(for all devices same)

@@ -21,6 +21,8 @@ public static class SchedulerUtil
 
         job.JobDataMap.Put("id", id);
         job.JobDataMap.Put("path", path);
+        
+        
         return job;
     }
 }

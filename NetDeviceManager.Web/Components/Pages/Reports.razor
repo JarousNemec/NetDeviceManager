@@ -1,18 +1,20 @@
 ﻿@page "/reports"
 @using System.Net
-@using System.Runtime.CompilerServices
 @using System.Text.Json
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Identity
 @using NetDeviceManager.Database.Identity
+@using NetDeviceManager.Lib.Extensions
+@using NetDeviceManager.Lib.GlobalConstantsAndEnums
 @attribute [Authorize]
 <PageTitle>Reports</PageTitle>
 <div>
     <h2>Reports for download</h2>
 
-    <Grid TItem="string"
+    <Grid @ref="grid"
+          TItem="string"
           Class="table table-hover table-bordered table-striped"
-          Data="_reports"
+          DataProvider="ReportsDataProvider"
           Responsive="true">
 
         <GridColumn TItem="string" HeaderText="Report date" PropertyName="ReportDate">
@@ -24,6 +26,8 @@
             </div>
         </GridColumn>
     </Grid>
+
+
 </div>
 
 <style>
@@ -35,26 +39,28 @@
 </style>
 
 @code{
-    [Inject] public HttpClient HttpClient { get; set; }
+    
+    BlazorBootstrap.Grid<string> grid = default!;
+    
+    [Inject] public HttpClient ApiClient { get; set; }
     [Inject] public UserManager<ApplicationUser> UserManager { get; set; }
     [Inject] public IHttpContextAccessor Accessor { get; set; }
     private string? _key = string.Empty;
-    private IEnumerable<string> _reports = new string[1];
+    private IEnumerable<string> _reports = default!;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
-        _reports = await GetReportNames();
+
         if (Accessor.HttpContext?.User != null)
             _key = UserManager.GetUserAsync(Accessor.HttpContext.User).Result?.ApiKey;
     }
 
-    private async Task<string[]> GetReportNames()
+    private async Task<GridDataProviderResult<string>> ReportsDataProvider(GridDataProviderRequest<string> request)
     {
-        var response = await HttpClient.GetAsync($"http://api/Api/GetReportsList?key={_key}");
-        response.EnsureSuccessStatusCode();
-        var responseBody = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<string[]>(responseBody);
+        ApiClient.DefaultRequestHeaders.Add(ApiConstants.ApiKey, _key);
+        var uri = new Uri("http://api/Api/GetReportsList");
+        _reports = await ApiClient.GetFromJsonAsync<string[]>(uri) ?? new string[] { };
+        return await Task.FromResult(request.ApplyTo(_reports));
     }
-
 }

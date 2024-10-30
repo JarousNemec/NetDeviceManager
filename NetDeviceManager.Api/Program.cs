@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NetDeviceManager.Database;
 using NetDeviceManager.Database.Identity;
-using static NetDeviceManager.Database.ApplicationDbContext;
+using NetDeviceManager.Lib.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +26,8 @@ else
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+app.UseApiRequestValidation();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
