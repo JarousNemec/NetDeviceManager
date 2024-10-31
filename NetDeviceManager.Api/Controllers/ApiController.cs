@@ -17,10 +17,6 @@ public class ApiController : Controller
         _logger = logger;
         _path = Path.Combine(environment.ContentRootPath, "reports");
         
-        //todo: remove for production
-        if(environment.IsDevelopment())
-            _path = Path.Combine("C:\\Users\\mortar\\RiderProjects\\NetDeviceManager", "reports");
-        
         _environment = environment;
         Console.WriteLine(environment.ContentRootPath);
         _database = context;

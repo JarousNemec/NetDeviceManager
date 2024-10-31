@@ -5,7 +5,7 @@ namespace NetDeviceManager.Lib.Utils;
 
 public static class FileUtil
 {
-    public static string ArchiveDirectory(string destination, string target)
+    public static void ArchiveDirectory(string destination, string target)
     {
         try
         {
@@ -21,9 +21,7 @@ public static class FileUtil
         }
         catch (Exception e)
         {
-            return e.Message;
+            Console.WriteLine(e.Message);
         }
-
-        return string.Empty;
     }
 }

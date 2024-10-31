@@ -17,7 +17,7 @@ var connectionString = ConfigurationHelper.GetConnectionString();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     {
         options.UseNpgsql(connectionString);
-        options.LogTo(Console.WriteLine, LogLevel.Warning);
+        options.LogTo(Console.WriteLine, LogLevel.None);
     }
 );
 

@@ -130,11 +130,12 @@
 
     private sealed class InputModel
     {
-        [Required] [DataType(DataType.Text)] public string Username { get; set; } = "";
+        //todo remove credential for production
+        [Required] [DataType(DataType.Text)] public string Username { get; set; } = "franta";
 
         [Required]
         [DataType(DataType.Password)]
-        public string Password { get; set; } = "";
+        public string Password { get; set; } = "Heslo1234.";
 
         [Display(Name = "Remember me?")] public bool RememberMe { get; set; }
     }

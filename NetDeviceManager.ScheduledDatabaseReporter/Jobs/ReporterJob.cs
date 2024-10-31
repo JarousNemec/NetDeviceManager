@@ -25,17 +25,26 @@ public class ReporterJob : IJob
     public async Task Execute(IJobExecutionContext context)
     {
         InitializeJob(context);
+        
         await Console.Out.WriteLineAsync("Reporting data bro.......");
         
-        if (!Directory.Exists(_path))
-            Directory.CreateDirectory(_path);
+        var currentdatepath = PrepareDiskForReportingLogs(out var zipPath);
 
-        var date = DateTime.Now.ToString("MM-dd-yyyy_HH-mm-ss");
+        await CreateReports(currentdatepath);
+
+        FileUtil.ArchiveDirectory(zipPath, currentdatepath);
         
-        var currentdatepath = Path.Combine(_path, date);
-        if (!Directory.Exists(currentdatepath))
-            Directory.CreateDirectory(currentdatepath);
-        
+        RemoveTemporaryData(currentdatepath);
+    }
+
+    private void RemoveTemporaryData(string currentdatepath)
+    {
+        Directory.Delete(currentdatepath, true);
+        _databaseService.DeleteAllSyslogs();
+    }
+
+    private async Task CreateReports(string currentdatepath)
+    {
         var devices = _databaseService.GetPhysicalDevices();
         foreach (var device in devices)
         {
@@ -43,32 +52,39 @@ public class ReporterJob : IJob
             
             var syslogpath = Path.Combine(devicedirpath, SYSLOG_REPORT_FILENAME);
 
-            await ReportAllSyslogs(device, syslogpath);
+            await ReportSyslogsOfDevice(device, syslogpath);
         }
-        _databaseService.DeleteAllSyslogs();
+    }
+
+    private string PrepareDiskForReportingLogs(out string zipPath)
+    {
+        if (!Directory.Exists(_path))
+            Directory.CreateDirectory(_path);
+
+        var date = DateTime.Now.ToString("MM-dd-yyyy_HH-mm-ss");
         
-        var zipPath = Path.Combine(_path, $"{date}.zip");
-        var error = FileUtil.ArchiveDirectory(zipPath, currentdatepath);
-        Console.WriteLine(error);
-        Directory.Delete(currentdatepath);
+        var currentdatepath = Path.Combine(_path, date);
+        zipPath = Path.Combine(_path, $"{date}.zip");
+        if (!Directory.Exists(currentdatepath))
+            Directory.CreateDirectory(currentdatepath);
+        return currentdatepath;
     }
 
     private string PrepareReportDirectoryPath(PhysicalDevice device, string currentdatepath)
     {
-        
-            
         var devicedirpath = Path.Combine(currentdatepath, device.IpAddress);
         if (!Directory.Exists(devicedirpath))
             Directory.CreateDirectory(devicedirpath);
         return devicedirpath;
     }
 
-    private async Task ReportAllSyslogs(PhysicalDevice device, string syslogpath)
+    private async Task ReportSyslogsOfDevice(PhysicalDevice device, string syslogpath)
     {
         var syslogs =
             _databaseService.GetSyslogRecordsWithFilter(
                 new SyslogRecordFilterModel() { IpAddress = device.IpAddress }, -1);
-        StringBuilder builder = new StringBuilder();
+        
+        var builder = new StringBuilder();
         foreach (var log in syslogs)
         {
             builder.AppendLine($"{log.ProcessedDate.ToString("MM.dd.yyyy HH-mm-ss")} - {log.CompletMessage}");

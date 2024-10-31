@@ -7,6 +7,7 @@
 @using NetDeviceManager.Lib.Extensions
 @using NetDeviceManager.Lib.GlobalConstantsAndEnums
 @attribute [Authorize]
+@rendermode InteractiveServer
 <PageTitle>Reports</PageTitle>
 <div>
     <h2>Reports for download</h2>
@@ -17,13 +18,16 @@
           DataProvider="ReportsDataProvider"
           Responsive="true">
 
-        <GridColumn TItem="string" HeaderText="Report date" PropertyName="ReportDate">
+        <GridColumn TItem="string" HeaderText="Reports" PropertyName="ReportDate">
             @context
         </GridColumn>
         <GridColumn TItem="string" HeaderText="Action" PropertyName="action">
-            <div class="btn-container-modalform">
-                <a href=@($"http://api/Api/GetReport?id={context}&key={_key}") target="_blank" class="btn-action btn-style-normal font-16">Download</a>
+            <div style="display: flex; width: 100%; flex-direction: row-reverse;">
+                <div class="btn-container-grid">
+                    <button class="btn-style-normal btn-action font-16" @onclick="() => DownloadFile(context)">Download</button>
+                </div>
             </div>
+
         </GridColumn>
     </Grid>
 
@@ -47,20 +51,60 @@
     [Inject] public IHttpContextAccessor Accessor { get; set; }
     private string? _key = string.Empty;
     private IEnumerable<string> _reports = default!;
-
+    [Inject] public IConfiguration Configuration { get; set; }
+    [Inject] public IJSRuntime JS { get; set; }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
-
         if (Accessor.HttpContext?.User != null)
             _key = UserManager.GetUserAsync(Accessor.HttpContext.User).Result?.ApiKey;
+        if(!ApiClient.DefaultRequestHeaders.Contains(ApiConstants.ApiKey))
+            ApiClient.DefaultRequestHeaders.Add(ApiConstants.ApiKey, _key);
+        if (firstRender)
+        {
+            await grid.RefreshDataAsync();
+        }
     }
 
     private async Task<GridDataProviderResult<string>> ReportsDataProvider(GridDataProviderRequest<string> request)
     {
-        ApiClient.DefaultRequestHeaders.Add(ApiConstants.ApiKey, _key);
-        var uri = new Uri("http://api/Api/GetReportsList");
+        var host = Configuration["ApiHost"];
+        var uri = new Uri($"http://{host}/{ApiConstants.EndpointGetReportsList}");
         _reports = await ApiClient.GetFromJsonAsync<string[]>(uri) ?? new string[] { };
         return await Task.FromResult(request.ApplyTo(_reports));
+    }
+    
+    private async Task DownloadFile(string name)
+    {
+        var host = Configuration["ApiHost"];
+        var apiUrl = $"http://{host}/{ApiConstants.EndpointGetReport}?id={name}";
+        var destinationFilePath = name;
+
+        try
+        {
+            //get file from api
+            var response = await ApiClient.GetAsync(apiUrl, HttpCompletionOption.ResponseHeadersRead);
+            
+            //if request is successfully completed than download the file to client disk
+            if (response.IsSuccessStatusCode)
+            {
+                //read file as byte array from the response
+                var fileBytes = await response.Content.ReadAsByteArrayAsync();
+
+                //create in memory stream from downloaded bytes
+                using var streamRef = new DotNetStreamReference(new MemoryStream(fileBytes));
+                
+                //invoke js script that triggers browser file saving window
+                await JS.InvokeVoidAsync("downloadFileFromStream", destinationFilePath, streamRef);
+            }
+            else
+            {
+                Console.WriteLine("Failed to download file. Status code: " + response.StatusCode);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("An error occurred while downloading the file: " + ex.Message);
+        }
     }
 }
