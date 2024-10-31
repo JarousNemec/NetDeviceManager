@@ -16,7 +16,7 @@ public class Server
     {
         Console.WriteLine("Starting receiver...");
 
-        var receiver = new MessageReceiver(_cache, 514);
+        var receiver = new MessageReceiver(_cache, 10514);
         Thread receiverThread = new Thread(receiver.Run);
         receiverThread.Start();
 

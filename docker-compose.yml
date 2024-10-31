@@ -29,12 +29,21 @@ services:
     build:
       context: .
       dockerfile: ./NetDeviceManager.SyslogServer/Dockerfile
-    ports:
-      - "514:514/udp"
+    expose:
+      - "10514/udp"
     depends_on:
       database:
         condition: service_healthy
-      
+  
+  nginx:
+    image: nginx:latest
+    ports:
+      - "10514:10514/udp"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - syslog-server
+  
   api:
 #    restart: always
     build:

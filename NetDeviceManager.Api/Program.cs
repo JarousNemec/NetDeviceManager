@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using NetDeviceManager.Database;
 using NetDeviceManager.Database.Identity;
 using NetDeviceManager.Lib.Extensions;
+using NetDeviceManager.Lib.GlobalConstantsAndEnums;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +13,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddControllersWithViews();
-
+builder.Logging.SetMinimumLevel(GlobalSettings.MinimalLoggingLevel);
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

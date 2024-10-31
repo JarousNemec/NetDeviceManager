@@ -49,7 +49,7 @@ public class MessageReceiver
         {
             udpListener.Close();
             Console.WriteLine(e.Message);
-            Thread.Sleep(5000);
+            Thread.Sleep(3000);
             Console.WriteLine("New atempt to run receiver...");
             Run();
         }

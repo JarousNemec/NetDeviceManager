@@ -17,7 +17,7 @@ public class MessageProcessor
 {
     private readonly ServerCache _cache;
     private readonly IDatabaseService _database;
-    private readonly SettingsService SettingsService;
+    private readonly SettingsService _settingsService;
 
     public MessageProcessor(ServerCache cache, string dbConnString)
     {
@@ -28,7 +28,7 @@ public class MessageProcessor
             
         var context = new ApplicationDbContext(options);
         _database = new DatabaseService(context);
-        SettingsService = new SettingsService(_database);
+        _settingsService = new SettingsService(_database);
     }
 
     public async void Run()
@@ -36,7 +36,7 @@ public class MessageProcessor
         Console.WriteLine("Running processor...");
         try
         {
-            var severities = SettingsService.GetSettings().DesiredSeverities;
+            var severities = _settingsService.GetSettings().DesiredSeverities;
 
             while (true)
             {
@@ -66,8 +66,8 @@ public class MessageProcessor
         {
             Console.WriteLine(e.Message);
             Thread.Sleep(5000);
-            Console.WriteLine("New atempt to run processor...");
-            Run();
+            // Console.WriteLine("New atempt to run processor...");
+            // Run();
         }
     }
     private SyslogRecord ParseRecord(CacheMessageModel message)

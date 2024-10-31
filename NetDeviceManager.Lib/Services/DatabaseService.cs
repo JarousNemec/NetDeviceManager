@@ -135,7 +135,7 @@ public class DatabaseService : IDatabaseService
         var id = GenerateGuid();
         record.Id = id;
         _database.SyslogRecords.Add(record);
-        _database.SaveChanges();
+        _database.SaveChangesAsync();
         return id;
     }
 

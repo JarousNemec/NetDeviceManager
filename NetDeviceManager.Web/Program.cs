@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using NetDeviceManager.Database;
 using NetDeviceManager.Database.Identity;
 using NetDeviceManager.Lib.Extensions;
+using NetDeviceManager.Lib.GlobalConstantsAndEnums;
 using NetDeviceManager.Lib.Interfaces;
 using NetDeviceManager.Lib.Services;
 using NetDeviceManager.Web.Components;
@@ -49,7 +50,7 @@ builder.Services.AddSingleton<NavbarHelper>();
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<SettingsService>();
 builder.Services.AddScoped<HttpClient>();
-
+builder.Logging.SetMinimumLevel(GlobalSettings.MinimalLoggingLevel);
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

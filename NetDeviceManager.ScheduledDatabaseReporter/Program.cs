@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NetDeviceManager.Database;
+using NetDeviceManager.Lib.GlobalConstantsAndEnums;
 using NetDeviceManager.Lib.Interfaces;
 using NetDeviceManager.Lib.Services;
 using ScheduledDatabaseReporter;
@@ -17,7 +18,6 @@ var connectionString = ConfigurationHelper.GetConnectionString();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     {
         options.UseNpgsql(connectionString);
-        options.LogTo(Console.WriteLine, LogLevel.None);
     }
 );
 
@@ -26,6 +26,7 @@ builder.Services.AddSingleton<Timer>();
 builder.Services.AddScoped<ISnmpService, SnmpService>();
 builder.Services.AddScoped<IDatabaseService, DatabaseService>();
 builder.Services.AddScoped<SettingsService>();
+builder.Logging.SetMinimumLevel(GlobalSettings.MinimalLoggingLevel);
 
 Console.WriteLine("Initialized!");
 
