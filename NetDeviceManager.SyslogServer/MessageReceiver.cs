@@ -15,6 +15,9 @@ public class MessageReceiver
     private readonly IDatabaseService _database;
     private readonly int _port;
 
+    public delegate void CrashDelegate(string m);
+    public event CrashDelegate? OnCrash;
+    
     public MessageReceiver(ServerCache cache, int port)
     {
         _cache = cache;
@@ -37,7 +40,7 @@ public class MessageReceiver
             {
                 receivedBytes = udpListener.Receive(ref endpoint);
                 receivedData = Encoding.ASCII.GetString(receivedBytes, 0, receivedBytes.Length);
-                Console.WriteLine($"{DateTime.Now} {receivedData}");
+                Console.WriteLine($"From ip: {endpoint.Address.ToString()} in {DateTime.Now} received: {receivedData}");
                 
                 lock (_cache.ProcessorLock)
                 {
@@ -51,7 +54,7 @@ public class MessageReceiver
             Console.WriteLine(e.Message);
             Thread.Sleep(3000);
             Console.WriteLine("New atempt to run receiver...");
-            Run();
+            OnCrash?.Invoke(e.Message);
         }
     }
 }

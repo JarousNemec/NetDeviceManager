@@ -6,27 +6,47 @@ namespace NetDeviceManager.SyslogServer;
 public class Server
 {
     private readonly ServerCache _cache;
+    private Thread _processorThread;
+    private Thread _receiverThread;
 
     public Server(ServerCache cache)
     {
         _cache = cache;
+
+        var connectionString = ConfigurationHelper.GetConfigurationString();
+        if (connectionString == null)
+            return;
+        
+        var receiver = new MessageReceiver(_cache, 10514);
+        receiver.OnCrash += s =>
+        {
+            if(_receiverThread.IsAlive)
+                _receiverThread.Interrupt();
+            _receiverThread = new Thread(receiver.Run);
+            _receiverThread.Start();
+        };
+        _receiverThread = new Thread(receiver.Run);
+
+        var processor = new MessageProcessor(_cache, connectionString);
+        processor.OnCrash += s =>
+        {
+            if(_processorThread.IsAlive)
+                _processorThread.Interrupt();
+            _processorThread = new Thread(processor.Run);
+            _processorThread.Start();
+        };
+        _processorThread = new Thread(processor.Run);
     }
 
     public void Run()
     {
-        Console.WriteLine("Starting receiver...");
-
-        var receiver = new MessageReceiver(_cache, 10514);
-        Thread receiverThread = new Thread(receiver.Run);
-        receiverThread.Start();
-
-        var connectionString = ConfigurationHelper.GetConfigurationString();
-        if (connectionString != null)
+        if (_processorThread != null && _receiverThread != null)
         {
+            Console.WriteLine("Starting receiver...");
+            _receiverThread.Start();
+
             Console.WriteLine("Starting processor...");
-            var processor = new MessageProcessor(_cache, connectionString);
-            Thread processorThread = new Thread(processor.Run);
-            processorThread.Start();
+            _processorThread.Start();
         }
 
         Console.WriteLine("Running...");

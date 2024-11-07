@@ -18,7 +18,8 @@ public class MessageProcessor
     private readonly ServerCache _cache;
     private readonly IDatabaseService _database;
     private readonly SettingsService _settingsService;
-
+    public delegate void CrashDelegate(string m);
+    public event CrashDelegate? OnCrash;
     public MessageProcessor(ServerCache cache, string dbConnString)
     {
         _cache = cache;
@@ -36,7 +37,7 @@ public class MessageProcessor
         Console.WriteLine("Running processor...");
         try
         {
-            var severities = _settingsService.GetSettings().DesiredSeverities;
+            // var severities = _settingsService.GetSettings().DesiredSeverities;
 
             while (true)
             {
@@ -48,15 +49,24 @@ public class MessageProcessor
                         continue;
                     }
 
-                    foreach (var Message in _cache.MessagesQueue)
+                    foreach (var message in _cache.MessagesQueue)
                     {
-                        Console.WriteLine($"Processing message.... ({Message.Ip}) : {Message.Message}");
-                        var record = ParseRecord(Message);
-                        
-                        if (severities.Contains(record.Severity) || record.Severity == -1)
+                        Console.WriteLine($"Processing message.... ({message.Ip}) : {message.Message}");
+                        // var record = ParseRecord(message);
+                        var record = new SyslogRecord()
                         {
+                            CompletMessage = message.Message,
+                            Facility = 1,
+                            Severity = 1,
+                            Message = message.Message,
+                            PhysicalDeviceId = null,
+                            ProcessedDate = DateTime.Now,
+                            Ip = message.Ip
+                        };
+                        // if (severities.Contains(record.Severity) || record.Severity == -1)
+                        // {
                             _database.AddSyslogRecord(record);
-                        }
+                        // }
                     }
                     _cache.MessagesQueue = new List<CacheMessageModel>();
                 }
@@ -64,10 +74,9 @@ public class MessageProcessor
         }
         catch (Exception e)
         {
-            Console.WriteLine(e.Message);
+            Console.WriteLine("Processor has crashed with message "+e.Message+" object: "+e.Source);
             Thread.Sleep(5000);
-            // Console.WriteLine("New atempt to run processor...");
-            // Run();
+            OnCrash?.Invoke(e.Message);
         }
     }
     private SyslogRecord ParseRecord(CacheMessageModel message)
