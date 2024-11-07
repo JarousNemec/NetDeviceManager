@@ -2,7 +2,7 @@ name: Build & publish syslog-server images
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build-and-push-image:
