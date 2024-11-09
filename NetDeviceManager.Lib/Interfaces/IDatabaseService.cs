@@ -1,6 +1,7 @@
 ﻿using NetDeviceManager.Database.Identity;
 using NetDeviceManager.Database.Models;
 using NetDeviceManager.Database.Tables;
+using NetDeviceManager.Lib.GlobalConstantsAndEnums;
 using NetDeviceManager.Lib.Model;
 
 namespace NetDeviceManager.Lib.Interfaces;
@@ -80,7 +81,7 @@ public interface IDatabaseService
 
     List<CorrectDataPattern> GetPhysicalDevicesPatterns();
 
-    List<Guid> GetSyslogsBySeverity(int severity);
+    List<Guid> GetSyslogsBySeverity(SyslogSeverity severity);
     List<Guid> GetSyslogs();
 
     List<SnmpSensorRecord> GetSnmpRecordsWithFilter(SnmpRecordFilterModel model, int count);

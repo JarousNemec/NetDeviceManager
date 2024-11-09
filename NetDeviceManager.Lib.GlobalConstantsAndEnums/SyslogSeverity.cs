@@ -10,6 +10,7 @@ public enum SyslogSeverity
     Notice = 5,
     Informational = 6,
     Debug = 7,
+    Undefined = 99,
 }
 
 public static class SyslogSeverityMapper

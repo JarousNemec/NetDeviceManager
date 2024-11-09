@@ -26,6 +26,7 @@ public enum SyslogFacility
     LocalUse5 = 21,
     LocalUse6 = 22,
     LocalUse7 = 23,
+    Undefined = 99
 }
 
 public static class SyslogFacilityMapper

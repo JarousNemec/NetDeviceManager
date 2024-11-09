@@ -3,6 +3,7 @@ using NetDeviceManager.Database;
 using NetDeviceManager.Database.Identity;
 using NetDeviceManager.Database.Models;
 using NetDeviceManager.Database.Tables;
+using NetDeviceManager.Lib.GlobalConstantsAndEnums;
 using NetDeviceManager.Lib.Interfaces;
 using NetDeviceManager.Lib.Model;
 
@@ -135,7 +136,7 @@ public class DatabaseService : IDatabaseService
         var id = GenerateGuid();
         record.Id = id;
         _database.SyslogRecords.Add(record);
-        _database.SaveChangesAsync();
+        _database.SaveChanges();
         return id;
     }
 
@@ -339,7 +340,7 @@ public class DatabaseService : IDatabaseService
             .ToList();
     }
 
-    public List<Guid> GetSyslogsBySeverity(int severity)
+    public List<Guid> GetSyslogsBySeverity(SyslogSeverity severity)
     {
         return _database.SyslogRecords.AsNoTracking().Where(x => x.Severity == severity).Select(x => x.Id).ToList();
     }
