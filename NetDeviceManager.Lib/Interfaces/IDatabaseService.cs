@@ -84,9 +84,10 @@ public interface IDatabaseService
     List<Guid> GetSyslogsBySeverity(SyslogSeverity severity);
     List<Guid> GetSyslogs();
 
-    List<SnmpSensorRecord> GetSnmpRecordsWithFilter(SnmpRecordFilterModel model, int count);
+    List<SnmpSensorRecord> GetSnmpRecordsWithFilter(SnmpRecordFilterModel model, int count = -1);
 
-    List<SyslogRecord> GetSyslogRecordsWithFilter(SyslogRecordFilterModel model, int count);
+    List<SyslogRecord> GetSyslogRecordsWithFilter(SyslogRecordFilterModel model, int count = -1);
+    List<SyslogRecord> GetSyslogRecordsWithUnknownSource(int count = -1);
 
     List<DeviceIcon> GetIcons();
 
@@ -119,6 +120,7 @@ public interface IDatabaseService
     OperationResult DeleteUser(string id);
 
     OperationResult DeleteAllSyslogs();
+    OperationResult DeleteSyslogsOfDevice(Guid? physicalDeviceId);
 
     OperationResult DeleteAllSnmpRecords();
 

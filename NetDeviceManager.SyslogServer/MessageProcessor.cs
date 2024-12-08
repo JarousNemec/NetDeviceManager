@@ -2,6 +2,7 @@
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NetDeviceManager.Database;
@@ -74,8 +75,10 @@ public class MessageProcessor
 
     private SyslogRecord ParseRecord(CacheMessageModel message)
     {
-        var messageValue = message.Message.Replace("\0",string.Empty);
-        
+        //fixing null posible null characters in message string
+        var messageValue = message.Message.Replace("\0", string.Empty).Replace("\n", string.Empty).Replace("\r", string.Empty);;
+        // messageValue = Regex.Replace( messageValue, @"(^\p{Zs}*\r\n){2,}", "\r", RegexOptions.Multiline );
+
         var device = _database.GetPhysicalDeviceByIp(message.Ip);
         var format = SyslogUtil.IdentifySyslogFormat(messageValue);
         var creationDate = SyslogUtil.GetSyslogTimestamp(messageValue, format);
@@ -93,7 +96,7 @@ public class MessageProcessor
         {
             severity = SyslogUtil.ParseCiscoSyslogSeverity(messageValue);
         }
-        
+
         var record = new SyslogRecord()
         {
             CompletMessage = messageValue,
@@ -105,7 +108,7 @@ public class MessageProcessor
             CreationDate = creationDate,
             Ip = message.Ip
         };
-        
+
         return record;
     }
 }

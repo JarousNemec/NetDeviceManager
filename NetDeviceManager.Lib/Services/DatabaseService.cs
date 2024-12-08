@@ -350,7 +350,7 @@ public class DatabaseService : IDatabaseService
         return _database.SyslogRecords.AsNoTracking().Select(x => x.Id).ToList();
     }
 
-    public List<SnmpSensorRecord> GetSnmpRecordsWithFilter(SnmpRecordFilterModel model, int count)
+    public List<SnmpSensorRecord> GetSnmpRecordsWithFilter(SnmpRecordFilterModel model, int count = -1)
     {
         IQueryable<SnmpSensorRecord> query = _database.SnmpSensorRecords.AsNoTracking().Include(x => x.PhysicalDevice)
             .Include(x => x.Sensor);
@@ -373,11 +373,20 @@ public class DatabaseService : IDatabaseService
         {
             query = query.Where(x => x.Sensor.Name == model.SensorName);
         }
-
+        if(count == -1)
+            return query.OrderByDescending(x => x.CapturedTime).ToList();
         return query.OrderByDescending(x => x.CapturedTime).Take(count).ToList();
     }
 
-    public List<SyslogRecord> GetSyslogRecordsWithFilter(SyslogRecordFilterModel model, int count)
+    public List<SyslogRecord> GetSyslogRecordsWithUnknownSource(int count = -1)
+    {
+        var records = _database.SyslogRecords.AsNoTracking().Where(x => x.PhysicalDeviceId == null);
+        if(count == -1)
+            return records.ToList();
+        return records.Take(count).ToList();
+    }
+
+    public List<SyslogRecord> GetSyslogRecordsWithFilter(SyslogRecordFilterModel model, int count = -1)
     {
         IQueryable<SyslogRecord> query = _database.SyslogRecords.AsNoTracking().Include(x => x.PhysicalDevice);
         if (!string.IsNullOrEmpty(model.DeviceName))
@@ -575,6 +584,17 @@ public class DatabaseService : IDatabaseService
     public OperationResult DeleteAllSyslogs()
     {
         foreach (var record in _database.SyslogRecords)
+        {
+            _database.SyslogRecords.Remove(record);
+        }
+
+        _database.SaveChanges();
+        return new OperationResult();
+    }
+
+    public OperationResult DeleteSyslogsOfDevice(Guid? physicalDeviceId)
+    {
+        foreach (var record in _database.SyslogRecords.Where(x => x.PhysicalDeviceId == physicalDeviceId))
         {
             _database.SyslogRecords.Remove(record);
         }
