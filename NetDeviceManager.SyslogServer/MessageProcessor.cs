@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Diagnostics;
+using Microsoft.EntityFrameworkCore;
 using NetDeviceManager.Database;
 using NetDeviceManager.Database.Tables;
 using NetDeviceManager.Lib.GlobalConstantsAndEnums;
@@ -62,6 +63,7 @@ public class MessageProcessor
         catch (Exception e)
         {
             Console.WriteLine("Processor has crashed with message " + e.Message);
+            Debug.WriteLine("Processor has crashed with message " + e);
             Thread.Sleep(5000);
             OnCrash?.Invoke(e.Message);
         }

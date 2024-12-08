@@ -2,12 +2,12 @@
 
 namespace NetDeviceManager.SyslogServer;
 
-public class Server
+public class Server : IDisposable
 {
     private readonly ServerCache _cache;
     private Thread _processorThread;
     private Thread _receiverThread;
-
+    private bool _stopping;
     public Server(ServerCache cache)
     {
         _cache = cache;
@@ -19,6 +19,8 @@ public class Server
         var receiver = new MessageReceiver(_cache, 10514);
         receiver.OnCrash += s =>
         {
+            if(_stopping)
+                return;
             if (_receiverThread.IsAlive)
                 _receiverThread.Interrupt();
             _receiverThread = new Thread(receiver.Run);
@@ -29,6 +31,8 @@ public class Server
         var processor = new MessageProcessor(_cache, connectionString);
         processor.OnCrash += s =>
         {
+            if(_stopping)
+                return;
             if (_processorThread.IsAlive)
                 _processorThread.Interrupt();
             _processorThread = new Thread(processor.Run);
@@ -39,6 +43,8 @@ public class Server
 
     public void Run()
     {
+        if(_stopping)
+            return;
         if (_processorThread != null && _receiverThread != null)
         {
             Console.WriteLine("Starting receiver...");
@@ -49,5 +55,12 @@ public class Server
         }
 
         Console.WriteLine("Running...");
+    }
+
+    public void Dispose()
+    {
+        _stopping = true;
+        _processorThread?.Interrupt();
+        _receiverThread?.Interrupt();
     }
 }
