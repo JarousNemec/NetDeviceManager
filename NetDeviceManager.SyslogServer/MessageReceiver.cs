@@ -1,10 +1,7 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using Microsoft.EntityFrameworkCore;
-using NetDeviceManager.Database;
 using NetDeviceManager.Lib.Interfaces;
-using NetDeviceManager.SyslogServer.Helpers;
 using NetDeviceManager.SyslogServer.Models;
 
 namespace NetDeviceManager.SyslogServer;

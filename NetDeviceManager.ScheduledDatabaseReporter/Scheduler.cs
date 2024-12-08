@@ -3,15 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NetDeviceManager.Database;
-using NetDeviceManager.Database.Tables;
-using NetDeviceManager.Lib.GlobalConstantsAndEnums;
+using NetDeviceManager.Lib.Helpers;
 using NetDeviceManager.Lib.Interfaces;
 using NetDeviceManager.Lib.Services;
 using Quartz;
 using Quartz.Impl;
 using Quartz.Impl.Matchers;
 using ScheduledDatabaseReporter.Factories;
-using ScheduledDatabaseReporter.Helpers;
 using ScheduledDatabaseReporter.Jobs;
 using ScheduledDatabaseReporter.Utils;
 using Timer = System.Timers.Timer;
@@ -40,7 +38,7 @@ public class Scheduler
     private void SetupScheduler()
     {
         _scheduler = StdSchedulerFactory.GetDefaultScheduler().Result;
-        var connectionString = ConfigurationHelper.GetConnectionString();
+        var connectionString = SystemConfigurationHelper.GetConnectionString();
         var serviceProvider = SetupServiceCollection(connectionString);
         _scheduler.JobFactory = new DIJobFactory(serviceProvider);
         _scheduler.Start();
@@ -78,7 +76,7 @@ public class Scheduler
 
     private async void ScheduleJob()
     {
-        var group = ConfigurationHelper.GetValue("JobGroupName");
+        var group = SystemConfigurationHelper.GetValue("JobGroupName");
         if (group == null)
         {
             Console.Out.WriteLine("Cannot load configuration for readers group name");
@@ -124,7 +122,7 @@ public class Scheduler
 
     private async Task ScheduleReportJob(string cron, string group)
     {
-        var path = ConfigurationHelper.GetPath();
+        var path = SystemConfigurationHelper.GetPath();
         
         if(string.IsNullOrEmpty(path))
             return;

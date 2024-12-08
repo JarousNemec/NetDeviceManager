@@ -6,15 +6,15 @@ using Microsoft.Extensions.Logging;
 using NetDeviceManager.Database;
 using NetDeviceManager.Lib.GlobalConstantsAndEnums;
 using NetDeviceManager.Lib.Interfaces;
+using NetDeviceManager.Lib.Helpers;
 using NetDeviceManager.Lib.Services;
 using ScheduledDatabaseReporter;
-using ScheduledDatabaseReporter.Helpers;
 using Timer = System.Timers.Timer;
 
 Console.WriteLine("Initializing...");
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
-var connectionString = ConfigurationHelper.GetConnectionString();
+var connectionString = SystemConfigurationHelper.GetConnectionString();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     {
         options.UseNpgsql(connectionString);

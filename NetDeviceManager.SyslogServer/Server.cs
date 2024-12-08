@@ -1,5 +1,4 @@
-﻿using NetDeviceManager.Lib.Interfaces;
-using NetDeviceManager.SyslogServer.Helpers;
+﻿using NetDeviceManager.Lib.Helpers;
 
 namespace NetDeviceManager.SyslogServer;
 
@@ -13,14 +12,14 @@ public class Server
     {
         _cache = cache;
 
-        var connectionString = ConfigurationHelper.GetConfigurationString();
+        var connectionString = SystemConfigurationHelper.GetConnectionString();
         if (connectionString == null)
             return;
-        
+
         var receiver = new MessageReceiver(_cache, 10514);
         receiver.OnCrash += s =>
         {
-            if(_receiverThread.IsAlive)
+            if (_receiverThread.IsAlive)
                 _receiverThread.Interrupt();
             _receiverThread = new Thread(receiver.Run);
             _receiverThread.Start();
@@ -30,7 +29,7 @@ public class Server
         var processor = new MessageProcessor(_cache, connectionString);
         processor.OnCrash += s =>
         {
-            if(_processorThread.IsAlive)
+            if (_processorThread.IsAlive)
                 _processorThread.Interrupt();
             _processorThread = new Thread(processor.Run);
             _processorThread.Start();
