@@ -25,8 +25,16 @@ public class MessageReceiver
     public void Run()
     {
         Console.WriteLine("Running receiver...");
-        var udpListener = new UdpClient(_port);
-
+        UdpClient udpListener;
+        try
+        {
+            udpListener = new UdpClient(_port);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return;
+        }
         try
         {
             IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, _port);
@@ -36,7 +44,7 @@ public class MessageReceiver
             while (true)
             {
                 receivedBytes = udpListener.Receive(ref endpoint);
-                receivedData = Encoding.ASCII.GetString(receivedBytes, 0, receivedBytes.Length);
+                receivedData = Encoding.ASCII.GetString(receivedBytes, 0, receivedBytes.Length).Replace("\0", string.Empty).Replace("\n", string.Empty).Replace("\r", string.Empty);
                 Console.WriteLine($"From ip: {endpoint.Address.ToString()} in {DateTime.Now} received: {receivedData}");
                 
                 lock (_cache.ProcessorLock)

@@ -7,7 +7,7 @@ public class Server : IDisposable
     private readonly ServerCache _cache;
     private Thread _processorThread;
     private Thread _receiverThread;
-    private bool _stopping;
+    private bool _stopping = false;
     public Server(ServerCache cache)
     {
         _cache = cache;
@@ -16,7 +16,7 @@ public class Server : IDisposable
         if (connectionString == null)
             return;
 
-        var receiver = new MessageReceiver(_cache, 10514);
+        var receiver = new MessageReceiver(_cache, int.Parse(SystemConfigurationHelper.GetValue("UdpPort")!));
         receiver.OnCrash += s =>
         {
             if(_stopping)

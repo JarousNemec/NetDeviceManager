@@ -62,7 +62,7 @@ public class MessageProcessor
         }
         catch (Exception e)
         {
-            Console.WriteLine("Processor has crashed with message " + e.Message);
+            Console.WriteLine("Processor has crashed with message " + e);
             Debug.WriteLine("Processor has crashed with message " + e);
             Thread.Sleep(5000);
             OnCrash?.Invoke(e.Message);
@@ -71,10 +71,7 @@ public class MessageProcessor
 
     private SyslogRecord ParseRecord(CacheMessageModel message)
     {
-        //fixing null posible null characters in message string
-        var messageValue = message.Message.Replace("\0", string.Empty).Replace("\n", string.Empty).Replace("\r", string.Empty);;
-        // messageValue = Regex.Replace( messageValue, @"(^\p{Zs}*\r\n){2,}", "\r", RegexOptions.Multiline );
-
+        var messageValue = message.Message;
         var device = _database.GetPhysicalDeviceByIp(message.Ip);
         var format = SyslogUtil.IdentifySyslogFormat(messageValue);
         var creationDate = SyslogUtil.GetSyslogTimestamp(messageValue, format);

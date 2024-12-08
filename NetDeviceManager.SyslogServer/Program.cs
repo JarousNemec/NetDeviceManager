@@ -34,3 +34,4 @@ var server = app.Services.GetRequiredService<Server>();
 server.Run();
 
 _ = app.RunAsync();
+// server.Dispose();

@@ -1,7 +1,7 @@
 ﻿FROM mcr.microsoft.com/dotnet/sdk:8.0 AS base
 USER $APP_UID
 WORKDIR /app
-EXPOSE 10514
+EXPOSE 11514
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release

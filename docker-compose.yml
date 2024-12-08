@@ -2,9 +2,10 @@
 
   web:
     restart: unless-stopped
-    build:
-      context: .
-      dockerfile: ./NetDeviceManager.Web/Dockerfile
+    image: jardathedev/net-device-manager-web:latest
+#    build:
+#      context: .
+#      dockerfile: ./NetDeviceManager.Web/Dockerfile
     volumes:
       - "web-storage:/app/data"
     ports:
@@ -15,20 +16,22 @@
 
   snmp-agent:
     restart: unless-stopped
-    build:
-      context: .
-      dockerfile: ./NetDeviceManager.ScheduledSnmpAgent/Dockerfile
+    image: jardathedev/net-device-manager-scheduled-snmp-agent:latest
+#    build:
+#      context: .
+#      dockerfile: ./NetDeviceManager.ScheduledSnmpAgent/Dockerfile
     depends_on:
       database:
         condition: service_healthy
 
   syslog-server:
     restart: unless-stopped
-    build:
-      context: .
-      dockerfile: ./NetDeviceManager.SyslogServer/Dockerfile
+    image: jardathedev/syslog-server:latest
+#    build:
+#      context: .
+#      dockerfile: ./NetDeviceManager.SyslogServer/Dockerfile
     ports:
-      - "10514:10514/udp"
+      - "11514:11514/udp"
     depends_on:
       database:
         condition: service_healthy
@@ -36,9 +39,10 @@
 
   api:
     restart: unless-stopped
-    build:
-      context: .
-      dockerfile: ./NetDeviceManager.Api/Dockerfile
+    image: jardathedev/net-device-manager-api:latest
+#    build:
+#      context: .
+#      dockerfile: ./NetDeviceManager.Api/Dockerfile
     ports:
       - "10001:8080"
       - "10011:8081"  
@@ -50,9 +54,10 @@
 
   reporter:
     restart: unless-stopped
-    build:
-      context: .
-      dockerfile: ./NetDeviceManager.ScheduledDatabaseReporter/Dockerfile
+    image: jardathedev/net-device-manager-scheduled-database-reporter:latest
+#    build:
+#      context: .
+#      dockerfile: ./NetDeviceManager.ScheduledDatabaseReporter/Dockerfile
     volumes:
       - ./reports:/app/reports
     depends_on:
