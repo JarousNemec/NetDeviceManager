@@ -1,6 +1,6 @@
 ﻿using NetDeviceManager.Lib.GlobalConstantsAndEnums;
 
-namespace NetDeviceManager.Database.Models;
+namespace NetDeviceManager.Lib.Model;
 
 public class SyslogRecordFilterModel
 {

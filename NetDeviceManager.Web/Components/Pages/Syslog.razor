@@ -2,8 +2,10 @@
 @using Microsoft.AspNetCore.Authorization
 @using NetDeviceManager.Database.Models
 @using NetDeviceManager.Database.Tables
+@using NetDeviceManager.Lib.GlobalConstantsAndEnums
 
 @using NetDeviceManager.Lib.Interfaces
+@using NetDeviceManager.Lib.Model
 @rendermode  InteractiveServer
 @attribute [Authorize]
 <PageTitle>Syslog</PageTitle>
@@ -21,11 +23,22 @@
         </div>
         <div class="labelinput-menu">
             <label class="label-menu font-16">Facility</label>
-            <InputNumber @bind-Value="Filter.Facility" class="input-menu font-16" placeholder="Enter facility..."/>
+            <InputSelect TValue="SyslogFacility" Value="Filter.Facility" ValueExpression="() => Filter.Facility" ValueChanged="(value) => FacilitySelected(value)" class="input-modalform">
+                @foreach (var tuple in Enum.GetValues(typeof(SyslogFacility)).Cast<SyslogFacility>().Select(c => (c.ToString(), (int)c)).ToArray())
+                {
+                    <option value="@tuple.Item2">@($"{tuple.Item2}({tuple.Item1})")</option>
+                }
+            </InputSelect>
         </div>
+
         <div class="labelinput-menu">
             <label class="label-menu font-16">Severity</label>
-            <InputNumber @bind-Value="Filter.Severity" class="input-menu font-16" placeholder="Enter severity..."/>
+            <InputSelect TValue="SyslogSeverity" Value="Filter.Severity" ValueExpression="() => Filter.Severity" ValueChanged="(value) => SeveritySelected(value)" class="input-modalform">
+                @foreach (var tuple in Enum.GetValues(typeof(SyslogSeverity)).Cast<SyslogSeverity>().Select(c => (c.ToString(), (int)c)).ToArray())
+                {
+                    <option value="@tuple.Item2">@($"{tuple.Item2}({tuple.Item1})")</option>
+                }
+            </InputSelect>
         </div>
         <button type="submit" class="btn-action btn-style-normal font-16">Query data</button>
     </EditForm>
@@ -57,9 +70,9 @@
 </style>
 
 @code{
-    [Inject]  IDeviceService DeviceService { get; set; }
-    [Inject]  ISnmpService SnmpService { get; set; }
-    [Inject]  IDatabaseService DatabaseService { get; set; }
+    [Inject] IDeviceService DeviceService { get; set; }
+    [Inject] ISnmpService SnmpService { get; set; }
+    [Inject] IDatabaseService DatabaseService { get; set; }
 
     [SupplyParameterFromForm] private SyslogRecordFilterModel Filter { get; set; } = new();
 
@@ -87,6 +100,16 @@
     {
         _records = DatabaseService.GetSyslogRecordsWithFilter(Filter, 100);
         await grid.RefreshDataAsync();
+    }
+
+    private void FacilitySelected(SyslogFacility value)
+    {
+        Filter.Facility = value;
+    }
+
+    private void SeveritySelected(SyslogSeverity value)
+    {
+        Filter.Severity = value;
     }
 
 }

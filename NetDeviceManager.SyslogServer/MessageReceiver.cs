@@ -5,6 +5,7 @@ using NetDeviceManager.Lib.Interfaces;
 using NetDeviceManager.SyslogServer.Models;
 
 namespace NetDeviceManager.SyslogServer;
+
 //config keys: SyslogUdpPort
 public class MessageReceiver
 {
@@ -13,49 +14,48 @@ public class MessageReceiver
     private readonly int _port;
 
     public delegate void CrashDelegate(string m);
+
     public event CrashDelegate? OnCrash;
-    
+
     public MessageReceiver(ServerCache cache, int port)
     {
         _cache = cache;
         _port = port;
-
     }
 
     public void Run()
     {
         Console.WriteLine("Running receiver...");
-        UdpClient udpListener;
-        try
-        {
-            udpListener = new UdpClient(_port);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            return;
-        }
+
         try
         {
             IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, _port);
+
+            Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+            socket.Bind(endpoint);
+            
+            UdpClient udpListener = new UdpClient { Client = socket };
+            
             string receivedData;
             byte[] receivedBytes;
 
             while (true)
             {
                 receivedBytes = udpListener.Receive(ref endpoint);
-                receivedData = Encoding.ASCII.GetString(receivedBytes, 0, receivedBytes.Length).Replace("\0", string.Empty).Replace("\n", string.Empty).Replace("\r", string.Empty);
+                receivedData = Encoding.ASCII.GetString(receivedBytes, 0, receivedBytes.Length)
+                    .Replace("\0", string.Empty).Replace("\n", string.Empty).Replace("\r", string.Empty);
                 Console.WriteLine($"From ip: {endpoint.Address.ToString()} in {DateTime.Now} received: {receivedData}");
-                
+
                 lock (_cache.ProcessorLock)
                 {
-                    _cache.MessagesQueue.Add(new CacheMessageModel(){Message = receivedData, Ip = endpoint.Address.ToString()});
+                    _cache.MessagesQueue.Add(new CacheMessageModel()
+                        { Message = receivedData, Ip = endpoint.Address.ToString() });
                 }
             }
         }
         catch (Exception e)
         {
-            udpListener.Close();
             Console.WriteLine(e.Message);
             Thread.Sleep(3000);
             Console.WriteLine("New atempt to run receiver...");

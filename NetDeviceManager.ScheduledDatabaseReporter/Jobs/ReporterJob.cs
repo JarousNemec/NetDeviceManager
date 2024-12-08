@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 using NetDeviceManager.Database.Models;
 using NetDeviceManager.Database.Tables;
 using NetDeviceManager.Lib.Interfaces;
+using NetDeviceManager.Lib.Model;
 using NetDeviceManager.Lib.Utils;
 using Quartz;
 

@@ -399,12 +399,12 @@ public class DatabaseService : IDatabaseService
             query = query.Where(x => x.Ip == model.IpAddress);
         }
 
-        if (model.Facility >= 0)
+        if (model.Facility >= 0 && model.Facility != SyslogFacility.Undefined)
         {
             query = query.Where(x => x.Facility == model.Facility);
         }
 
-        if (model.Severity >= 0)
+        if (model.Severity >= 0 && model.Severity != SyslogSeverity.Undefined)
         {
             query = query.Where(x => x.Severity == model.Severity);
         }
