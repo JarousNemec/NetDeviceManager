@@ -77,7 +77,7 @@
               EmptyText="No alerts registered">
 
             <GridColumn TItem="SnmpAlertModel" HeaderText="Device" PropertyName="DeviceName">
-                @($"{context.Device.Name} ({@context.Device.IpAddress})")
+                @($"{context.Device.Name}")
             </GridColumn>
             <GridColumn TItem="SnmpAlertModel" HeaderText="Sensor" PropertyName="SensorName">
                 @($"{context.Sensor.Name} ({@context.Sensor.Oid})")

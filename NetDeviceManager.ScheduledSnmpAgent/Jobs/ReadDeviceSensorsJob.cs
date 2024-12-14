@@ -11,7 +11,7 @@ public class ReadDeviceSensorsJob : IJob
 {
     private List<SnmpSensor> _sensors;
     private Port _port;
-    private LoginProfile _login;
+    private List<LoginProfile> _logins;
     private PhysicalDevice _device;
     private string? _id;
     private readonly IDatabaseService _databaseService;
@@ -29,7 +29,7 @@ public class ReadDeviceSensorsJob : IJob
 
         foreach (var sensor in _sensors)
         {
-            var data = _snmpService.GetSensorValue(sensor, _login, _device, _port) ?? string.Empty;
+            var data = _snmpService.GetSensorValue(sensor, _logins, _device, _port) ?? string.Empty;
             var record = new SnmpSensorRecord
             {
                 Data = data,
@@ -45,13 +45,14 @@ public class ReadDeviceSensorsJob : IJob
 
     private void InitializeJob(IJobExecutionContext context)
     {
+        //todo presun nazvu do konstant
         var dataMap = context.MergedJobDataMap;
 
         _id = (string)dataMap["id"];
         _device = (PhysicalDevice)dataMap["physicalDevice"];
         _sensors = (List<SnmpSensor>)dataMap["sensors"];
         _port = (Port)dataMap["port"];
-        _login = (LoginProfile)dataMap["loginProfile"];
+        _logins = (List<LoginProfile>)dataMap["loginProfiles"];
 
         Console.Out.WriteLine($"{_id} - ({DateTime.Now}) - Job started...");
         Console.Out.WriteLine($"Device name: {_device.Name}");

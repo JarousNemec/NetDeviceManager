@@ -59,13 +59,17 @@ public class SnmpService : ISnmpService
         return new OperationResult();
     }
 
-    public string? GetSensorValue(SnmpSensor sensor, LoginProfile profile, PhysicalDevice device, Port port)
+    public string? GetSensorValue(SnmpSensor sensor, List<LoginProfile> profiles, PhysicalDevice device, Port port)
     {
         List<SnmpVariableModel> freshData;
+        
+        //todo: lepsi souseni logovacish profilu 
+        var profile = profiles.FirstOrDefault(x => !string.IsNullOrEmpty(x.SnmpAuthenticationPassword) &&
+                                                   !string.IsNullOrEmpty(x.SnmpPrivacyPassword) && !string.IsNullOrEmpty(x.SnmpSecurityName) && !string.IsNullOrEmpty(x.SnmpUsername));
         if (sensor.SnmpVersion != VersionCode.V3)
             freshData = ReadSensorV1V2(sensor, device, port);
-        else if (string.IsNullOrEmpty(profile.AuthenticationPassword) ||
-                 string.IsNullOrEmpty(profile.PrivacyPassword) || string.IsNullOrEmpty(profile.SecurityName))
+        else if (profile == null)
+            //todo zalogovat se nenalezen logovaci profil pro dany snmp sensor
             return null;
         else
         {
@@ -193,11 +197,15 @@ public class SnmpService : ISnmpService
 
     private string SnmpGetV1V2(SnmpSensor sensor, PhysicalDevice device, Port port, string oid)
     {
+        string? ipAddress = device.IpAddresses.First().ToString();
+        if(ipAddress == null)
+            return "-1";
+        
         var objectId = new ObjectIdentifier(oid);
         try
         {
             var result = Messenger.Get(sensor.SnmpVersion,
-                new IPEndPoint(IPAddress.Parse(device.IpAddress), port.Number),
+                new IPEndPoint(IPAddress.Parse(ipAddress), port.Number),
                 new OctetString(sensor.CommunityString),
                 new List<Variable>
                     { new(objectId) }, MESSANGER_GET_TIMEOUT)[0];
@@ -213,8 +221,14 @@ public class SnmpService : ISnmpService
     private List<SnmpVariableModel> ReadSensorV3(SnmpSensor sensor, LoginProfile profile, PhysicalDevice device,
         Port port)
     {
-        var endpoint = new IPEndPoint(IPAddress.Parse(device.IpAddress), port.Number);
         var results = new List<SnmpVariableModel>();
+        
+        string? ipAddress = device.IpAddresses.First().ToString();
+        if(ipAddress == null)
+            return results;
+        
+        var endpoint = new IPEndPoint(IPAddress.Parse(ipAddress), port.Number);
+        
         if (sensor.IsMulti)
         {
             for (int i = (int)sensor.StartIndex!; i <= sensor.EndIndex; i++)
@@ -232,33 +246,34 @@ public class SnmpService : ISnmpService
 
         return results;
     }
-
     private string SnmpGetV3(LoginProfile profile, PhysicalDevice device, IPEndPoint endpoint, string oid)
     {
+        if(string.IsNullOrEmpty(profile.SnmpPrivacyPassword) || string.IsNullOrEmpty(profile.SnmpUsername) || string.IsNullOrEmpty(profile.SnmpAuthenticationPassword) || string.IsNullOrEmpty(profile.SnmpSecurityName))
+            return "-1";
         var objectId = new ObjectIdentifier(oid);
         try
         {
             Discovery discovery = Messenger.GetNextDiscovery(SnmpType.GetRequestPdu);
             ReportMessage report = discovery.GetResponse(MESSANGER_GET_TIMEOUT, endpoint);
-            var auth = new SHA1AuthenticationProvider(new OctetString(profile.AuthenticationPassword));
-            var priv = new DESPrivacyProvider(new OctetString(profile.PrivacyPassword), auth);
+            var auth = new SHA1AuthenticationProvider(new OctetString(profile.SnmpAuthenticationPassword));
+            var priv = new DESPrivacyProvider(new OctetString(profile.SnmpPrivacyPassword), auth);
 
             GetRequestMessage request = new GetRequestMessage(
                 VersionCode.V3,
                 Messenger.NextMessageId,
                 Messenger.NextRequestId,
-                new OctetString(profile.Username),
+                new OctetString(profile.SnmpUsername),
                 new List<Variable> { new Variable(objectId) },
                 priv,
                 Messenger.MaxMessageSize, report);
 
             ISnmpMessage reply = request.GetResponse(MESSANGER_GET_TIMEOUT, endpoint);
-
+            //todo logovat co se tu deje treba chyba v authentikaci atd.
             if (reply.Pdu().ErrorStatus.ToInt32() != 0)
             {
                 throw ErrorException.Create(
                     "error in response",
-                    IPAddress.Parse(device.IpAddress),
+                    IPAddress.Parse(endpoint.Address.ToString()),
                     reply);
             }
 

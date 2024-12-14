@@ -2,7 +2,7 @@
 @using NetDeviceManager.Lib.Interfaces
 @rendermode InteractiveServer
 <div>
-    <RowToggleButton Label="@($"{Device.Name} ({Device.IpAddress})")" OnToggle="OnToggle"></RowToggleButton>
+    <RowToggleButton Label="@($"{Device.Name}")" OnToggle="OnToggle"></RowToggleButton>
     <Collapse @ref="_collapse">
         <Grid
               TItem="SnmpSensorInPhysicalDevice"

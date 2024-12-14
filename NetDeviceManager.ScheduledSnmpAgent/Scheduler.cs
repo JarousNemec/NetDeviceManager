@@ -119,7 +119,7 @@ public class Scheduler
     {
         var port = SnmpUtils.GetSnmpPort(registeredJob.PhysicalDeviceId, _databaseService);
         if (port == null) return;
-        var loginProfile = _databaseService.GetLoginProfile(registeredJob.PhysicalDevice.LoginProfileId);
+        var loginProfile = _databaseService.GetPhysicalDeviceLoginProfiles(registeredJob.PhysicalDevice.Id);
         string id = registeredJob.Id.ToString();
 
         var sensorsInPhysicalDevice = _databaseService.GetSensorsOfPhysicalDevice(registeredJob.PhysicalDeviceId);

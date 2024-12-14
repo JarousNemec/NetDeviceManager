@@ -15,8 +15,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
     }
     public DbSet<LoginProfile> LoginProfiles { get; set; }
-    //
-    public DbSet<Device> Devices { get; set; }
     public DbSet<DeviceIcon> DeviceIcons { get; set; }
     
     public DbSet<PhysicalDevice> PhysicalDevices { get; set; }
@@ -32,8 +30,13 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<TagOnPhysicalDevice> TagsOnPhysicalDevices { get; set; }
     
     public DbSet<Port> Ports { get; set; }
-    public DbSet<PhysicalDeviceHasPort> PhysicalDevicesHasPorts { get; set; }
+    public DbSet<PhysicalDeviceHasPort> PhysicalDevicesHavePorts { get; set; }
     public DbSet<CorrectDataPattern> CorrectDataPatterns { get; set; }
 
     public DbSet<Setting> Settings { get; set; }
+    
+    public DbSet<LoginProfileToPhysicalDevice> LoginProfilesToPhysicalDevices { get; set; }
+    public DbSet<PhysicalDeviceHasIpAddress> PhysicalDevicesHaveIpAddresses { get; set; }
+    
+    
 }

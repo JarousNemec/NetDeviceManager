@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Hosting;
+using Microsoft.VisualBasic;
 using NetDeviceManager.Database.Models;
 using NetDeviceManager.Database.Tables;
 using NetDeviceManager.Lib.Interfaces;
@@ -51,15 +52,16 @@ public class ReporterJob : IJob
 
     private async Task ReportSyslogsOfDevice(PhysicalDevice device, string currentdatepath)
     {
+        var ipAddresses = _databaseService.GetPhysicalDeviceIpAddresses(device.Id);
         var syslogs =
             _databaseService.GetSyslogRecordsWithFilter(
-                new SyslogRecordFilterModel() { IpAddress = device.IpAddress });
+                new SyslogRecordFilterModel() { IpAddresses = String.Join(";", ipAddresses) });
 
-        if (syslogs.Count == 0)
+        if (!syslogs.Any())
             return;
 
-        var filepath = FileUtil.PrepareReportEnvironment(device.IpAddress, currentdatepath, SYSLOG_REPORT_FILENAME);
-        await FileUtil.WriteSyslogsToFile(filepath, syslogs);
+        var filepath = FileUtil.PrepareReportEnvironment(device.Name, currentdatepath, SYSLOG_REPORT_FILENAME);
+        await FileUtil.WriteSyslogsToFile(filepath, (List<SyslogRecord>)syslogs);
 
         _databaseService.DeleteSyslogsOfDevice(device.Id);
     }

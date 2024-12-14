@@ -18,7 +18,7 @@ public static class SchedulerUtil
         return trigger;
     }
 
-    public static IJobDetail CreateReadDeviceSensorJob(string id, PhysicalDevice physicalDevice, List<SnmpSensorInPhysicalDevice> sensorsInPhysicalDevice, Port port, LoginProfile loginProfile, string groupId)
+    public static IJobDetail CreateReadDeviceSensorJob(string id, PhysicalDevice physicalDevice, List<SnmpSensorInPhysicalDevice> sensorsInPhysicalDevice, Port port, List<LoginProfile> loginProfiles, string groupId)
     {
         IJobDetail job = JobBuilder.Create<ReadDeviceSensorsJob>()
             .WithIdentity($"{id}", groupId).Build();
@@ -33,7 +33,7 @@ public static class SchedulerUtil
         job.JobDataMap.Put("physicalDevice", physicalDevice);
         job.JobDataMap.Put("sensors", sensors);
         job.JobDataMap.Put("port", port);
-        job.JobDataMap.Put("loginProfile", loginProfile);
+        job.JobDataMap.Put("loginProfiles", loginProfiles);
         return job;
     }
     

@@ -31,8 +31,8 @@ public static class SnmpUtils
 
     public static Port? GetSnmpPort(Guid deviceId, IDatabaseService _databaseService)
     {
-        var port = _databaseService.GetPortInPhysicalDevices(deviceId)
-            .FirstOrDefault(x => x.Port.Protocol == CommunicationProtocol.SNMP)?.Port;
+        var port = _databaseService.GetPortsInPhysicalDevice(deviceId)
+            .FirstOrDefault(x => x.Protocol == CommunicationProtocol.SNMP);
         if (port == null)
         {
             port = _databaseService.GetDefaultPorts().FirstOrDefault(x =>x.Protocol == CommunicationProtocol.SNMP);

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Net;
+using Microsoft.EntityFrameworkCore;
 using NetDeviceManager.Database;
 using NetDeviceManager.Database.Identity;
 using NetDeviceManager.Database.Models;
@@ -41,15 +42,6 @@ public class DatabaseService : IDatabaseService
         return id;
     }
 
-    public Guid AddDevice(Device device)
-    {
-        var id = GenerateGuid();
-        device.Id = id;
-        _database.Devices.Add(device);
-        _database.SaveChanges();
-        return id;
-    }
-
     public Guid AddLoginProfile(LoginProfile profile)
     {
         var id = GenerateGuid();
@@ -75,7 +67,7 @@ public class DatabaseService : IDatabaseService
             if (port.IsDefault)
                 return id;
             var existingPort = _database.Ports.FirstOrDefault(x => x.Id == id);
-            existingPort.IsDefault = port.IsDefault;
+            existingPort!.IsDefault = port.IsDefault;
             _database.Ports.Update(port);
             _database.SaveChanges();
             return id;
@@ -95,7 +87,7 @@ public class DatabaseService : IDatabaseService
     {
         var id = GenerateGuid();
         physicalDeviceHasPort.Id = id;
-        _database.PhysicalDevicesHasPorts.Add(physicalDeviceHasPort);
+        _database.PhysicalDevicesHavePorts.Add(physicalDeviceHasPort);
         _database.SaveChanges();
         return id;
     }
@@ -169,7 +161,7 @@ public class DatabaseService : IDatabaseService
 
     public Guid? UpsertCorrectDataPattern(CorrectDataPattern pattern)
     {
-        if (pattern.Id != null && pattern.Id != new Guid())
+        if (pattern.Id != new Guid())
         {
             _database.CorrectDataPatterns.Update(pattern);
             _database.SaveChanges();
@@ -188,6 +180,15 @@ public class DatabaseService : IDatabaseService
         return id;
     }
 
+    public Guid AddPhysicalDeviceHasIpAddress(PhysicalDeviceHasIpAddress physicalDeviceHasIpAddress)
+    {
+        var id = GenerateGuid();
+        physicalDeviceHasIpAddress.Id = id;
+        _database.PhysicalDevicesHaveIpAddresses.Add(physicalDeviceHasIpAddress);
+        _database.SaveChanges();
+        return id;
+    }
+
     public void SetConfigValue(string key, string value)
     {
         var record = _database.Settings.FirstOrDefault(x => x.Key == key);
@@ -199,10 +200,12 @@ public class DatabaseService : IDatabaseService
             return;
         }
 
-        var newRecord = new Setting();
-        newRecord.Id = GenerateGuid();
-        newRecord.Key = key;
-        newRecord.Value = value;
+        var newRecord = new Setting
+        {
+            Id = GenerateGuid(),
+            Key = key,
+            Value = value
+        };
         _database.Settings.Add(newRecord);
         _database.SaveChanges();
     }
@@ -225,10 +228,11 @@ public class DatabaseService : IDatabaseService
         }
     }
 
-    public List<Device> GetDevices()
+    public Guid? GetPortDeviceRelationId(Guid portId, Guid deviceId)
     {
-        return _database.Devices.AsNoTracking().ToList();
+        return _database.PhysicalDevicesHavePorts.FirstOrDefault(x => x.Id == portId && x.DeviceId == deviceId)?.Id;
     }
+
 
     public List<LoginProfile> GetLoginProfiles()
     {
@@ -255,9 +259,18 @@ public class DatabaseService : IDatabaseService
             .ToList();
     }
 
-    public List<PhysicalDeviceHasPort> GetPortInPhysicalDevices(Guid deviceId)
+    public List<Port> GetPortsInPhysicalDevice(Guid deviceId)
     {
-        return _database.PhysicalDevicesHasPorts.AsNoTracking().Where(x => x.DeviceId == deviceId).Include(x => x.Port)
+        return _database.PhysicalDevicesHavePorts.AsNoTracking().Where(x => x.DeviceId == deviceId).Include(x => x.Port)
+            .Select(x => x.Port).ToList();
+    }
+
+    public List<PhysicalDeviceHasPort> GetPortInPhysicalDeviceRelations(Guid deviceId)
+    {
+        return _database.PhysicalDevicesHavePorts
+            .AsNoTracking()
+            .Where(x => x.DeviceId == deviceId)
+            .Include(x => x.Port)
             .ToList();
     }
 
@@ -266,11 +279,12 @@ public class DatabaseService : IDatabaseService
         return _database.LoginProfiles.AsNoTracking().FirstOrDefault(x => x.Id == id);
     }
 
-    public Guid GetSnmpSensorInPhysicalDeviceId(Guid sensorId, Guid deviceId)
+    public Guid? GetSnmpSensorInPhysicalDeviceId(Guid sensorId, Guid deviceId)
     {
         return _database.SnmpSensorsInPhysicalDevices.AsNoTracking().FirstOrDefault(x =>
-            x.PhysicalDeviceId == deviceId && x.SnmpSensorId == sensorId).Id;
+            x.PhysicalDeviceId == deviceId && x.SnmpSensorId == sensorId)?.Id;
     }
+
 
     public int GetRecordsCount()
     {
@@ -302,7 +316,8 @@ public class DatabaseService : IDatabaseService
 
     public PhysicalDevice? GetPhysicalDeviceByIp(string ip)
     {
-        return _database.PhysicalDevices.AsNoTracking().FirstOrDefault(x => x.IpAddress == ip);
+        return _database.PhysicalDevices.AsNoTracking().Include(x => x.IpAddresses)
+            .FirstOrDefault(x => x.IpAddresses.Any(y => y.IpAddress == ip));
     }
 
     public string? GetConfigValue(string key)
@@ -319,18 +334,24 @@ public class DatabaseService : IDatabaseService
 
     public List<PhysicalDevice> GetPhysicalDevices()
     {
-        var data = _database.PhysicalDevices.AsNoTracking().Include(x => x.Device).ToList();
+        var data = _database.PhysicalDevices.AsNoTracking().ToList();
+        return data;
+    }
+
+    public List<PhysicalDevice> GetPhysicalDevicesWithIpAddresses()
+    {
+        var data = _database.PhysicalDevices.AsNoTracking().Include(x => x.IpAddresses).ToList();
         return data;
     }
 
     public List<PhysicalDevice> GetCompletePhysicalDevices(Guid id)
     {
         return _database.PhysicalDevices.AsNoTracking().Where(x => x.Id == id)
-            .Include(x => x.Device)
-            .Include(x => x.LoginProfile)
-            .Include(x => x.PortsInDevice)
-            .Include(x => x.SensorsInDevice)
-            .Include(x => x.TagsOnDevice)
+            .Include(x => x.IpAddresses)
+            .Include(x => x.LoginProfiles)
+            .Include(x => x.Ports)
+            .Include(x => x.Sensors)
+            .Include(x => x.Tags)
             .ToList();
     }
 
@@ -359,11 +380,6 @@ public class DatabaseService : IDatabaseService
             query = query.Where(x => x.PhysicalDevice.Name == model.DeviceName);
         }
 
-        if (!string.IsNullOrEmpty(model.IpAddress))
-        {
-            query = query.Where(x => x.PhysicalDevice.IpAddress == model.IpAddress);
-        }
-
         if (!string.IsNullOrEmpty(model.Oid))
         {
             query = query.Where(x => x.Sensor.Oid == model.Oid);
@@ -373,7 +389,8 @@ public class DatabaseService : IDatabaseService
         {
             query = query.Where(x => x.Sensor.Name == model.SensorName);
         }
-        if(count == -1)
+
+        if (count == -1)
             return query.OrderByDescending(x => x.CapturedTime).ToList();
         return query.OrderByDescending(x => x.CapturedTime).Take(count).ToList();
     }
@@ -381,7 +398,7 @@ public class DatabaseService : IDatabaseService
     public List<SyslogRecord> GetSyslogRecordsWithUnknownSource(int count = -1)
     {
         var records = _database.SyslogRecords.AsNoTracking().Where(x => x.PhysicalDeviceId == null);
-        if(count == -1)
+        if (count == -1)
             return records.ToList();
         return records.Take(count).ToList();
     }
@@ -394,9 +411,20 @@ public class DatabaseService : IDatabaseService
             query = query.Where(x => x.PhysicalDevice.Name == model.DeviceName);
         }
 
-        if (!string.IsNullOrEmpty(model.IpAddress))
+        if (!string.IsNullOrEmpty(model.IpAddresses))
         {
-            query = query.Where(x => x.Ip == model.IpAddress);
+            List<string> ipAddresses = new List<string>();
+
+            var ips = model.IpAddresses.Split(';');
+            foreach (var ip in ips)
+            {
+                if (IPAddress.TryParse(ip, out IPAddress? output))
+                {
+                    ipAddresses.Add(output.ToString());
+                }
+            }
+
+            query = query.Where(x => ipAddresses.Any(y => y == x.Ip));
         }
 
         if (model.Facility >= 0 && model.Facility != SyslogFacility.Undefined)
@@ -412,6 +440,54 @@ public class DatabaseService : IDatabaseService
         if (count == -1)
             return query.OrderByDescending(x => x.ProcessedDate).ToList();
         return query.OrderByDescending(x => x.ProcessedDate).Take(count).ToList();
+    }
+
+    public List<string> GetPhysicalDeviceIpAddresses(Guid deviceId)
+    {
+        return _database.PhysicalDevicesHaveIpAddresses.AsNoTracking().Where(x => x.PhysicalDeviceId == deviceId)
+            .Select(x => x.IpAddress).ToList();
+    }
+    
+    public List<PhysicalDeviceHasIpAddress> GetPhysicalDeviceIpAddressesRelations(Guid deviceId)
+    {
+        return _database.PhysicalDevicesHaveIpAddresses
+            .AsNoTracking()
+            .Where(x => x.PhysicalDeviceId == deviceId)
+            .ToList();
+    }
+
+    public List<LoginProfile> GetPhysicalDeviceLoginProfiles(Guid deviceId)
+    {
+        return _database.LoginProfilesToPhysicalDevices.AsNoTracking().Where(x => x.PhysicalDeviceId == deviceId)
+            .Include(x => x.LoginProfile).Select(x => x.LoginProfile).ToList();
+    }
+
+    public List<LoginProfileToPhysicalDevice> GetPhysicalDeviceLoginProfileRelationships(Guid deviceId)
+    {
+        return _database.LoginProfilesToPhysicalDevices.AsNoTracking().Where(x => x.PhysicalDeviceId == deviceId)
+            .Include(x => x.LoginProfile).ToList();
+    }
+
+    public Guid AssignLoginProfileToPhysicalDevice(LoginProfileToPhysicalDevice profile)
+    {
+        var id = GenerateGuid();
+        profile.LoginProfileId = id;
+        _database.LoginProfilesToPhysicalDevices.Add(profile);
+        _database.SaveChanges();
+        return id;
+    }
+
+    public OperationResult RemoveLoginProfileFromPhysicalDevice(Guid relationId)
+    {
+        var item = _database.LoginProfiles.FirstOrDefault(x => x.Id == relationId);
+        if (item != null)
+        {
+            _database.LoginProfiles.Remove(item);
+            _database.SaveChanges();
+            return new OperationResult();
+        }
+
+        return new OperationResult() { IsSuccessful = false, Message = "Login profile not found." };
     }
 
     public List<DeviceIcon> GetIcons()
@@ -459,8 +535,8 @@ public class DatabaseService : IDatabaseService
         _database.SnmpSensorsInPhysicalDevices.RemoveRange(sensorsInPd);
         var jobs = _database.SchedulerJobs.Where(x => x.PhysicalDeviceId == id);
         _database.SchedulerJobs.RemoveRange(jobs);
-        var pdHasPorts = _database.PhysicalDevicesHasPorts.Where(x => x.DeviceId == id);
-        _database.PhysicalDevicesHasPorts.RemoveRange(pdHasPorts);
+        var pdHasPorts = _database.PhysicalDevicesHavePorts.Where(x => x.DeviceId == id);
+        _database.PhysicalDevicesHavePorts.RemoveRange(pdHasPorts);
         var patterns = _database.CorrectDataPatterns.Where(x => x.PhysicalDeviceId == id);
         _database.CorrectDataPatterns.RemoveRange(patterns);
 
@@ -471,13 +547,13 @@ public class DatabaseService : IDatabaseService
 
     public OperationResult RemovePortFromDevice(Guid id)
     {
-        var record = _database.PhysicalDevicesHasPorts.FirstOrDefault(x => x.PortId == id);
+        var record = _database.PhysicalDevicesHavePorts.FirstOrDefault(x => x.PortId == id);
         if (record != null)
         {
-            _database.PhysicalDevicesHasPorts.Remove(record);
+            _database.PhysicalDevicesHavePorts.Remove(record);
             _database.SaveChanges();
 
-            if (_database.PhysicalDevicesHasPorts.Count(x => x.PortId == record.PortId) == 0)
+            if (_database.PhysicalDevicesHavePorts.Count(x => x.PortId == record.PortId) == 0)
             {
                 var port = _database.Ports.FirstOrDefault(x => x.Id == record.PortId);
                 if (port != null)
@@ -498,7 +574,7 @@ public class DatabaseService : IDatabaseService
         var port = _database.Ports.FirstOrDefault(x => x.Id == id);
         if (port != null)
         {
-            if (_database.PhysicalDevicesHasPorts.Count(x => x.PortId == port.Id) == 0)
+            if (_database.PhysicalDevicesHavePorts.Count(x => x.PortId == port.Id) == 0)
             {
                 _database.Ports.Remove(port);
                 _database.SaveChanges();
@@ -614,9 +690,22 @@ public class DatabaseService : IDatabaseService
         return new OperationResult();
     }
 
+    public OperationResult DeletePhysicalDeviceHasIpAddress(Guid id)
+    {
+        var item = _database.PhysicalDevicesHaveIpAddresses.FirstOrDefault(x => x.Id == id);
+        if (item != null)
+        {
+            _database.PhysicalDevicesHaveIpAddresses.Remove(item);
+            _database.SaveChanges();
+            return new OperationResult();
+        }
+        return new OperationResult(){IsSuccessful = false, Message = "Cannot remove ip address device relation" };
+    }
+
     public bool AnyPhysicalDeviceWithIp(string ip)
     {
-        return _database.PhysicalDevices.AsNoTracking().Any(x => x.IpAddress == ip);
+        return _database.PhysicalDevices.AsNoTracking().Include(x => x.IpAddresses)
+            .Any(x => x.IpAddresses.Any(y => y.IpAddress == ip));
     }
 
     public bool PortExists(Port port, out Guid id)
@@ -636,7 +725,7 @@ public class DatabaseService : IDatabaseService
     public bool PortAndDeviceRelationExists(Guid portId, Guid deviceId, out Guid id)
     {
         var existing =
-            _database.PhysicalDevicesHasPorts.AsNoTracking()
+            _database.PhysicalDevicesHavePorts.AsNoTracking()
                 .FirstOrDefault(x => x.DeviceId == deviceId && x.PortId == portId);
         if (existing == null)
         {

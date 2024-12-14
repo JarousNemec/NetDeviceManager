@@ -14,6 +14,7 @@ public class DeviceService : IDeviceService
     private readonly List<PhysicalDevice> _onlineDevices = new List<PhysicalDevice>();
     private readonly List<PhysicalDevice> _offlineDevices = new List<PhysicalDevice>();
     private DateTime _lastUpdate = new DateTime(2006, 8, 1, 20, 20, 20);
+
     public DeviceService(IDatabaseService database, IFileStorageService fileStorageService)
     {
         _database = database;
@@ -29,18 +30,14 @@ public class DeviceService : IDeviceService
 
     public OperationResult UpsertPhysicalDevice(PhysicalDevice model, out Guid id)
     {
-        if (model.Id != new Guid())
+        if (model.Id != default)
         {
             _database.UpdatePhysicalDevice(model);
             id = model.Id;
             return new OperationResult();
         }
-
-        if (!_database.AnyPhysicalDeviceWithIp(model.IpAddress))
-        {
-            id = _database.AddPhysicalDevice(model);
-            return new OperationResult();
-        }
+        id = _database.AddPhysicalDevice(model);
+        return new OperationResult();
 
         id = default;
         return new OperationResult() { IsSuccessful = false, Message = "Device ip is already assigned!" };
@@ -78,10 +75,10 @@ public class DeviceService : IDeviceService
 
         return new OperationResult();
     }
+
     #endregion
 
     #region GetMethods
-
 
     public int GetOnlineDevicesCount()
     {
@@ -116,10 +113,6 @@ public class DeviceService : IDeviceService
         }
     }
 
-    public List<Device> GetDevices()
-    {
-        throw new NotImplementedException();
-    }
 
     public List<PhysicalDevice> GetPhysicalDevices()
     {
@@ -136,10 +129,6 @@ public class DeviceService : IDeviceService
         throw new NotImplementedException();
     }
 
-    public Device GetDevice(Guid id)
-    {
-        throw new NotImplementedException();
-    }
 
     public PhysicalDevice GetPhysicalDevice(Guid id)
     {

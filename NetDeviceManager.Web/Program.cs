@@ -50,6 +50,9 @@ builder.Services.AddSingleton<NavbarHelper>();
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<SettingsService>();
 builder.Services.AddScoped<HttpClient>();
+builder.Services.AddScoped<IPortService, PortService>();
+builder.Services.AddScoped<ILoginProfileService, LoginProfileService>();
+builder.Services.AddScoped<IIpAddressesService, IpAddressService>();
 builder.Logging.SetMinimumLevel(GlobalSettings.MinimalLoggingLevel);
 var app = builder.Build();
 

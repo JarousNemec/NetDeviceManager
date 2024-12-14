@@ -13,7 +13,6 @@ public interface IDatabaseService
     Guid AddSnmpRecord(SnmpSensorRecord record);
 
     Guid AddDeviceIcon(DeviceIcon icon);
-    Guid AddDevice(Device device);
 
     Guid AddLoginProfile(LoginProfile profile);
 
@@ -36,6 +35,8 @@ public interface IDatabaseService
     Guid AddTagOnPhysicalDevice(TagOnPhysicalDevice tagOnPhysicalDevice);
 
     Guid? UpsertCorrectDataPattern(CorrectDataPattern pattern);
+    
+    Guid AddPhysicalDeviceHasIpAddress(PhysicalDeviceHasIpAddress physicalDeviceHasIpAddress);
 
     void SetConfigValue(string key, string value);
 
@@ -50,16 +51,24 @@ public interface IDatabaseService
 
     #region Read
 
-    List<Device> GetDevices();
+    Guid? GetPortDeviceRelationId(Guid portId, Guid deviceId);
+    
     List<LoginProfile> GetLoginProfiles();
     List<SchedulerJob> GetSchedulerJobs();
     
     SchedulerJob? GetPhysicalDeviceSchedulerJob(Guid id);
     List<SnmpSensorInPhysicalDevice> GetSensorsOfPhysicalDevice(Guid physicalDeviceId);
-    List<PhysicalDeviceHasPort> GetPortInPhysicalDevices(Guid deviceId);
-
+    List<Port> GetPortsInPhysicalDevice(Guid deviceId);
+    List<PhysicalDeviceHasPort> GetPortInPhysicalDeviceRelations(Guid deviceId);
     LoginProfile? GetLoginProfile(Guid id);
-    Guid GetSnmpSensorInPhysicalDeviceId(Guid sensor, Guid device);
+    Guid? GetSnmpSensorInPhysicalDeviceId(Guid sensor, Guid device);
+
+    List<LoginProfile> GetPhysicalDeviceLoginProfiles(Guid deviceId);
+    List<LoginProfileToPhysicalDevice> GetPhysicalDeviceLoginProfileRelationships(Guid deviceId);
+
+    Guid AssignLoginProfileToPhysicalDevice(LoginProfileToPhysicalDevice profile);
+    
+    OperationResult RemoveLoginProfileFromPhysicalDevice(Guid relationId);
 
     int GetRecordsCount();
 
@@ -77,6 +86,9 @@ public interface IDatabaseService
     SnmpSensorRecord? GetLastDeviceRecord(Guid id);
 
     List<PhysicalDevice> GetPhysicalDevices();
+    
+    List<PhysicalDevice> GetPhysicalDevicesWithIpAddresses();
+    List<PhysicalDeviceHasIpAddress> GetPhysicalDeviceIpAddressesRelations(Guid deviceId);
     List<PhysicalDevice> GetCompletePhysicalDevices(Guid id);
 
     List<CorrectDataPattern> GetPhysicalDevicesPatterns();
@@ -87,6 +99,8 @@ public interface IDatabaseService
     List<SnmpSensorRecord> GetSnmpRecordsWithFilter(SnmpRecordFilterModel model, int count = -1);
 
     List<SyslogRecord> GetSyslogRecordsWithFilter(SyslogRecordFilterModel model, int count = -1);
+    
+    List<string> GetPhysicalDeviceIpAddresses(Guid deviceId);
     List<SyslogRecord> GetSyslogRecordsWithUnknownSource(int count = -1);
 
     List<DeviceIcon> GetIcons();
@@ -123,6 +137,8 @@ public interface IDatabaseService
     OperationResult DeleteSyslogsOfDevice(Guid? physicalDeviceId);
 
     OperationResult DeleteAllSnmpRecords();
+    
+    OperationResult DeletePhysicalDeviceHasIpAddress(Guid id);
 
     #endregion
 

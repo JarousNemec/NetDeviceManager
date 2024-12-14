@@ -50,7 +50,7 @@
     [Inject] public UserManager<ApplicationUser> UserManager { get; set; }
     [Inject] public IHttpContextAccessor Accessor { get; set; }
     private string? _key = string.Empty;
-    private IEnumerable<string> _reports = default!;
+    private IEnumerable<string> _reports = new List<string>();
     [Inject] public IConfiguration Configuration { get; set; }
     [Inject] public IJSRuntime JS { get; set; }
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -70,7 +70,15 @@
     {
         var host = Configuration["ApiHost"];
         var uri = new Uri($"http://{host}/{ApiConstants.EndpointGetReportsList}");
-        _reports = await ApiClient.GetFromJsonAsync<string[]>(uri) ?? new string[] { };
+        try
+        {
+            _reports = await ApiClient.GetFromJsonAsync<string[]>(uri) ?? new string[] { };
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("An error occurred while downloading the file: " + ex.Message);
+        }
+        
         return await Task.FromResult(request.ApplyTo(_reports));
     }
     

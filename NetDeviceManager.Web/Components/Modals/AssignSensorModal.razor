@@ -16,7 +16,7 @@
                     <InputSelect TValue="Guid" Value="Pattern.PhysicalDeviceId" ValueExpression="() => Pattern.PhysicalDeviceId" ValueChanged="(value) => DeviceSelected(value)" class="input-modalform">
                         @foreach (var device in Devices)
                         {
-                            <option value="@device.Id">@($"{device.Name}({device.IpAddress})")</option>
+                            <option value="@device.Id">@($"{device.Name}")</option>
                         }
                     </InputSelect>
                     <ValidationMessage For="() => Pattern.PhysicalDeviceId"/>
@@ -113,15 +113,15 @@
             return;
         }
 
-        var profile = DatabaseService.GetLoginProfile(device.LoginProfileId);
-        if(profile == null)
+        var profiles = DatabaseService.GetPhysicalDeviceLoginProfiles(device.Id);
+        if(!profiles.Any())
             return;
         var port = SnmpUtils.GetSnmpPort(Pattern.PhysicalDeviceId, DatabaseService);
         if (port == null)
         {
             return;
         }
-        Pattern.Data =SnmpService.GetSensorValue(sensor, profile, device, port) ?? string.Empty;
+        Pattern.Data =SnmpService.GetSensorValue(sensor, profiles, device, port) ?? string.Empty;
         StateHasChanged();
     }
 

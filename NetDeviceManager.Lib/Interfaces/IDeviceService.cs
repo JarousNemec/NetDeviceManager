@@ -19,12 +19,10 @@ public interface IDeviceService
     int GetOfflineDevicesCount();
     List<PhysicalDevice> GetOfflineDevices();
 
-    List<Device> GetDevices();
     List<PhysicalDevice> GetPhysicalDevices();
     List<DeviceIcon> GetDevicesIcons();
     List<LoginProfile> GetLoginProfiles();
 
-    Device GetDevice(Guid id);
     PhysicalDevice GetPhysicalDevice(Guid id);
     DeviceIcon GetDeviceIcon(Guid id);
     LoginProfile GetLoginProfile(Guid id);

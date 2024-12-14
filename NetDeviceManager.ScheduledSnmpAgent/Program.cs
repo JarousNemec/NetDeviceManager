@@ -10,6 +10,8 @@ using NetDeviceManager.Lib.Services;
 using NetDeviceManager.ScheduledSnmpAgent;
 using Timer = System.Timers.Timer;
 
+//todo zamyslet se nad novejsi knihovnou pro snmp
+
 Console.WriteLine("Initializing...");
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
