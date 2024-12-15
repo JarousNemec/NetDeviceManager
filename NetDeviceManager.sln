@@ -12,7 +12,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetDeviceManager.ScheduledS
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docker", "Docker", "{B403E6BE-B55E-48D3-8CE5-C4203EE5747B}"
 	ProjectSection(SolutionItems) = preProject
-		docker-compose.yml = docker-compose.yml
+		local-dev\docker-compose.yml = local-dev\docker-compose.yml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetDeviceManager.DbTests", "NetDeviceManager.DbTests\NetDeviceManager.DbTests.csproj", "{3CBB2839-F6AF-4D5F-B2AE-2862F89589A4}"
@@ -24,6 +24,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetDeviceManager.ScheduledDatabaseReporter", "NetDeviceManager.ScheduledDatabaseReporter\NetDeviceManager.ScheduledDatabaseReporter.csproj", "{AF1685D2-34B7-4F0C-A429-65FC6E700733}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sql", "Sql", "{B442D30D-2FC7-400C-8EA1-DAEE887FEE95}"
+	ProjectSection(SolutionItems) = preProject
+		local-dev\scripts\sql\init_script.sql = local-dev\scripts\sql\init_script.sql
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

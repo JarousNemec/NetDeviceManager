@@ -4,7 +4,7 @@
     restart: unless-stopped
     image: jardathedev/net-device-manager-web:latest
 #    build:
-#      context: .
+#      context: ../
 #      dockerfile: ./NetDeviceManager.Web/Dockerfile
     volumes:
       - "web-storage:/app/data"
@@ -18,7 +18,7 @@
     restart: unless-stopped
     image: jardathedev/net-device-manager-scheduled-snmp-agent:latest
 #    build:
-#      context: .
+#      context: ../
 #      dockerfile: ./NetDeviceManager.ScheduledSnmpAgent/Dockerfile
     depends_on:
       database:
@@ -28,7 +28,7 @@
     restart: unless-stopped
     image: jardathedev/syslog-server:latest
 #    build:
-#      context: .
+#      context: ../
 #      dockerfile: ./NetDeviceManager.SyslogServer/Dockerfile
     ports:
       - "11514:11514/udp"
@@ -41,13 +41,13 @@
     restart: unless-stopped
     image: jardathedev/net-device-manager-api:latest
 #    build:
-#      context: .
+#      context: ../
 #      dockerfile: ./NetDeviceManager.Api/Dockerfile
     ports:
       - "10001:8080"
       - "10011:8081"  
     volumes:
-      - ./reports:/app/reports
+      - ./local-storage/reports:/app/reports
     depends_on:
       database:
         condition: service_healthy
@@ -56,10 +56,10 @@
     restart: unless-stopped
     image: jardathedev/net-device-manager-scheduled-database-reporter:latest
 #    build:
-#      context: .
+#      context: ../
 #      dockerfile: ./NetDeviceManager.ScheduledDatabaseReporter/Dockerfile
     volumes:
-      - ./reports:/app/reports
+      - ./local-storage/reports:/app/reports
     depends_on:
       database:
         condition: service_healthy
@@ -69,6 +69,7 @@
     restart: unless-stopped
     volumes:
       - "db-storage:/var/lib/postgresql/data"
+      - "./scripts/sql/init_script.sql:/docker-entrypoint-initdb.d/init_script.sql"
     environment:
       POSTGRES_USER: manager
       POSTGRES_PASSWORD: Heslo1234.
