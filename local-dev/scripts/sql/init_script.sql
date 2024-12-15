@@ -1,5 +1,5 @@
 --
--- PostgreSQL database dump
+-- PostgreSQL ManagerData database dump
 --
 
 -- Dumped from database version 16.2 (Debian 16.2-1.pgdg120+2)
