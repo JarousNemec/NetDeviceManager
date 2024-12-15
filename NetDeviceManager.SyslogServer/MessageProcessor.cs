@@ -15,7 +15,7 @@ public class MessageProcessor
 {
     private readonly ServerCache _cache;
     private readonly IDatabaseService _database;
-    private readonly SettingsService _settingsService;
+    // private readonly SettingsService _settingsService;
 
     public delegate void CrashDelegate(string m);
 
@@ -30,7 +30,7 @@ public class MessageProcessor
 
         var context = new ApplicationDbContext(options);
         _database = new DatabaseService(context);
-        _settingsService = new SettingsService(_database);
+        // _settingsService = new SettingsService(_database);
     }
 
     public async void Run()

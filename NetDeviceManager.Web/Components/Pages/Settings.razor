@@ -19,19 +19,19 @@
 @attribute [Authorize]
 
 <ConfirmDialog @ref="_confirmDialog"/>
-<AddPortModal @ref="_addPortModal" OnApply="OnApplyNewDefaultPort"></AddPortModal>
+<AddPortModal @ref="_addPortModal" OnApply="OnApplyNewPort"></AddPortModal>
 <NewUserModal @ref="_newUserModal" OnApply="OnApplyNewUser"></NewUserModal>
-<Toasts class="p-3" Messages="messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight"/>
+<Toasts class="p-3" Messages="_messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight"/>
 <PageTitle>settings</PageTitle>
 <div style="margin: 30px; margin-top: 0">
 
     <div style="width: 50%; margin: 10px 0">
         <EditForm EditContext="new EditContext(SettingsModel)" method="post" OnValidSubmit="SubmitForm" FormName="Settings" class="modal-form">
-            <div class="labelinput-menu">
-                <label class="label-menu font-16">Desired syslog severities (Json array)</label>
-                <InputText @bind-Value="SettingsModel.DesiredSeverities" class="input-modalform font-16"
-                           placeholder="Enter severities..."/>
-            </div>
+            @* <div class="labelinput-menu"> *@
+            @*     <label class="label-menu font-16">Desired syslog severities (Json array)</label> *@
+            @*     <InputText @bind-Value="SettingsModel.DesiredSeverities" class="input-modalform font-16" *@
+            @*                placeholder="Enter severities..."/> *@
+            @* </div> *@
             <div class="labelinput-menu">
                 <label class="label-menu font-16">Logs report interval (CRON format)</label>
                 <InputText @bind-Value="SettingsModel.ReportLogInterval" class="input-modalform font-16"
@@ -52,12 +52,11 @@
     </div>
     <div class="labelinput-menu">
         <label class="label-menu font-16">Users</label>
-        <Grid @ref="_users"
+        <Grid @ref="_gridUsers"
               TItem="ApplicationUser"
               Class="table table-hover table-bordered table-striped"
-              Data="UserManager.Users.ToList()"
+              DataProvider="UsersDataProvider"
               Responsive="true">
-
             <GridColumn TItem="ApplicationUser" HeaderText="Name" PropertyName="Number">
                 @context.UserName
             </GridColumn>
@@ -65,29 +64,29 @@
                 @context.ApiKey
             </GridColumn>
             <GridColumn TItem="ApplicationUser" HeaderText="Actions" PropertyName="Data">
-                @if (_users.Data.Count() > 1)
+                @if (_gridUsers.Data.Count() > 1)
                 {
                     <div style="display: flex; width: 100%; flex-direction: row-reverse;">
                         <div class="btn-container-grid">
-                            <button class="btn-style-danger btn-action font-16" @onclick="() => RemoveUser(context)">X</button>
+                            <button class="btn-style-danger btn-action font-16" @onclick="() => OnRemoveUser(context)">X</button>
                         </div>
                     </div>
                 }
             </GridColumn>
         </Grid>
         <div class="btn-container-modalform">
-            <button class="btn-action btn-style-normal font-16" @onclick="() => AddUser()">
+            <button class="btn-action btn-style-normal font-16" @onclick="OnAddUser">
                 Add user
             </button>
         </div>
     </div>
 
     <div class="labelinput-menu">
-        <label class="label-menu font-16">Default ports</label>
-        <Grid @ref="_ports"
+        <label class="label-menu font-16">Ports</label>
+        <Grid @ref="_gridPorts"
               TItem="Port"
               Class="table table-hover table-bordered table-striped"
-              Data="DatabaseService.GetDefaultPorts()"
+              DataProvider="PortsDataProvider"
               Responsive="true">
 
             <GridColumn TItem="Port" HeaderText="Number" PropertyName="Number">
@@ -100,13 +99,13 @@
 
                 <div style="display: flex; width: 100%; flex-direction: row-reverse;">
                     <div class="btn-container-grid">
-                        <button class="btn-style-danger btn-action font-16" @onclick="() => RemoveDefaultPort(context)">X</button>
+                        <button class="btn-style-danger btn-action font-16" @onclick="() => OnRemovePort(context)">X</button>
                     </div>
                 </div>
             </GridColumn>
         </Grid>
         <div class="btn-container-modalform">
-            <button class="btn-action btn-style-normal font-16" @onclick="() => AddDefaultPort()">
+            <button class="btn-action btn-style-normal font-16" @onclick="OnAddPort">
                 Add port
             </button>
         </div>
@@ -116,6 +115,9 @@
         <button type="submit" @onclick="SubmitForm" class="btn-apply btn-style-confirm font-16">Apply changes</button>
     </div>
 </div>
+
+
+
 
 @code{
     [Inject] IDeviceService DeviceService { get; set; }
@@ -128,15 +130,15 @@
     [Inject] IdentityRedirectManager RedirectManager { get; set; }
     [Inject] SettingsService SettingsService { get; set; }
 
-    public SettingsUpdateModel SettingsModel { get; set; } = new SettingsUpdateModel();
-    private ConfirmDialog _confirmDialog = default!;
-    private Grid<Port> _ports = default!;
-    private Grid<ApplicationUser> _users = default!;
+    public SettingsUpdateModel SettingsModel { get; set; } = new ();
+    private ConfirmDialog _confirmDialog = null!;
+    private Grid<Port> _gridPorts = null!;
+    private Grid<ApplicationUser> _gridUsers = null!;
 
-    private AddPortModal _addPortModal = default!;
-    private NewUserModal _newUserModal = default!;
+    private AddPortModal _addPortModal = null!;
+    private NewUserModal _newUserModal = null!;
 
-    List<ToastMessage> messages = new List<ToastMessage>();
+    private List<ToastMessage> _messages = [];
 
     protected override void OnAfterRender(bool firstRender)
     {
@@ -145,6 +147,18 @@
             SettingsModel = SettingsService.GetSettingsUpdateModel();
             InvokeAsync(StateHasChanged);
         }
+    }
+    
+    private async Task<GridDataProviderResult<Port>> PortsDataProvider(GridDataProviderRequest<Port> request)
+    {
+        var ports = DatabaseService.GetPortsInSystem();
+        return await Task.FromResult(request.ApplyTo(ports));
+    }
+    
+    private async Task<GridDataProviderResult<ApplicationUser>> UsersDataProvider(GridDataProviderRequest<ApplicationUser> request)
+    {
+        var users = UserManager.Users.ToList();
+        return await Task.FromResult(request.ApplyTo(users));
     }
 
     public async Task RegisterUser(UserCreateModel input)
@@ -179,7 +193,7 @@
         }
     }
 
-    private void ShowToast(ToastType toastType, string message) => messages.Add(CreateToastMessage(toastType, message));
+    private void ShowToast(ToastType toastType, string message) => _messages.Add(CreateToastMessage(toastType, message));
 
     private ToastMessage CreateToastMessage(ToastType toastType, string message)
         => new ToastMessage
@@ -195,49 +209,45 @@
         SettingsService.UpdateSettings(SettingsModel);
     }
 
-    private async void AddUser()
+    private async Task OnAddUser()
     {
         await _newUserModal.ShowModalAsync();
     }
+    
+    private async Task OnAddPort()
+    {
+        await _addPortModal.ShowModalAsync();
+    }
 
-    private async void RemoveUser(ApplicationUser user)
+    private async Task OnRemoveUser(ApplicationUser user)
     {
         if (await ShowConfirmationAsync())
             DatabaseService.DeleteUser(user.Id);
-        UpdateTables();
+        await _gridUsers.RefreshDataAsync();
+        await InvokeAsync(StateHasChanged);
     }
 
-    private async void OnApplyNewDefaultPort(Port port)
+    private async void OnApplyNewPort(Port port)
     {
         await _addPortModal.HideModalAsync();
-        port.IsDefault = true;
         DatabaseService.UpsertPort(port);
-        UpdateTables();
+        await _gridPorts.RefreshDataAsync();
+        await InvokeAsync(StateHasChanged);
     }
 
     private async void OnApplyNewUser(UserCreateModel user)
     {
         await _newUserModal.HideModalAsync();
         await RegisterUser(user);
-        UpdateTables();
+        await _gridUsers.RefreshDataAsync();
+        await InvokeAsync(StateHasChanged);
     }
 
-    private async void RemoveDefaultPort(Port context)
+    private async Task OnRemovePort(Port context)
     {
         if (await ShowConfirmationAsync())
             DatabaseService.RemoveDefaultPort(context.Id);
-        UpdateTables();
-    }
-
-    private async void AddDefaultPort()
-    {
-        await _addPortModal.ShowModalAsync();
-    }
-
-    private async void UpdateTables()
-    {
-        _users.Data = UserManager.Users.ToList();
-        _ports.Data = DatabaseService.GetDefaultPorts();
+        await _gridPorts.RefreshDataAsync();
         await InvokeAsync(StateHasChanged);
     }
 
