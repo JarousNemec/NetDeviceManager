@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using NetDeviceManager.Database;
 using NetDeviceManager.Database.Tables;
 using NetDeviceManager.ScheduledSnmpAgent.Helpers;
+using Testcontainers.PostgreSql;
 
 
 namespace NetDeviceManager.DbTests;
@@ -11,21 +12,39 @@ namespace NetDeviceManager.DbTests;
 public class Tests
 {
     private DbContextOptions<ApplicationDbContext> _options;
+    private PostgreSqlContainer _postgresContainer;
 
     [SetUp]
-    public void Setup()
+    public async Task SetUp()
     {
+        _postgresContainer = new PostgreSqlBuilder()
+            .WithImage("postgres:15-alpine")
+            .WithHostname("127.0.0.1")
+            .WithDatabase("ManagerData")
+            .WithUsername("manager")
+            .WithPassword("Heslo1234.")
+            .Build();
+
+        await _postgresContainer.StartAsync();
+    }
+
+    [TearDown]
+    public async Task TearDown()
+    {
+        _postgresContainer.StopAsync();
+        _postgresContainer.DisposeAsync();
     }
 
     [Test]
     public void DbConnection()
     {
-        var connectionString = ConfigurationHelper.GetConfigurationString();
+        var connectionString = _postgresContainer.GetConnectionString();
         _options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseNpgsql(connectionString)
             .Options;
         ApplicationDbContext database = new ApplicationDbContext(_options);
-        Assert.Equals(true, database.Database.CanConnect());
+        bool canConnect = database.Database.CanConnect();
+        Assert.That(canConnect);
     }
 
     // [Test]
