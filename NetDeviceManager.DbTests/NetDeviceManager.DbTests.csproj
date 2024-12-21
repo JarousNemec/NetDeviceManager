@@ -37,4 +37,10 @@
       <ProjectReference Include="..\NetDeviceManager.Lib\NetDeviceManager.Lib.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="schema.sql">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

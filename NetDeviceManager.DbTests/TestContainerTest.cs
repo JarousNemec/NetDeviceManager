@@ -49,9 +49,9 @@ public class PostgresTests
         using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync();
 
-        var schemaSql =
-            await File.ReadAllTextAsync(
-                "C:\\Users\\admin\\RiderProjects\\NetDeviceManager\\local-dev\\scripts\\sql\\schema.sql");
+        string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "schema.sql");
+        
+        var schemaSql = await File.ReadAllTextAsync(filePath);
 
         var createTableCmd2 = new NpgsqlCommand(schemaSql, connection);
         await createTableCmd2.ExecuteNonQueryAsync();
