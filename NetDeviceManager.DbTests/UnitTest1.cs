@@ -3,18 +3,14 @@ using Lextm.SharpSnmpLib;
 using Microsoft.EntityFrameworkCore;
 using NetDeviceManager.Database;
 using NetDeviceManager.Database.Tables;
-using NetDeviceManager.Lib.Services;
 using NetDeviceManager.ScheduledSnmpAgent.Helpers;
+
 
 namespace NetDeviceManager.DbTests;
 
 public class Tests
 {
     private DbContextOptions<ApplicationDbContext> _options;
-
-    public Tests()
-    {
-    }
 
     [SetUp]
     public void Setup()
@@ -29,7 +25,7 @@ public class Tests
             .UseNpgsql(connectionString)
             .Options;
         ApplicationDbContext database = new ApplicationDbContext(_options);
-        Assert.True(database.Database.CanConnect());
+        Assert.Equals(true, database.Database.CanConnect());
     }
 
     // [Test]
