@@ -50,14 +50,13 @@ public class PostgresTests
         await connection.OpenAsync();
 
         string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "schema.sql");
-        
         var schemaSql = await File.ReadAllTextAsync(filePath);
 
+        // Create schema
         var createTableCmd2 = new NpgsqlCommand(schemaSql, connection);
         await createTableCmd2.ExecuteNonQueryAsync();
 
         string schemaName = "public"; // Adjust this to your schema name
-
         // SQL query to count the number of tables in the specified schema
         string query = @"
             SELECT COUNT(*)
