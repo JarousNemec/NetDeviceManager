@@ -23,7 +23,9 @@ jobs:
       run: dotnet restore
 
     - name: Build
-      run: dotnet build --no-restore --configuration Release
+      run: dotnet build --no-restore --configuration Release --verbosity diag
 
     - name: Test
-      run: dotnet test --no-build --verbosity diag
+      run: dotnet test --verbosity diag 
+  
+
