@@ -101,6 +101,21 @@ public class DatabaseService : IDatabaseService
         return id;
     }
 
+    
+    public Guid? AddSnmpSensorToPhysicalDeviceById(Guid sensorId, SnmpSensor sensor,  Guid deviceId, PhysicalDevice device)
+    {
+        var sensorInPhysicalDevice = new SnmpSensorInPhysicalDevice();
+        var id = GenerateGuid();
+        sensorInPhysicalDevice.Id = id;
+        sensorInPhysicalDevice.SnmpSensorId= sensorId;
+        sensorInPhysicalDevice.SnmpSensor = sensor;
+        sensorInPhysicalDevice.PhysicalDeviceId = deviceId;
+        sensorInPhysicalDevice.PhysicalDevice = device;
+        _database.SnmpSensorsInPhysicalDevices.Add(sensorInPhysicalDevice);
+        _database.SaveChanges();
+        return id;
+    }    
+    
     public Guid? AddSnmpSensorToPhysicalDevice(SnmpSensorInPhysicalDevice sensorInPhysicalDevice)
     {
         if (!_database.SnmpSensorsInPhysicalDevices.All(x =>

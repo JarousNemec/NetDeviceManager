@@ -3,6 +3,7 @@ using Lextm.SharpSnmpLib;
 using Microsoft.EntityFrameworkCore;
 using NetDeviceManager.Database;
 using NetDeviceManager.Database.Tables;
+using NetDeviceManager.Lib.Services;
 using NetDeviceManager.ScheduledSnmpAgent.Helpers;
 using Testcontainers.PostgreSql;
 
