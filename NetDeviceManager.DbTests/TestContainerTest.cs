@@ -38,6 +38,7 @@ public class PostgresTests
     [Test]
     public async Task CreateSchemaAndCheckAmountOfTablesTest ()
     {
+        // given
         var connectionString = _postgresContainer.GetConnectionString();
         _options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseNpgsql(connectionString)
@@ -49,13 +50,14 @@ public class PostgresTests
         using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync();
 
+        // when
         string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "schema.sql");
         var schemaSql = await File.ReadAllTextAsync(filePath);
 
         // Create schema
         var createTableCmd2 = new NpgsqlCommand(schemaSql, connection);
         await createTableCmd2.ExecuteNonQueryAsync();
-
+        
         string schemaName = "public"; // Adjust this to your schema name
         // SQL query to count the number of tables in the specified schema
         string query = @"
@@ -64,6 +66,7 @@ public class PostgresTests
             WHERE table_schema = @SchemaName AND table_type = 'BASE TABLE'";
 
 
+        // then 
         using (var command = new NpgsqlCommand(query, connection))
         {
             // Set the parameter value
