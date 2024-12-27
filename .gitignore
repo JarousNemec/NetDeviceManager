@@ -5,3 +5,33 @@
 /NetDeviceManager.Database/obj/Debug/net8.0/NetDeviceManager.Database.csproj.AssemblyReference.cache
 /NetDeviceManager.Database/obj/Debug/net8.0/NetDeviceManager.Database.GeneratedMSBuildEditorConfig.editorconfig
 /NetDeviceManager.Database/obj/Debug/net8.0/NetDeviceManager.Database.GlobalUsings.g.cs
+# git ls-files --others --exclude-from=.git/info/exclude
+# Lines that start with '#' are comments.
+# For a project mostly in C, the following would be a good set of
+# exclude patterns (uncomment them if you want to use them):
+# *.[oa]
+# *~
+/.idea/
+/NetDeviceManager.Database/Migrations/
+/NetDeviceManager.Api/bin/
+/NetDeviceManager.Api/obj/
+/NetDeviceManager.Database/bin/
+/NetDeviceManager.Database/obj/
+/NetDeviceManager.Database/Migrations/
+/NetDeviceManager.DbTests/bin/
+/NetDeviceManager.Lib/bin/
+/NetDeviceManager.Lib/obj/
+/NetDeviceManager.Lib.GlobalConstantsAndEnums/bin/
+/NetDeviceManager.Lib.GlobalConstantsAndEnums/obj/
+/NetDeviceManager.ScheduledDatabaseReporter/bin/
+/NetDeviceManager.ScheduledDatabaseReporter/obj/
+/NetDeviceManager.ScheduledSnmpAgent/bin/
+/NetDeviceManager.ScheduledSnmpAgent/obj/
+/NetDeviceManager.SyslogServer/bin/
+/NetDeviceManager.SyslogServer/obj/
+/NetDeviceManager.Web/bin/
+/NetDeviceManager.Web/obj/
+/reports/
+/NetDeviceManager.sln.DotSettings.user
+/NetDeviceManager.Api/reports/
+
