@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NetDeviceManager.Database;
 using NetDeviceManager.Database.Tables;
-
 using Npgsql;
 using Testcontainers.PostgreSql;
 using Lextm.SharpSnmpLib;
@@ -65,37 +64,37 @@ public class DatabaseServiceTest
     [Test]
     public void AddSnmpRecord_ShouldAddRecordAndReturnId()
     {
-        
         Guid id = Guid.NewGuid();
-        
-        
+
+
         // Arrange
-        var snmpRecord = new SnmpSensor { Id = id,
-            Name = "Test"};
-        
+        var snmpRecord = new SnmpSensor
+        {
+            Id = id,
+            Name = "Test"
+        };
+
         // Act
         var returnedId = _tested.SnmpSensors.Add(snmpRecord).Entity.Id;
-        
+
 
         // Assert
         Assert.That(returnedId, Is.EqualTo(id));
-
     }
-    
+
     [Test]
     public void TestDatabaseService()
     {
-        
         // Arrange
         var databaseService = new DatabaseService(_tested);
         var portService = new PortService(_tested);
-        var smtpService = new SnmpService(databaseService, new SettingsService(databaseService));
+
 
         var mockEnvironment = new Mock<IHostEnvironment>();
-        var fileStorageService = new FileStorageService(databaseService, mockEnvironment.Object);
-        
-        var deviceService = new DeviceService(databaseService, fileStorageService, portService);
+        var fileStorageService = new FileStorageService(databaseService);
 
+        var deviceService = new DeviceService(databaseService, _tested, fileStorageService, portService);
+        var smtpService = new SnmpService(deviceService, databaseService, new SettingsService(databaseService));
         SnmpSensor sensor = new SnmpSensor
         {
             Name = "Temperature Sensor",
@@ -118,23 +117,21 @@ public class DatabaseServiceTest
             Name = "Router-X1000",
             Description = "Main network router",
             MacAddress = "00:1A:2B:3C:4D:5E",
-            IconId = null,  // Assuming no icon initially
+            IconId = null, // Assuming no icon initially
             Platform = "Cisco IOS",
             Version = "15.1",
             Capabilities = "Routing, Security, QoS",
         };
-        
-        
+
+
         Guid deviceId = Guid.NewGuid();
         var res = deviceService.UpsertPhysicalDevice(device, out deviceId);
-        
+
         // Act
         var id = databaseService.AddSnmpSensorToPhysicalDeviceById(sensorId, sensor, deviceId, device);
 
         // Assert
-        var count = databaseService.GetDeviceSensorsCount(deviceId);
+        var count = databaseService.GetPhysicalDeviceSensorsCount(deviceId);
         Assert.That(count, Is.EqualTo(1));
-        
     }
-    
 }

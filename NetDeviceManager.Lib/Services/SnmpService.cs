@@ -19,8 +19,11 @@ public class SnmpService : ISnmpService
     private readonly SettingsService _settingsService;
     private const int DEFAULT_PORT = 161;
 
-    public SnmpService(IDatabaseService database, SettingsService settingsService)
+    private readonly IDeviceService _deviceService;
+
+    public SnmpService(IDeviceService deviceService, IDatabaseService database, SettingsService settingsService)
     {
+        _deviceService = deviceService;
         _database = database;
         _settingsService = settingsService;
     }
@@ -46,11 +49,11 @@ public class SnmpService : ISnmpService
             PhysicalDeviceId = model.PhysicalDeviceId,
             SnmpSensorId = model.SensorId
         };
-        _database.AddSnmpSensorToPhysicalDevice(relationship);
+        _deviceService.AddSnmpSensorToPhysicalDevice(relationship);
 
-        var job = _database.GetPhysicalDeviceSchedulerJob(model.PhysicalDeviceId);
-        if (job != null) return new OperationResult(){IsSuccessful = false, Message = "Cannot create job!!!"};
-        
+        var job = _deviceService.GetPhysicalDeviceSchedulerJob(model.PhysicalDeviceId);
+        if (job != null) return new OperationResult() { IsSuccessful = false, Message = "Cannot create job!!!" };
+
         var newJob = new SchedulerJob();
         newJob.PhysicalDeviceId = model.PhysicalDeviceId;
         newJob.Type = SchedulerJobType.SNMPGET;
@@ -62,14 +65,16 @@ public class SnmpService : ISnmpService
 
     public string? GetSensorValue(SnmpSensor sensor, List<LoginProfile> profiles, PhysicalDevice device, Port? port)
     {
-        if(port == null)
-            port = new Port(){Number = DEFAULT_PORT};
-        
+        if (port == null)
+            port = new Port() { Number = DEFAULT_PORT };
+
         List<SnmpVariableModel> freshData;
-        
+
         //todo: lepsi souseni logovacish profilu 
         var profile = profiles.FirstOrDefault(x => !string.IsNullOrEmpty(x.SnmpAuthenticationPassword) &&
-                                                   !string.IsNullOrEmpty(x.SnmpPrivacyPassword) && !string.IsNullOrEmpty(x.SnmpSecurityName) && !string.IsNullOrEmpty(x.SnmpUsername));
+                                                   !string.IsNullOrEmpty(x.SnmpPrivacyPassword) &&
+                                                   !string.IsNullOrEmpty(x.SnmpSecurityName) &&
+                                                   !string.IsNullOrEmpty(x.SnmpUsername));
         if (sensor.SnmpVersion != VersionCode.V3)
             freshData = ReadSensorV1V2(sensor, device, port);
         else if (profile == null)
@@ -146,7 +151,7 @@ public class SnmpService : ISnmpService
 
     public OperationResult RemoveSensorFromDevice(SnmpSensorInPhysicalDevice relationShip)
     {
-        var res = _database.DeleteSnmpSensorInPhysicalDevice(relationShip.Id);
+        var res = _deviceService.DeleteSnmpSensorInPhysicalDevice(relationShip.Id);
         if (!res.IsSuccessful)
         {
             return new OperationResult() { IsSuccessful = false, Message = "Bad id" };
@@ -157,14 +162,15 @@ public class SnmpService : ISnmpService
         {
             return new OperationResult() { IsSuccessful = false, Message = "Bad pattern" };
         }
+
         _database.DeleteCorrectDataPattern(pattern.Id);
 
-        
-        if (_database.GetDeviceSensorsCount(relationShip.PhysicalDeviceId) == 0)
+
+        if (_deviceService.GetPhysicalDeviceSensorsCount(relationShip.PhysicalDeviceId) == 0)
         {
             _database.DeleteDeviceSchedulerJob(relationShip.PhysicalDeviceId);
         }
-        
+
         return new OperationResult();
     }
 
@@ -172,7 +178,7 @@ public class SnmpService : ISnmpService
     {
         if ((DateTime.Now.Ticks - _lastUpdate.Ticks) > (TimeSpan.TicksPerMinute * 5))
         {
-            SnmpServiceHelper.CalculateSnmpAlerts(_database, _devicesSnmpAlerts);
+            SnmpServiceHelper.CalculateSnmpAlerts(_deviceService, _database, _devicesSnmpAlerts);
             _lastUpdate = DateTime.Now;
         }
     }
@@ -202,9 +208,9 @@ public class SnmpService : ISnmpService
     private string SnmpGetV1V2(SnmpSensor sensor, PhysicalDevice device, Port port, string oid)
     {
         string? ipAddress = device.IpAddresses.First().ToString();
-        if(ipAddress == null)
+        if (ipAddress == null)
             return "-1";
-        
+
         var objectId = new ObjectIdentifier(oid);
         try
         {
@@ -226,13 +232,13 @@ public class SnmpService : ISnmpService
         Port port)
     {
         var results = new List<SnmpVariableModel>();
-        
+
         string? ipAddress = device.IpAddresses.First().ToString();
-        if(ipAddress == null)
+        if (ipAddress == null)
             return results;
-        
+
         var endpoint = new IPEndPoint(IPAddress.Parse(ipAddress), port.Number);
-        
+
         if (sensor.IsMulti)
         {
             for (int i = (int)sensor.StartIndex!; i <= sensor.EndIndex; i++)
@@ -250,9 +256,11 @@ public class SnmpService : ISnmpService
 
         return results;
     }
+
     private string SnmpGetV3(LoginProfile profile, PhysicalDevice device, IPEndPoint endpoint, string oid)
     {
-        if(string.IsNullOrEmpty(profile.SnmpPrivacyPassword) || string.IsNullOrEmpty(profile.SnmpUsername) || string.IsNullOrEmpty(profile.SnmpAuthenticationPassword) || string.IsNullOrEmpty(profile.SnmpSecurityName))
+        if (string.IsNullOrEmpty(profile.SnmpPrivacyPassword) || string.IsNullOrEmpty(profile.SnmpUsername) ||
+            string.IsNullOrEmpty(profile.SnmpAuthenticationPassword) || string.IsNullOrEmpty(profile.SnmpSecurityName))
             return "-1";
         var objectId = new ObjectIdentifier(oid);
         try

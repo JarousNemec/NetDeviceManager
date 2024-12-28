@@ -186,6 +186,9 @@ třeba v docker-compose.yml namapovat složku na výstupní složku reports, kte
 ### What is api key and how it is named in production 
 - https://swagger.io/docs/specification/v2_0/authentication/api-keys/
 
+### How to configure logger in asp net
+- https://learn.microsoft.com/en-us/dotnet/core/extensions/console-log-formatter?WT.mc_id=DT-MVP-5002999
+
 ### UI use cases
   - Is device online/offline (is last record of this device maximum 20 minutes old, if not summon alarm)
     - When device was added, running job in scheduler will recognize that there is new device and it will get uptime value from it in user specified healthprobe intervals(for all devices same)

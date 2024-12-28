@@ -9,17 +9,15 @@ public class FileStorageService : IFileStorageService
 {
     private const string WEB_STORAGE_PATH = "webdata";
     private readonly IDatabaseService _database;
-    private readonly IHostEnvironment _env;
 
-    public FileStorageService(IDatabaseService database, IHostEnvironment env)
+    public FileStorageService(IDatabaseService database)
     {
         _database = database;
-        _env = env;
     }
 
     public async Task<OperationResult> SaveIconFile(Guid iconId, IBrowserFile file)
     {
-        var pathdir = Path.Combine(_env.ContentRootPath, WEB_STORAGE_PATH);
+        var pathdir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, WEB_STORAGE_PATH);
         var pathfile = Path.Combine(pathdir, $"{iconId}.{file.Name.Split('.').Last()}");
         try
         {

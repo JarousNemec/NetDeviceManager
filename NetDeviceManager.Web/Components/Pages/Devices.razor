@@ -88,7 +88,7 @@
 
     private IEnumerable<PhysicalDevice> GetRecords()
     {
-        return DatabaseService.GetPhysicalDevicesWithIpAddresses();
+        return DeviceService.GetPhysicalDevicesWithIpAddresses();
     }
 
     private async void CreateNewDevice()
@@ -105,7 +105,7 @@
     private async void RemoveDevice(Guid id)
     {
         if (await ShowConfirmationAsync())
-            DatabaseService.DeletePhysicalDevice(id);
+            DeviceService.DeletePhysicalDevice(id);
         NavigationManager.NavigateTo(NavigationManager.Uri, true);
     }
 
@@ -114,7 +114,7 @@
         _configureDeviceModal.Device = device;
         _configureDeviceModal.LoginProfilesToDevice = LoginProfileService.GetPhysicalDeviceLoginProfiles(device.Id);
         _configureDeviceModal.LoginProfiles = LoginProfileService.GetAllLoginProfiles();
-        _configureDeviceModal.IpAddresses = DatabaseService.GetPhysicalDeviceIpAddresses(device.Id);
+        _configureDeviceModal.IpAddresses = DeviceService.GetPhysicalDeviceIpAddresses(device.Id);
         _configureDeviceModal.DevicePorts = PortService.GetPortsInPhysicalDevice(device.Id);
         _configureDeviceModal.Ports = PortService.GetPortsInSystem();
         await _configureDeviceModal.ShowModalAsync();

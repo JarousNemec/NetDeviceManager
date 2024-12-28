@@ -318,7 +318,7 @@ public class DatabaseService : IDatabaseService
         return _database.SnmpSensorRecords.AsNoTracking().Count();
     }
 
-    public int GetDeviceSensorsCount(Guid id)
+    public int GetPhysicalDeviceSensorsCount(Guid id)
     {
         return _database.SnmpSensorsInPhysicalDevices.AsNoTracking().Count(x => x.PhysicalDeviceId == id);
     }

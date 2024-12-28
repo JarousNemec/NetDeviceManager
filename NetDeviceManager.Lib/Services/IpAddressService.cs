@@ -9,16 +9,16 @@ namespace NetDeviceManager.Lib.Services;
 
 public class IpAddressService : IIpAddressesService
 {
-    private readonly IDatabaseService _databaseService;
+    private readonly IDeviceService _deviceService;
 
-    public IpAddressService(IDatabaseService databaseService)
+    public IpAddressService(IDeviceService deviceService)
     {
-        _databaseService = databaseService;
+        _deviceService = deviceService;
     }
     
     public OperationResult UpdateIpAddressesAndDeviceRelations(List<string> ipAddresses, Guid deviceId)
     {
-        var currentRelations = _databaseService.GetPhysicalDeviceIpAddressesRelations(deviceId);
+        var currentRelations = _deviceService.GetPhysicalDeviceIpAddressesRelations(deviceId);
         var toAdd = new List<PhysicalDeviceHasIpAddress>();
         var toRemove = new List<PhysicalDeviceHasIpAddress>();
 
@@ -47,12 +47,12 @@ public class IpAddressService : IIpAddressesService
         {
             foreach (var relation in toAdd)
             {
-                _databaseService.AddPhysicalDeviceHasIpAddress(relation);
+                _deviceService.AddPhysicalDeviceHasIpAddress(relation);
             }
 
             foreach (var relation in toRemove)
             {
-                _databaseService.DeletePhysicalDeviceHasIpAddress(relation.Id);
+                _deviceService.DeletePhysicalDeviceHasIpAddress(relation.Id);
             }
         }
         catch (Exception e)

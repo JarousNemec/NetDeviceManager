@@ -16,11 +16,13 @@ public class ReporterJob : IJob
     private string _id = string.Empty;
     private string _path = string.Empty;
     private readonly IDatabaseService _databaseService;
+    private readonly IDeviceService _deviceService;
     private const string SYSLOG_REPORT_FILENAME = "syslogs.log";
 
-    public ReporterJob(IDatabaseService databaseService)
+    public ReporterJob(IDeviceService deviceService, IDatabaseService databaseService)
     {
         _databaseService = databaseService;
+        _deviceService = deviceService;
     }
 
     public async Task Execute(IJobExecutionContext context)
@@ -41,7 +43,7 @@ public class ReporterJob : IJob
 
     private async Task GenerateReports(string currentdatepath)
     {
-        var devices = _databaseService.GetPhysicalDevices();
+        var devices = _deviceService.GetAllPhysicalDevices();
         foreach (var device in devices)
         {
             await ReportSyslogsOfDevice(device, currentdatepath);
@@ -52,7 +54,7 @@ public class ReporterJob : IJob
 
     private async Task ReportSyslogsOfDevice(PhysicalDevice device, string currentdatepath)
     {
-        var ipAddresses = _databaseService.GetPhysicalDeviceIpAddresses(device.Id);
+        var ipAddresses = _deviceService.GetPhysicalDeviceIpAddresses(device.Id);
         var syslogs =
             _databaseService.GetSyslogRecordsWithFilter(
                 new SyslogRecordFilterModel() { IpAddresses = String.Join(";", ipAddresses) });
@@ -63,7 +65,7 @@ public class ReporterJob : IJob
         var filepath = FileUtil.PrepareReportEnvironment(device.Name, currentdatepath, SYSLOG_REPORT_FILENAME);
         await FileUtil.WriteSyslogsToFile(filepath, (List<SyslogRecord>)syslogs);
 
-        _databaseService.DeleteSyslogsOfDevice(device.Id);
+        _deviceService.DeleteSyslogsOfDevice(device.Id);
     }
 
     private async Task ReportSyslogsWithUnknownSources(string currentdatepath)
@@ -77,7 +79,7 @@ public class ReporterJob : IJob
         var filepath = FileUtil.PrepareReportEnvironment("UnknownSource", currentdatepath, SYSLOG_REPORT_FILENAME);
         await FileUtil.WriteSyslogsToFile(filepath, syslogs, true);
 
-        _databaseService.DeleteSyslogsOfDevice(null);
+        _deviceService.DeleteSyslogsOfDevice(null);
     }
 
 

@@ -14,6 +14,7 @@ using NetDeviceManager.ScheduledSnmpAgent.Utils;
 using Quartz;
 using Quartz.Impl;
 using Quartz.Impl.Matchers;
+using Quartz.Spi;
 using Timer = System.Timers.Timer;
 
 namespace NetDeviceManager.ScheduledSnmpAgent;
@@ -25,13 +26,15 @@ public class Scheduler
     private readonly IPortService _portService;
     private readonly Timer _timer;
     private IScheduler _scheduler;
+    private readonly IDeviceService _deviceService;
 
-    public Scheduler(IDatabaseService databaseService, Timer timer, ILoginProfileService loginProfileService, IPortService portService)
+    public Scheduler(IDeviceService deviceService,IDatabaseService databaseService, Timer timer, ILoginProfileService loginProfileService, IPortService portService)
     {
         _databaseService = databaseService;
         _timer = timer;
         _loginProfileService = loginProfileService;
         _portService = portService;
+        _deviceService = deviceService;
         SetupTimer(20000); //todo: change for production
         SetupScheduler();
     }
@@ -126,7 +129,7 @@ public class Scheduler
         var loginProfile = _loginProfileService.GetPhysicalDeviceLoginProfiles(registeredJob.PhysicalDevice.Id);
         string id = registeredJob.Id.ToString();
 
-        var sensorsInPhysicalDevice = _databaseService.GetSensorsOfPhysicalDevice(registeredJob.PhysicalDeviceId);
+        var sensorsInPhysicalDevice = _deviceService.GetSensorsOfPhysicalDevice(registeredJob.PhysicalDeviceId);
 
         if (sensorsInPhysicalDevice.Any())
         {

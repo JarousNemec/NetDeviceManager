@@ -15,6 +15,8 @@ public class MessageProcessor
 {
     private readonly ServerCache _cache;
     private readonly IDatabaseService _database;
+    private readonly IDeviceService _deviceService;
+    private readonly IPortService _portService;
     // private readonly SettingsService _settingsService;
 
     public delegate void CrashDelegate(string m);
@@ -30,6 +32,8 @@ public class MessageProcessor
 
         var context = new ApplicationDbContext(options);
         _database = new DatabaseService(context);
+        _portService = new PortService(context);
+        _deviceService = new DeviceService(_database, context, new FileStorageService(_database), _portService);
         // _settingsService = new SettingsService(_database);
     }
 
@@ -72,7 +76,7 @@ public class MessageProcessor
     private SyslogRecord ParseRecord(CacheMessageModel message)
     {
         var messageValue = message.Message;
-        var device = _database.GetPhysicalDeviceByIp(message.Ip);
+        var device = _deviceService.GetPhysicalDeviceByIp(message.Ip);
         var format = SyslogUtil.IdentifySyslogFormat(messageValue);
         var creationDate = SyslogUtil.GetSyslogTimestamp(messageValue, format);
         var priority = SyslogUtil.GetSyslogPriority(messageValue);

@@ -62,7 +62,7 @@
         {
             @if (DatabaseService.IsAnySensorInDevice(device.Id))
             {
-                <DeviceSensorAssignmentsComponent Device="device" Rows="DatabaseService.GetSensorsOfPhysicalDevice(device.Id)" ConfigureSensorOfDevice="OnConfigureSensorOfDevice" RemoveSensorFromDevice="OnRemoveSensorFromDevice"/>
+                <DeviceSensorAssignmentsComponent Device="device" Rows="DeviceService.GetSensorsOfPhysicalDevice(device.Id)" ConfigureSensorOfDevice="OnConfigureSensorOfDevice" RemoveSensorFromDevice="OnRemoveSensorFromDevice"/>
             }
         }
 
@@ -131,7 +131,7 @@
 
     private void UpdateCurrentData()
     {
-        Devices = DatabaseService.GetPhysicalDevices();
+        Devices = DeviceService.GetAllPhysicalDevices();
         Sensors = DatabaseService.GetSensors();
     }
 
