@@ -1,4 +1,5 @@
 ﻿@page "/settings"
+@using System.Diagnostics
 @using System.Text
 @using System.Text.Encodings.Web
 @using Microsoft.AspNetCore.Authorization
@@ -19,19 +20,15 @@
 @attribute [Authorize]
 
 <ConfirmDialog @ref="_confirmDialog"/>
-<AddPortModal @ref="_addPortModal" OnApply="OnApplyNewPort"></AddPortModal>
-<NewUserModal @ref="_newUserModal" OnApply="OnApplyNewUser"></NewUserModal>
+<PortModal @ref="_portModal" OnApply="OnApplyNewPort"></PortModal>
+<UserModal @ref="_userModal" OnApply="OnApplyUser"></UserModal>
+<LoginProfileModal @ref="_loginProfileModal" OnApply="OnApplyLoginProfileModal"></LoginProfileModal>
 <Toasts class="p-3" Messages="_messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight"/>
 <PageTitle>settings</PageTitle>
 <div style="margin: 30px; margin-top: 0">
 
     <div style="width: 50%; margin: 10px 0">
         <EditForm EditContext="new EditContext(SettingsModel)" method="post" OnValidSubmit="SubmitForm" FormName="Settings" class="modal-form">
-            @* <div class="labelinput-menu"> *@
-            @*     <label class="label-menu font-16">Desired syslog severities (Json array)</label> *@
-            @*     <InputText @bind-Value="SettingsModel.DesiredSeverities" class="input-modalform font-16" *@
-            @*                placeholder="Enter severities..."/> *@
-            @* </div> *@
             <div class="labelinput-menu">
                 <label class="label-menu font-16">Logs report interval (CRON format)</label>
                 <InputText @bind-Value="SettingsModel.ReportLogInterval" class="input-modalform font-16"
@@ -64,19 +61,47 @@
                 @context.ApiKey
             </GridColumn>
             <GridColumn TItem="ApplicationUser" HeaderText="Actions" PropertyName="Data">
-                @if (_gridUsers.Data.Count() > 1)
-                {
-                    <div style="display: flex; width: 100%; flex-direction: row-reverse;">
-                        <div class="btn-container-grid">
-                            <button class="btn-style-danger btn-action font-16" @onclick="() => OnRemoveUser(context)">X</button>
-                        </div>
+                <div style="display: flex; width: 100%; flex-direction: row-reverse;">
+                    <div class="btn-container-grid">
+                        <button class="btn-style-danger btn-action font-16" @onclick="() => OnRemoveUser(context)">X</button>
                     </div>
-                }
+                    <div class="btn-container-grid">
+                        <button class="btn-style-normal btn-action font-16" @onclick="() => OnEditUser(context)">Edit</button>
+                    </div>
+                </div>
             </GridColumn>
         </Grid>
         <div class="btn-container-modalform">
             <button class="btn-action btn-style-normal font-16" @onclick="OnAddUser">
                 Add user
+            </button>
+        </div>
+    </div>
+
+    <div class="labelinput-menu">
+        <label class="label-menu font-16">Login profiles</label>
+        <Grid @ref="_gridLoginProfiles"
+              TItem="LoginProfile"
+              Class="table table-hover table-bordered table-striped"
+              DataProvider="LoginProfilesDataProvider"
+              Responsive="true">
+            <GridColumn TItem="LoginProfile" HeaderText="Name" PropertyName="Number">
+                @context.Name
+            </GridColumn>
+            <GridColumn TItem="LoginProfile" HeaderText="Actions" PropertyName="Data">
+                <div style="display: flex; width: 100%; flex-direction: row-reverse;">
+                    <div class="btn-container-grid">
+                        <button class="btn-style-danger btn-action font-16" @onclick="() => OnRemoveLoginProfile(context)">X</button>
+                    </div>
+                    <div class="btn-container-grid">
+                        <button class="btn-style-normal btn-action font-16" @onclick="() => OnEditLoginProfile(context)">Edit</button>
+                    </div>
+                </div>
+            </GridColumn>
+        </Grid>
+        <div class="btn-container-modalform">
+            <button class="btn-action btn-style-normal font-16" @onclick="OnAddLoginProfile">
+                Add login profile
             </button>
         </div>
     </div>
@@ -132,11 +157,14 @@
 
     public SettingsUpdateModel SettingsModel { get; set; } = new ();
     private ConfirmDialog _confirmDialog = null!;
+    
     private Grid<Port> _gridPorts = null!;
     private Grid<ApplicationUser> _gridUsers = null!;
+    private Grid<LoginProfile> _gridLoginProfiles = null!;
 
-    private AddPortModal _addPortModal = null!;
-    private NewUserModal _newUserModal = null!;
+    private PortModal _portModal = null!;
+    private UserModal _userModal = null!;
+    private LoginProfileModal _loginProfileModal = null!;
 
     private List<ToastMessage> _messages = [];
 
@@ -161,6 +189,38 @@
         return await Task.FromResult(request.ApplyTo(users));
     }
 
+    private async Task<GridDataProviderResult<LoginProfile>> LoginProfilesDataProvider(GridDataProviderRequest<LoginProfile> request)
+    {
+        var profiles = DatabaseService.GetLoginProfiles();
+        return await Task.FromResult(request.ApplyTo(profiles));
+    }
+
+    public async Task OperateUser(UserCreateModel input)
+    {
+        var user = UserManager.Users.FirstOrDefault(x => x.UserName == input.Username);
+        if (user == null)
+        {
+            await RegisterUser(input);
+        }
+        else
+        {
+            await ChangePassword(user, input.Password);
+        }
+    }
+
+    public async Task ChangePassword(ApplicationUser user, string newpassword)
+    {
+        if(newpassword == string.Empty)
+            return;
+        var token = await UserManager.GeneratePasswordResetTokenAsync(user);
+        var resetPasswordResult = await UserManager.ResetPasswordAsync(user, token, newpassword);
+        if (!resetPasswordResult.Succeeded)
+        {
+            Debug.WriteLine(resetPasswordResult);
+            return;
+        }
+    }
+    
     public async Task RegisterUser(UserCreateModel input)
     {
         var user = CreateUser();
@@ -211,12 +271,14 @@
 
     private async Task OnAddUser()
     {
-        await _newUserModal.ShowModalAsync();
+        _userModal.User = new UserCreateModel();
+        _userModal.UserReadonly = false;
+        await _userModal.ShowModalAsync();
     }
     
     private async Task OnAddPort()
     {
-        await _addPortModal.ShowModalAsync();
+        await _portModal.ShowModalAsync();
     }
 
     private async Task OnRemoveUser(ApplicationUser user)
@@ -229,24 +291,32 @@
 
     private async void OnApplyNewPort(Port port)
     {
-        await _addPortModal.HideModalAsync();
+        await _portModal.HideModalAsync();
         DatabaseService.UpsertPort(port);
         await _gridPorts.RefreshDataAsync();
         await InvokeAsync(StateHasChanged);
     }
 
-    private async void OnApplyNewUser(UserCreateModel user)
+    private async void OnApplyUser(UserCreateModel user)
     {
-        await _newUserModal.HideModalAsync();
-        await RegisterUser(user);
+        await _userModal.HideModalAsync();
+        await OperateUser(user);
         await _gridUsers.RefreshDataAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async void OnApplyLoginProfileModal(LoginProfile profile)
+    {
+        await _loginProfileModal.HideModalAsync();
+        DatabaseService.UpsertLoginProfile(profile);
+        await _gridLoginProfiles.RefreshDataAsync();
         await InvokeAsync(StateHasChanged);
     }
 
     private async Task OnRemovePort(Port context)
     {
         if (await ShowConfirmationAsync())
-            DatabaseService.RemoveDefaultPort(context.Id);
+            DatabaseService.RemovePort(context.Id);
         await _gridPorts.RefreshDataAsync();
         await InvokeAsync(StateHasChanged);
     }
@@ -267,6 +337,38 @@
             confirmDialogOptions: options);
 
         return confirmation;
+    }
+
+    private async Task OnEditLoginProfile(LoginProfile context)
+    {
+        _loginProfileModal.Profile = context;
+        await _loginProfileModal.ShowModalAsync();
+    }
+
+    private async Task OnRemoveLoginProfile(LoginProfile context)
+    {
+        await _loginProfileModal.HideModalAsync();
+        DatabaseService.RemoveLoginProfile(context.Id);
+        await _gridLoginProfiles.RefreshDataAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async void OnAddLoginProfile()
+    {
+        var profile = new LoginProfile();
+        profile.Id = Guid.Empty;
+        _loginProfileModal.Profile = profile;
+        await _loginProfileModal.ShowModalAsync();
+    }
+
+    private async Task OnEditUser(ApplicationUser context)
+    {
+        var model = new UserCreateModel();
+        model.Password = string.Empty;
+        if (context.UserName != null) model.Username = context.UserName;
+        _userModal.User = model;
+        _userModal.UserReadonly = true;
+        await _userModal.ShowModalAsync();
     }
 
 }

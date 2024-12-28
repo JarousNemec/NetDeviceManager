@@ -36,6 +36,8 @@ public interface IDatabaseService
 
     Guid? UpsertCorrectDataPattern(CorrectDataPattern pattern);
     
+    Guid? UpsertLoginProfile(LoginProfile profile);
+    
     Guid AddPhysicalDeviceHasIpAddress(PhysicalDeviceHasIpAddress physicalDeviceHasIpAddress);
 
     void SetConfigValue(string key, string value);
@@ -107,8 +109,6 @@ public interface IDatabaseService
 
     List<Port> GetPortsInSystem();
     
-    List<Port> GetDefaultPorts();
-
     List<SnmpSensor> GetSensors();
 
     int GetSensorUsagesCount(Guid id);
@@ -123,8 +123,10 @@ public interface IDatabaseService
     OperationResult DeletePhysicalDevice(Guid id);
     OperationResult RemovePortFromDevice(Guid id);
 
-    OperationResult RemoveDefaultPort(Guid id);
+    OperationResult RemovePort(Guid id);
 
+    OperationResult RemoveLoginProfile(Guid id);
+    
     OperationResult DeleteSnmpSensor(Guid id);
     OperationResult DeleteSnmpSensorInPhysicalDevice(Guid id);
     OperationResult DeleteCorrectDataPattern(Guid id);
@@ -145,7 +147,6 @@ public interface IDatabaseService
     #region Special
 
     bool AnyPhysicalDeviceWithIp(string ip);
-    bool PortExists(Port port, out Guid id);
 
     bool PortAndDeviceRelationExists(Guid portId, Guid deviceId, out Guid id);
     bool IsAnySensorInDevice(Guid id);

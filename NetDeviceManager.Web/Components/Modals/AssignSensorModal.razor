@@ -117,10 +117,6 @@
         if(!profiles.Any())
             return;
         var port = SnmpUtils.GetSnmpPort(Pattern.PhysicalDeviceId, DatabaseService);
-        if (port == null)
-        {
-            return;
-        }
         Pattern.Data =SnmpService.GetSensorValue(sensor, profiles, device, port) ?? string.Empty;
         StateHasChanged();
     }

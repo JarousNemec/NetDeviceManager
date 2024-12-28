@@ -17,6 +17,7 @@ public class SnmpService : ISnmpService
     private const int MESSANGER_GET_TIMEOUT = 10000;
     private readonly IDatabaseService _database;
     private readonly SettingsService _settingsService;
+    private const int DEFAULT_PORT = 161;
 
     public SnmpService(IDatabaseService database, SettingsService settingsService)
     {
@@ -59,8 +60,11 @@ public class SnmpService : ISnmpService
         return new OperationResult();
     }
 
-    public string? GetSensorValue(SnmpSensor sensor, List<LoginProfile> profiles, PhysicalDevice device, Port port)
+    public string? GetSensorValue(SnmpSensor sensor, List<LoginProfile> profiles, PhysicalDevice device, Port? port)
     {
+        if(port == null)
+            port = new Port(){Number = DEFAULT_PORT};
+        
         List<SnmpVariableModel> freshData;
         
         //todo: lepsi souseni logovacish profilu 

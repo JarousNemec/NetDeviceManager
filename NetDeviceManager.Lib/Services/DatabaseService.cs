@@ -62,25 +62,18 @@ public class DatabaseService : IDatabaseService
 
     public Guid UpsertPort(Port port)
     {
-        if (PortExists(port, out Guid id))
+        var existingPort = _database.Ports.FirstOrDefault(x => x.Id == port.Id);
+        if (existingPort == null)
         {
-            if (port.IsDefault)
-                return id;
-            var existingPort = _database.Ports.FirstOrDefault(x => x.Id == id);
-            existingPort!.IsDefault = port.IsDefault;
+            port.Id = GenerateGuid();
             _database.Ports.Update(port);
             _database.SaveChanges();
-            return id;
+            return port.Id;
         }
-        else
-        {
-            id = GenerateGuid();
 
-            port.Id = id;
-            _database.Ports.Add(port);
-            _database.SaveChanges();
-            return id;
-        }
+        _database.Ports.Add(port);
+        _database.SaveChanges();
+        return port.Id;
     }
 
     public Guid AddPortToPhysicalDevice(PhysicalDeviceHasPort physicalDeviceHasPort)
@@ -101,21 +94,22 @@ public class DatabaseService : IDatabaseService
         return id;
     }
 
-    
-    public Guid? AddSnmpSensorToPhysicalDeviceById(Guid sensorId, SnmpSensor sensor,  Guid deviceId, PhysicalDevice device)
+
+    public Guid? AddSnmpSensorToPhysicalDeviceById(Guid sensorId, SnmpSensor sensor, Guid deviceId,
+        PhysicalDevice device)
     {
         var sensorInPhysicalDevice = new SnmpSensorInPhysicalDevice();
         var id = GenerateGuid();
         sensorInPhysicalDevice.Id = id;
-        sensorInPhysicalDevice.SnmpSensorId= sensorId;
+        sensorInPhysicalDevice.SnmpSensorId = sensorId;
         sensorInPhysicalDevice.SnmpSensor = sensor;
         sensorInPhysicalDevice.PhysicalDeviceId = deviceId;
         sensorInPhysicalDevice.PhysicalDevice = device;
         _database.SnmpSensorsInPhysicalDevices.Add(sensorInPhysicalDevice);
         _database.SaveChanges();
         return id;
-    }    
-    
+    }
+
     public Guid? AddSnmpSensorToPhysicalDevice(SnmpSensorInPhysicalDevice sensorInPhysicalDevice)
     {
         if (!_database.SnmpSensorsInPhysicalDevices.All(x =>
@@ -176,8 +170,9 @@ public class DatabaseService : IDatabaseService
 
     public Guid? UpsertCorrectDataPattern(CorrectDataPattern pattern)
     {
-        if (pattern.Id != new Guid())
+        if (pattern.Id != Guid.Empty)
         {
+            _database.Attach(pattern);
             _database.CorrectDataPatterns.Update(pattern);
             _database.SaveChanges();
             return pattern.Id;
@@ -191,6 +186,25 @@ public class DatabaseService : IDatabaseService
         pattern.Id = id;
         pattern.CapturedTime = DateTime.Now;
         _database.CorrectDataPatterns.Add(pattern);
+        _database.SaveChanges();
+        return id;
+    }
+
+    public Guid? UpsertLoginProfile(LoginProfile profile)
+    {
+        if (profile.Id != Guid.Empty)
+        {
+            _database.Attach(profile);
+            _database.LoginProfiles.Update(profile);
+            _database.SaveChanges();
+            return profile.Id;
+        }
+
+        if (!_database.LoginProfiles.All(x => x.Id != profile.Id))
+            return null;
+        var id = GenerateGuid();
+        profile.Id = id;
+        _database.LoginProfiles.Add(profile);
         _database.SaveChanges();
         return id;
     }
@@ -462,7 +476,7 @@ public class DatabaseService : IDatabaseService
         return _database.PhysicalDevicesHaveIpAddresses.AsNoTracking().Where(x => x.PhysicalDeviceId == deviceId)
             .Select(x => x.IpAddress).ToList();
     }
-    
+
     public List<PhysicalDeviceHasIpAddress> GetPhysicalDeviceIpAddressesRelations(Guid deviceId)
     {
         return _database.PhysicalDevicesHaveIpAddresses
@@ -486,7 +500,7 @@ public class DatabaseService : IDatabaseService
     public Guid AssignLoginProfileToPhysicalDevice(LoginProfileToPhysicalDevice profile)
     {
         var id = GenerateGuid();
-        profile.LoginProfileId = id;
+        profile.Id = id;
         _database.LoginProfilesToPhysicalDevices.Add(profile);
         _database.SaveChanges();
         return id;
@@ -494,10 +508,10 @@ public class DatabaseService : IDatabaseService
 
     public OperationResult RemoveLoginProfileFromPhysicalDevice(Guid relationId)
     {
-        var item = _database.LoginProfiles.FirstOrDefault(x => x.Id == relationId);
+        var item = _database.LoginProfilesToPhysicalDevices.FirstOrDefault(x => x.Id == relationId);
         if (item != null)
         {
-            _database.LoginProfiles.Remove(item);
+            _database.LoginProfilesToPhysicalDevices.Remove(item);
             _database.SaveChanges();
             return new OperationResult();
         }
@@ -513,11 +527,6 @@ public class DatabaseService : IDatabaseService
     public List<Port> GetPortsInSystem()
     {
         return _database.Ports.AsNoTracking().ToList();
-    }
-
-    public List<Port> GetDefaultPorts()
-    {
-        return _database.Ports.AsNoTracking().Where(x => x.IsDefault).ToList();
     }
 
     public List<SnmpSensor> GetSensors()
@@ -562,49 +571,49 @@ public class DatabaseService : IDatabaseService
 
     public OperationResult RemovePortFromDevice(Guid id)
     {
-        var record = _database.PhysicalDevicesHavePorts.FirstOrDefault(x => x.PortId == id);
+        var record = _database.PhysicalDevicesHavePorts.FirstOrDefault(x => x.Id == id);
         if (record != null)
         {
             _database.PhysicalDevicesHavePorts.Remove(record);
             _database.SaveChanges();
-
-            if (_database.PhysicalDevicesHavePorts.Count(x => x.PortId == record.PortId) == 0)
-            {
-                var port = _database.Ports.FirstOrDefault(x => x.Id == record.PortId);
-                if (port != null)
-                {
-                    _database.Ports.Remove(port);
-                    _database.SaveChanges();
-                }
-            }
-
             return new OperationResult();
         }
 
         return new OperationResult() { IsSuccessful = false, Message = "Cannot remove port" };
     }
 
-    public OperationResult RemoveDefaultPort(Guid id)
+    public OperationResult RemovePort(Guid id)
     {
         var port = _database.Ports.FirstOrDefault(x => x.Id == id);
         if (port != null)
         {
-            if (_database.PhysicalDevicesHavePorts.Count(x => x.PortId == port.Id) == 0)
+            if (_database.PhysicalDevicesHavePorts.Any(x => x.PortId == port.Id))
             {
-                _database.Ports.Remove(port);
+                var relations = _database.PhysicalDevicesHavePorts.Where(x => x.PortId == port.Id).ToList();
+                _database.PhysicalDevicesHavePorts.RemoveRange(relations);
                 _database.SaveChanges();
             }
-            else
-            {
-                port.IsDefault = false;
-                _database.Ports.Update(port);
-                _database.SaveChanges();
-            }
-
+            _database.Ports.Remove(port);
+            _database.SaveChanges();
             return new OperationResult();
         }
 
         return new OperationResult() { IsSuccessful = false, Message = "Unknown id" };
+    }
+
+    public OperationResult RemoveLoginProfile(Guid id)
+    {
+        var profile = _database.LoginProfiles.FirstOrDefault(x => x.Id == id);
+        if (profile == null)
+            return new OperationResult() { IsSuccessful = false, Message = "Login profile not found." };
+
+        var relations = _database.LoginProfilesToPhysicalDevices.AsNoTracking().Where(x => x.LoginProfileId == id);
+        _database.LoginProfilesToPhysicalDevices.RemoveRange(relations);
+        _database.SaveChanges();
+
+        _database.LoginProfiles.Remove(profile);
+        _database.SaveChanges();
+        return new OperationResult() { Message = "Login profile deleted." };
     }
 
     public OperationResult DeleteSnmpSensor(Guid id)
@@ -662,7 +671,7 @@ public class DatabaseService : IDatabaseService
     public OperationResult DeleteUser(string id)
     {
         var user = _database.Users.FirstOrDefault(x => x.Id == id);
-        if (user != null)
+        if (user != null && _database.Users.Count() > 1)
         {
             _database.Users.Remove(user);
             _database.SaveChanges();
@@ -714,27 +723,14 @@ public class DatabaseService : IDatabaseService
             _database.SaveChanges();
             return new OperationResult();
         }
-        return new OperationResult(){IsSuccessful = false, Message = "Cannot remove ip address device relation" };
+
+        return new OperationResult() { IsSuccessful = false, Message = "Cannot remove ip address device relation" };
     }
 
     public bool AnyPhysicalDeviceWithIp(string ip)
     {
         return _database.PhysicalDevices.AsNoTracking().Include(x => x.IpAddresses)
             .Any(x => x.IpAddresses.Any(y => y.IpAddress == ip));
-    }
-
-    public bool PortExists(Port port, out Guid id)
-    {
-        var existing = _database.Ports.AsNoTracking()
-            .FirstOrDefault(x => x.Number == port.Number && x.Protocol == port.Protocol);
-        if (existing == null)
-        {
-            id = new Guid();
-            return false;
-        }
-
-        id = existing.Id;
-        return true;
     }
 
     public bool PortAndDeviceRelationExists(Guid portId, Guid deviceId, out Guid id)

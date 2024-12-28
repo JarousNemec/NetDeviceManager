@@ -15,7 +15,7 @@ public interface ISnmpService
 
     #region ReadMethods
 
-    string? GetSensorValue(SnmpSensor sensor, List<LoginProfile> profiles, PhysicalDevice device, Port port);
+    string? GetSensorValue(SnmpSensor sensor, List<LoginProfile> profiles, PhysicalDevice device, Port? port);
      int GetSnmpAlertsCount();
     
      int GetDeviceSnmpAlertsCount(Guid id);

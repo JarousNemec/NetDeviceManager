@@ -29,14 +29,10 @@ public static class SnmpUtils
         return snmpVersion;
     }
 
-    public static Port? GetSnmpPort(Guid deviceId, IDatabaseService _databaseService)
+    public static Port? GetSnmpPort(Guid deviceId, IDatabaseService databaseService)
     {
-        var port = _databaseService.GetPortsInPhysicalDevice(deviceId)
+        var port = databaseService.GetPortsInPhysicalDevice(deviceId)
             .FirstOrDefault(x => x.Protocol == CommunicationProtocol.SNMP);
-        if (port == null)
-        {
-            port = _databaseService.GetDefaultPorts().FirstOrDefault(x =>x.Protocol == CommunicationProtocol.SNMP);
-        }
 
         return port;
     }

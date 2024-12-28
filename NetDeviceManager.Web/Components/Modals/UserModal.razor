@@ -1,0 +1,55 @@
+﻿@using NetDeviceManager.Web.Models
+@rendermode InteractiveServer
+<Modal @ref="modal" Title="Account configuration">
+    <BodyTemplate>
+        <div style="margin: 30px; margin-top: 0">
+            <EditForm Model="User" method="post" OnValidSubmit="SubmitForm" FormName="NewUser" class="modal-form">
+                <DataAnnotationsValidator/>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Username<span class="important-symbol">*</span></label>
+                    <InputText  @bind-Value="User.Username" class="input-modalform font-16" placeholder="Enter name..." @attributes="SetReadonly()"/>
+                    <ValidationMessage For="() => User.Username"/>
+                </div>
+                <div class="labelinput-modalform">
+                    <label class="label-menu font-16">Password<span class="important-symbol">*</span></label>
+                    <InputText @bind-Value="User.Password" class="input-modalform font-16"
+                               placeholder="Enter password..."/>
+                    <ValidationMessage For="() => User.Password"/>
+                </div>
+                <div>
+                    <button type="submit" class="btn-apply btn-style-confirm font-16">Apply</button>
+                </div>
+            </EditForm>
+        </div>
+    </BodyTemplate>
+</Modal>
+
+@code{
+    private Modal modal = default!;
+    [Parameter] public UserCreateModel User { get; set; } = null!;
+    [Parameter] public bool UserReadonly { get; set; } = false;
+    [Parameter] public Action<UserCreateModel> OnApply { get; set; }
+
+    Dictionary<string, object> SetReadonly()
+    {
+        var dict = new Dictionary<string, object>();
+        if (UserReadonly) dict.Add("readonly", "readonly");
+        return dict;
+    }
+    
+    public async Task ShowModalAsync()
+    {
+        await modal.ShowAsync();
+    }
+
+    public async Task HideModalAsync()
+    {
+        await modal.HideAsync();
+    }
+
+    private void SubmitForm()
+    {
+        OnApply?.Invoke(User);
+    }
+
+}
