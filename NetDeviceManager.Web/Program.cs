@@ -64,6 +64,9 @@ builder.Services.AddScoped<IPortService, PortService>();
 builder.Services.AddScoped<ILoginProfileService, LoginProfileServiceFacade>();
 builder.Services.AddScoped<LoginProfileService>();
 
+builder.Services.AddScoped<IPortService, PortServiceFacade>();
+builder.Services.AddScoped<PortService>();
+
 builder.Services.AddScoped<IIpAddressesService, IpAddressService>();
 // builder.Logging.SetMinimumLevel(GlobalSettings.MinimalLoggingLevel);
 var app = builder.Build();

@@ -30,10 +30,10 @@ public class LoginProfileServiceFacade(LoginProfileService loginProfileService, 
         return result;
     }
 
-    public List<LoginProfile> GetLoginProfiles()
+    public List<LoginProfile> GetAllLoginProfiles()
     {
-        var result = loginProfileService.GetLoginProfiles();
-        logger.LogInformation($"Found {result.Count} login profiles");
+        var result = loginProfileService.GetAllLoginProfiles();
+        logger.LogInformation($"Found {result.Count} login profiles in system");
         return result;
     }
 

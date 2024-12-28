@@ -16,9 +16,9 @@ public interface IDatabaseService
 
     Guid AddPhysicalDevice(PhysicalDevice physicalDevice);
 
-    Guid UpsertPort(Port port);
-
-    Guid AddPortToPhysicalDevice(PhysicalDeviceHasPort physicalDeviceHasPort);
+    // Guid UpsertPort(Port port);
+    //
+    // Guid AddPortToPhysicalDevice(PhysicalDeviceHasPort physicalDeviceHasPort);
 
     Guid AddSnmpSensor(SnmpSensor sensor);
     Guid? AddSnmpSensorToPhysicalDevice(SnmpSensorInPhysicalDevice sensorInPhysicalDevice);
@@ -49,13 +49,13 @@ public interface IDatabaseService
 
     #region Read
 
-    Guid? GetPortDeviceRelationId(Guid portId, Guid deviceId);
+    // Guid? GetPortDeviceRelationId(Guid portId, Guid deviceId);
     List<SchedulerJob> GetSchedulerJobs();
     
     SchedulerJob? GetPhysicalDeviceSchedulerJob(Guid id);
     List<SnmpSensorInPhysicalDevice> GetSensorsOfPhysicalDevice(Guid physicalDeviceId);
-    List<Port> GetPortsInPhysicalDevice(Guid deviceId);
-    List<PhysicalDeviceHasPort> GetPortInPhysicalDeviceRelations(Guid deviceId);
+    // List<Port> GetPortsInPhysicalDevice(Guid deviceId);
+    // List<PhysicalDeviceHasPort> GetPortInPhysicalDeviceRelations(Guid deviceId);
 
     int GetRecordsCount();
 
@@ -92,7 +92,7 @@ public interface IDatabaseService
 
     List<DeviceIcon> GetIcons();
 
-    List<Port> GetPortsInSystem();
+    // List<Port> GetPortsInSystem();
     
     List<SnmpSensor> GetSensors();
 
@@ -106,9 +106,9 @@ public interface IDatabaseService
     #region Delete
 
     OperationResult DeletePhysicalDevice(Guid id);
-    OperationResult RemovePortFromDevice(Guid id);
+    // OperationResult RemovePortFromDevice(Guid id);
 
-    OperationResult RemovePort(Guid id);
+    // OperationResult RemovePort(Guid id);
     
     OperationResult DeleteSnmpSensor(Guid id);
     OperationResult DeleteSnmpSensorInPhysicalDevice(Guid id);
@@ -131,7 +131,7 @@ public interface IDatabaseService
 
     bool AnyPhysicalDeviceWithIp(string ip);
 
-    bool PortAndDeviceRelationExists(Guid portId, Guid deviceId, out Guid id);
+    // bool PortAndDeviceRelationExists(Guid portId, Guid deviceId);
     bool IsAnySensorInDevice(Guid id);
     #endregion
 }

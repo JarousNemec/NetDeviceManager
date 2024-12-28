@@ -10,7 +10,7 @@ public interface ILoginProfileService
 
     Guid UpsertLoginProfile(LoginProfile profile);
 
-    List<LoginProfile> GetLoginProfiles();
+    List<LoginProfile> GetAllLoginProfiles();
     LoginProfile? GetLoginProfile(Guid id);
 
     List<LoginProfile> GetPhysicalDeviceLoginProfiles(Guid deviceId);

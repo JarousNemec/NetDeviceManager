@@ -22,14 +22,16 @@ public class Scheduler
 {
     private readonly IDatabaseService _databaseService;
     private readonly ILoginProfileService _loginProfileService;
+    private readonly IPortService _portService;
     private readonly Timer _timer;
     private IScheduler _scheduler;
 
-    public Scheduler(IDatabaseService databaseService, Timer timer, ILoginProfileService loginProfileService)
+    public Scheduler(IDatabaseService databaseService, Timer timer, ILoginProfileService loginProfileService, IPortService portService)
     {
         _databaseService = databaseService;
         _timer = timer;
         _loginProfileService = loginProfileService;
+        _portService = portService;
         SetupTimer(20000); //todo: change for production
         SetupScheduler();
     }
@@ -119,7 +121,7 @@ public class Scheduler
 
     private async Task ScheduleSnmpGetJob(SchedulerJob registeredJob, string readersGroup)
     {
-        var port = SnmpUtils.GetSnmpPort(registeredJob.PhysicalDeviceId, _databaseService);
+        var port = SnmpUtils.GetSnmpPort(registeredJob.PhysicalDeviceId, _portService);
         if (port == null) return;
         var loginProfile = _loginProfileService.GetPhysicalDeviceLoginProfiles(registeredJob.PhysicalDevice.Id);
         string id = registeredJob.Id.ToString();

@@ -4,17 +4,10 @@ using NetDeviceManager.Database.Tables;
 
 using Npgsql;
 using Testcontainers.PostgreSql;
-
-using System;
 using Lextm.SharpSnmpLib;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Hosting;
 using Moq;
 using NetDeviceManager.Lib.Services;
-using NUnit.Framework;
-
-
 
 namespace NetDeviceManager.DbTests;
 
@@ -95,12 +88,13 @@ public class DatabaseServiceTest
         
         // Arrange
         var databaseService = new DatabaseService(_tested);
+        var portService = new PortService(_tested);
         var smtpService = new SnmpService(databaseService, new SettingsService(databaseService));
 
         var mockEnvironment = new Mock<IHostEnvironment>();
         var fileStorageService = new FileStorageService(databaseService, mockEnvironment.Object);
         
-        var deviceService = new DeviceService(databaseService, fileStorageService);
+        var deviceService = new DeviceService(databaseService, fileStorageService, portService);
 
         SnmpSensor sensor = new SnmpSensor
         {

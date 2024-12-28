@@ -9,17 +9,8 @@ using NetDeviceManager.Lib.Utils;
 
 namespace NetDeviceManager.Lib.Services;
 
-public class LoginProfileService : ILoginProfileService
+public class LoginProfileService(ApplicationDbContext database) : ILoginProfileService
 {
-    private readonly IDatabaseService _databaseFacade;
-    private readonly ApplicationDbContext _database;
-
-    public LoginProfileService(ApplicationDbContext database, IDatabaseService databaseFacade)
-    {
-        _databaseFacade = databaseFacade;
-        _database = database;
-    }
-    
     public OperationResult UpdateLoginProfilesAndDeviceRelations(List<LoginProfile> profiles, Guid deviceId)
     {
         var currentRelations = GetPhysicalDeviceLoginProfileRelationships(deviceId);
@@ -68,47 +59,47 @@ public class LoginProfileService : ILoginProfileService
     {
         var id = DatabaseUtil.GenerateId();
         profile.Id = id;
-        _database.LoginProfiles.Add(profile);
-        _database.SaveChanges();
+        database.LoginProfiles.Add(profile);
+        database.SaveChanges();
         return id;
     }
 
     public Guid UpsertLoginProfile(LoginProfile profile)
     {
-        if (_database.LoginProfiles.Any(x => x.Id == profile.Id))
+        if (database.LoginProfiles.Any(x => x.Id == profile.Id))
         {
-            _database.Attach(profile);
-            _database.LoginProfiles.Update(profile);
-            _database.SaveChanges();
+            database.Attach(profile);
+            database.LoginProfiles.Update(profile);
+            database.SaveChanges();
             return profile.Id;
         }
         
         var id = DatabaseUtil.GenerateId();
         profile.Id = id;
-        _database.LoginProfiles.Add(profile);
-        _database.SaveChanges();
+        database.LoginProfiles.Add(profile);
+        database.SaveChanges();
         return id;
     }
 
-    public List<LoginProfile> GetLoginProfiles()
+    public List<LoginProfile> GetAllLoginProfiles()
     {
-        return _database.LoginProfiles.AsNoTracking().ToList();
+        return database.LoginProfiles.AsNoTracking().ToList();
     }
 
     public LoginProfile? GetLoginProfile(Guid id)
     {
-        return _database.LoginProfiles.AsNoTracking().FirstOrDefault(x => x.Id == id);
+        return database.LoginProfiles.AsNoTracking().FirstOrDefault(x => x.Id == id);
     }
 
     public List<LoginProfile> GetPhysicalDeviceLoginProfiles(Guid deviceId)
     {
-        return _database.LoginProfilesToPhysicalDevices.AsNoTracking().Where(x => x.PhysicalDeviceId == deviceId)
+        return database.LoginProfilesToPhysicalDevices.AsNoTracking().Where(x => x.PhysicalDeviceId == deviceId)
             .Include(x => x.LoginProfile).Select(x => x.LoginProfile).ToList();
     }
 
     public List<LoginProfileToPhysicalDevice> GetPhysicalDeviceLoginProfileRelationships(Guid deviceId)
     {
-        return _database.LoginProfilesToPhysicalDevices.AsNoTracking().Where(x => x.PhysicalDeviceId == deviceId)
+        return database.LoginProfilesToPhysicalDevices.AsNoTracking().Where(x => x.PhysicalDeviceId == deviceId)
             .Include(x => x.LoginProfile).ToList();
     }
 
@@ -116,18 +107,18 @@ public class LoginProfileService : ILoginProfileService
     {
         var id = DatabaseUtil.GenerateId();
         profile.Id = id;
-        _database.LoginProfilesToPhysicalDevices.Add(profile);
-        _database.SaveChanges();
+        database.LoginProfilesToPhysicalDevices.Add(profile);
+        database.SaveChanges();
         return id;
     }
 
     public OperationResult RemoveLoginProfileFromPhysicalDevice(Guid relationId)
     {
-        var item = _database.LoginProfilesToPhysicalDevices.FirstOrDefault(x => x.Id == relationId);
+        var item = database.LoginProfilesToPhysicalDevices.FirstOrDefault(x => x.Id == relationId);
         if (item != null)
         {
-            _database.LoginProfilesToPhysicalDevices.Remove(item);
-            _database.SaveChanges();
+            database.LoginProfilesToPhysicalDevices.Remove(item);
+            database.SaveChanges();
             return new OperationResult();
         }
 
@@ -136,16 +127,16 @@ public class LoginProfileService : ILoginProfileService
 
     public OperationResult RemoveLoginProfile(Guid id)
     {
-        var profile = _database.LoginProfiles.FirstOrDefault(x => x.Id == id);
+        var profile = database.LoginProfiles.FirstOrDefault(x => x.Id == id);
         if (profile == null)
             return new OperationResult() { IsSuccessful = false, Message = "Login profile not found." };
 
-        var relations = _database.LoginProfilesToPhysicalDevices.AsNoTracking().Where(x => x.LoginProfileId == id);
-        _database.LoginProfilesToPhysicalDevices.RemoveRange(relations);
-        _database.SaveChanges();
+        var relations = database.LoginProfilesToPhysicalDevices.AsNoTracking().Where(x => x.LoginProfileId == id);
+        database.LoginProfilesToPhysicalDevices.RemoveRange(relations);
+        database.SaveChanges();
 
-        _database.LoginProfiles.Remove(profile);
-        _database.SaveChanges();
+        database.LoginProfiles.Remove(profile);
+        database.SaveChanges();
         return new OperationResult();
     }
 }

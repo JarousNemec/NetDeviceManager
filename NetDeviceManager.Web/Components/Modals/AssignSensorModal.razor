@@ -64,6 +64,7 @@
     [Inject] public ISnmpService SnmpService { get; set; }
     [Inject] public IDatabaseService DatabaseService { get; set; }
     [Inject] public ILoginProfileService LoginProfileService { get; set; }
+    [Inject] public IPortService PortService { get; set; }
     [Parameter] public CorrectDataPattern Pattern { get; set; }
 
     [Parameter] public List<PhysicalDevice> Devices { get; set; }
@@ -116,7 +117,7 @@
         var profiles = LoginProfileService.GetPhysicalDeviceLoginProfiles(device.Id);
         if(!profiles.Any())
             return;
-        var port = SnmpUtils.GetSnmpPort(Pattern.PhysicalDeviceId, DatabaseService);
+        var port = SnmpUtils.GetSnmpPort(Pattern.PhysicalDeviceId, PortService);
         Pattern.Data =SnmpService.GetSensorValue(sensor, profiles, device, port) ?? string.Empty;
         StateHasChanged();
     }

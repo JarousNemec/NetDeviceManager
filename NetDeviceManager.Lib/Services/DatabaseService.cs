@@ -731,18 +731,15 @@ public class DatabaseService : IDatabaseService
             .Any(x => x.IpAddresses.Any(y => y.IpAddress == ip));
     }
 
-    public bool PortAndDeviceRelationExists(Guid portId, Guid deviceId, out Guid id)
+    public bool PortAndDeviceRelationExists(Guid portId, Guid deviceId)
     {
         var existing =
             _database.PhysicalDevicesHavePorts.AsNoTracking()
                 .FirstOrDefault(x => x.DeviceId == deviceId && x.PortId == portId);
         if (existing == null)
         {
-            id = new Guid();
             return false;
         }
-
-        id = existing.Id;
         return true;
     }
 }

@@ -10,18 +10,18 @@ public class DeviceService : IDeviceService
 {
     private readonly IDatabaseService _database;
     private readonly IFileStorageService _fileStorageService;
+    private readonly IPortService _portService;
 
     private readonly List<PhysicalDevice> _onlineDevices = new List<PhysicalDevice>();
     private readonly List<PhysicalDevice> _offlineDevices = new List<PhysicalDevice>();
     private DateTime _lastUpdate = new DateTime(2006, 8, 1, 20, 20, 20);
 
-    public DeviceService(IDatabaseService database, IFileStorageService fileStorageService)
+    public DeviceService(IDatabaseService database, IFileStorageService fileStorageService, IPortService portService)
     {
         _database = database;
         _fileStorageService = fileStorageService;
+        _portService = portService;
     }
-
-    #region CreateMethods
 
     public OperationResult AddDevice(CreateDeviceModel model)
     {
@@ -61,25 +61,20 @@ public class DeviceService : IDeviceService
 
     public OperationResult AddPortToDevice(Port model, Guid deviceId)
     {
-        var portId = _database.UpsertPort(model);
+        var portId = _portService.UpsertPort(model);
 
-        if (!_database.PortAndDeviceRelationExists(portId, deviceId, out _))
+        if (!_portService.PortAndDeviceRelationExists(portId, deviceId))
         {
             var relationship = new PhysicalDeviceHasPort()
             {
                 DeviceId = deviceId,
                 PortId = portId
             };
-            _database.AddPortToPhysicalDevice(relationship);
+            _portService.AddPortToPhysicalDevice(relationship);
         }
 
         return new OperationResult();
     }
-
-    #endregion
-
-    #region GetMethods
-
     public int GetOnlineDevicesCount()
     {
         CheckTimelinessOfData();
@@ -112,101 +107,4 @@ public class DeviceService : IDeviceService
             _lastUpdate = DateTime.Now;
         }
     }
-
-
-    public List<PhysicalDevice> GetPhysicalDevices()
-    {
-        throw new NotImplementedException();
-    }
-
-    public List<DeviceIcon> GetDevicesIcons()
-    {
-        throw new NotImplementedException();
-    }
-
-    public List<LoginProfile> GetLoginProfiles()
-    {
-        throw new NotImplementedException();
-    }
-
-
-    public PhysicalDevice GetPhysicalDevice(Guid id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public DeviceIcon GetDeviceIcon(Guid id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public LoginProfile GetLoginProfile(Guid id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Port GetPort(Guid id)
-    {
-        throw new NotImplementedException();
-    }
-
-    #endregion
-
-    #region UpdateMethods
-
-    public OperationResult UpdateDevice(Guid id, CreateDeviceModel model)
-    {
-        throw new NotImplementedException();
-    }
-
-    public OperationResult UpdatePhysicalDevice(Guid id, PhysicalDevice model)
-    {
-        throw new NotImplementedException();
-    }
-
-    public OperationResult UpdateDeviceIcon(Guid id, CreateDeviceIconModel model)
-    {
-        throw new NotImplementedException();
-    }
-
-    public OperationResult UpdateLoginProfile(Guid id, CreateLoginProfileModel model)
-    {
-        throw new NotImplementedException();
-    }
-
-    public OperationResult UpdatePort(Port model)
-    {
-        throw new NotImplementedException();
-    }
-
-    #endregion
-
-    #region DeleteMethods
-
-    public OperationResult DeleteDevice(Guid id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public OperationResult DeletePhysicalDevice(Guid id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public OperationResult DeleteDeviceIcon(Guid id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public OperationResult DeleteLoginProfile(Guid id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public OperationResult DeletePort(Guid id)
-    {
-        throw new NotImplementedException();
-    }
-
-    #endregion
 }

@@ -29,9 +29,9 @@ public static class SnmpUtils
         return snmpVersion;
     }
 
-    public static Port? GetSnmpPort(Guid deviceId, IDatabaseService databaseService)
+    public static Port? GetSnmpPort(Guid deviceId, IPortService portService)
     {
-        var port = databaseService.GetPortsInPhysicalDevice(deviceId)
+        var port = portService.GetPortsInPhysicalDevice(deviceId)
             .FirstOrDefault(x => x.Protocol == CommunicationProtocol.SNMP);
 
         return port;

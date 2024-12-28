@@ -149,6 +149,7 @@
     [Inject] ISnmpService SnmpService { get; set; }
     [Inject] IDatabaseService DatabaseService { get; set; }
     [Inject] ILoginProfileService LoginProfileService { get; set; }
+    [Inject] IPortService PortService { get; set; }
     [Inject] NavigationManager NavigationManager { get; set; }
     [Inject] UserManager<ApplicationUser> UserManager { get; set; }
     [Inject] IUserStore<ApplicationUser> UserStore { get; set; }
@@ -180,7 +181,7 @@
     
     private async Task<GridDataProviderResult<Port>> PortsDataProvider(GridDataProviderRequest<Port> request)
     {
-        var ports = DatabaseService.GetPortsInSystem();
+        var ports = PortService.GetPortsInSystem();
         return await Task.FromResult(request.ApplyTo(ports));
     }
     
@@ -192,7 +193,7 @@
 
     private async Task<GridDataProviderResult<LoginProfile>> LoginProfilesDataProvider(GridDataProviderRequest<LoginProfile> request)
     {
-        var profiles = LoginProfileService.GetLoginProfiles();
+        var profiles = LoginProfileService.GetAllLoginProfiles();
         return await Task.FromResult(request.ApplyTo(profiles));
     }
 
@@ -293,7 +294,7 @@
     private async void OnApplyNewPort(Port port)
     {
         await _portModal.HideModalAsync();
-        DatabaseService.UpsertPort(port);
+        PortService.UpsertPort(port);
         await _gridPorts.RefreshDataAsync();
         await InvokeAsync(StateHasChanged);
     }
@@ -317,7 +318,7 @@
     private async Task OnRemovePort(Port context)
     {
         if (await ShowConfirmationAsync())
-            DatabaseService.RemovePort(context.Id);
+            PortService.RemovePort(context.Id);
         await _gridPorts.RefreshDataAsync();
         await InvokeAsync(StateHasChanged);
     }
