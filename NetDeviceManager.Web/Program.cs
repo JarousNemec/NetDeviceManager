@@ -2,9 +2,11 @@ using System.Net;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Console;
 using NetDeviceManager.Database;
 using NetDeviceManager.Database.Identity;
 using NetDeviceManager.Lib.Extensions;
+using NetDeviceManager.Lib.Facades;
 using NetDeviceManager.Lib.GlobalConstantsAndEnums;
 using NetDeviceManager.Lib.Interfaces;
 using NetDeviceManager.Lib.Services;
@@ -13,6 +15,13 @@ using NetDeviceManager.Web.Components.Account;
 using NetDeviceManager.Web.Components.Layout;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Logging.AddSimpleConsole(options =>
+{
+    options.SingleLine = true;
+    options.TimestampFormat = "dd.MM.yyyy HH:mm:ss ";
+    options.ColorBehavior = LoggerColorBehavior.Enabled;
+});
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -51,9 +60,12 @@ builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<SettingsService>();
 builder.Services.AddScoped<HttpClient>();
 builder.Services.AddScoped<IPortService, PortService>();
-builder.Services.AddScoped<ILoginProfileService, LoginProfileService>();
+
+builder.Services.AddScoped<ILoginProfileService, LoginProfileServiceFacade>();
+builder.Services.AddScoped<LoginProfileService>();
+
 builder.Services.AddScoped<IIpAddressesService, IpAddressService>();
-builder.Logging.SetMinimumLevel(GlobalSettings.MinimalLoggingLevel);
+// builder.Logging.SetMinimumLevel(GlobalSettings.MinimalLoggingLevel);
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

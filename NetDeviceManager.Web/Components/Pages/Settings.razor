@@ -148,6 +148,7 @@
     [Inject] IDeviceService DeviceService { get; set; }
     [Inject] ISnmpService SnmpService { get; set; }
     [Inject] IDatabaseService DatabaseService { get; set; }
+    [Inject] ILoginProfileService LoginProfileService { get; set; }
     [Inject] NavigationManager NavigationManager { get; set; }
     [Inject] UserManager<ApplicationUser> UserManager { get; set; }
     [Inject] IUserStore<ApplicationUser> UserStore { get; set; }
@@ -191,7 +192,7 @@
 
     private async Task<GridDataProviderResult<LoginProfile>> LoginProfilesDataProvider(GridDataProviderRequest<LoginProfile> request)
     {
-        var profiles = DatabaseService.GetLoginProfiles();
+        var profiles = LoginProfileService.GetLoginProfiles();
         return await Task.FromResult(request.ApplyTo(profiles));
     }
 
@@ -308,7 +309,7 @@
     private async void OnApplyLoginProfileModal(LoginProfile profile)
     {
         await _loginProfileModal.HideModalAsync();
-        DatabaseService.UpsertLoginProfile(profile);
+        LoginProfileService.UpsertLoginProfile(profile);
         await _gridLoginProfiles.RefreshDataAsync();
         await InvokeAsync(StateHasChanged);
     }
@@ -348,7 +349,7 @@
     private async Task OnRemoveLoginProfile(LoginProfile context)
     {
         await _loginProfileModal.HideModalAsync();
-        DatabaseService.RemoveLoginProfile(context.Id);
+        LoginProfileService.RemoveLoginProfile(context.Id);
         await _gridLoginProfiles.RefreshDataAsync();
         await InvokeAsync(StateHasChanged);
     }

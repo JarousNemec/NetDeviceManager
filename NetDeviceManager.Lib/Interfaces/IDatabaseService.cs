@@ -14,8 +14,6 @@ public interface IDatabaseService
 
     Guid AddDeviceIcon(DeviceIcon icon);
 
-    Guid AddLoginProfile(LoginProfile profile);
-
     Guid AddPhysicalDevice(PhysicalDevice physicalDevice);
 
     Guid UpsertPort(Port port);
@@ -36,8 +34,6 @@ public interface IDatabaseService
 
     Guid? UpsertCorrectDataPattern(CorrectDataPattern pattern);
     
-    Guid? UpsertLoginProfile(LoginProfile profile);
-    
     Guid AddPhysicalDeviceHasIpAddress(PhysicalDeviceHasIpAddress physicalDeviceHasIpAddress);
 
     void SetConfigValue(string key, string value);
@@ -54,23 +50,12 @@ public interface IDatabaseService
     #region Read
 
     Guid? GetPortDeviceRelationId(Guid portId, Guid deviceId);
-    
-    List<LoginProfile> GetLoginProfiles();
     List<SchedulerJob> GetSchedulerJobs();
     
     SchedulerJob? GetPhysicalDeviceSchedulerJob(Guid id);
     List<SnmpSensorInPhysicalDevice> GetSensorsOfPhysicalDevice(Guid physicalDeviceId);
     List<Port> GetPortsInPhysicalDevice(Guid deviceId);
     List<PhysicalDeviceHasPort> GetPortInPhysicalDeviceRelations(Guid deviceId);
-    LoginProfile? GetLoginProfile(Guid id);
-    Guid? GetSnmpSensorInPhysicalDeviceId(Guid sensor, Guid device);
-
-    List<LoginProfile> GetPhysicalDeviceLoginProfiles(Guid deviceId);
-    List<LoginProfileToPhysicalDevice> GetPhysicalDeviceLoginProfileRelationships(Guid deviceId);
-
-    Guid AssignLoginProfileToPhysicalDevice(LoginProfileToPhysicalDevice profile);
-    
-    OperationResult RemoveLoginProfileFromPhysicalDevice(Guid relationId);
 
     int GetRecordsCount();
 
@@ -124,8 +109,6 @@ public interface IDatabaseService
     OperationResult RemovePortFromDevice(Guid id);
 
     OperationResult RemovePort(Guid id);
-
-    OperationResult RemoveLoginProfile(Guid id);
     
     OperationResult DeleteSnmpSensor(Guid id);
     OperationResult DeleteSnmpSensorInPhysicalDevice(Guid id);

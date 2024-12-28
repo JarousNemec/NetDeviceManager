@@ -190,18 +190,16 @@ public class DatabaseService : IDatabaseService
         return id;
     }
 
-    public Guid? UpsertLoginProfile(LoginProfile profile)
+    public Guid UpsertLoginProfile(LoginProfile profile)
     {
-        if (profile.Id != Guid.Empty)
+        if (_database.LoginProfiles.Any(x => x.Id == profile.Id))
         {
             _database.Attach(profile);
             _database.LoginProfiles.Update(profile);
             _database.SaveChanges();
             return profile.Id;
         }
-
-        if (!_database.LoginProfiles.All(x => x.Id != profile.Id))
-            return null;
+        
         var id = GenerateGuid();
         profile.Id = id;
         _database.LoginProfiles.Add(profile);

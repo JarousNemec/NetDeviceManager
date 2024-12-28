@@ -21,13 +21,15 @@ namespace NetDeviceManager.ScheduledSnmpAgent;
 public class Scheduler
 {
     private readonly IDatabaseService _databaseService;
+    private readonly ILoginProfileService _loginProfileService;
     private readonly Timer _timer;
     private IScheduler _scheduler;
 
-    public Scheduler(IDatabaseService databaseService, Timer timer)
+    public Scheduler(IDatabaseService databaseService, Timer timer, ILoginProfileService loginProfileService)
     {
         _databaseService = databaseService;
         _timer = timer;
+        _loginProfileService = loginProfileService;
         SetupTimer(20000); //todo: change for production
         SetupScheduler();
     }
@@ -119,7 +121,7 @@ public class Scheduler
     {
         var port = SnmpUtils.GetSnmpPort(registeredJob.PhysicalDeviceId, _databaseService);
         if (port == null) return;
-        var loginProfile = _databaseService.GetPhysicalDeviceLoginProfiles(registeredJob.PhysicalDevice.Id);
+        var loginProfile = _loginProfileService.GetPhysicalDeviceLoginProfiles(registeredJob.PhysicalDevice.Id);
         string id = registeredJob.Id.ToString();
 
         var sensorsInPhysicalDevice = _databaseService.GetSensorsOfPhysicalDevice(registeredJob.PhysicalDeviceId);

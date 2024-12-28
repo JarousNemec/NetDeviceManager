@@ -95,7 +95,7 @@
     {
         _configureDeviceModal.Device = new PhysicalDevice();
         _configureDeviceModal.LoginProfilesToDevice = new List<LoginProfile>();
-        _configureDeviceModal.LoginProfiles = DatabaseService.GetLoginProfiles();
+        _configureDeviceModal.LoginProfiles = LoginProfileService.GetLoginProfiles();
         _configureDeviceModal.IpAddresses = new List<String>();
         _configureDeviceModal.DevicePorts = new List<Port>();
         _configureDeviceModal.Ports = DatabaseService.GetPortsInSystem();
@@ -112,8 +112,8 @@
     private async void ConfigureDevice(PhysicalDevice device)
     {
         _configureDeviceModal.Device = device;
-        _configureDeviceModal.LoginProfilesToDevice = DatabaseService.GetPhysicalDeviceLoginProfiles(device.Id);
-        _configureDeviceModal.LoginProfiles = DatabaseService.GetLoginProfiles();
+        _configureDeviceModal.LoginProfilesToDevice = LoginProfileService.GetPhysicalDeviceLoginProfiles(device.Id);
+        _configureDeviceModal.LoginProfiles = LoginProfileService.GetLoginProfiles();
         _configureDeviceModal.IpAddresses = DatabaseService.GetPhysicalDeviceIpAddresses(device.Id);
         _configureDeviceModal.DevicePorts = DatabaseService.GetPortsInPhysicalDevice(device.Id);
         _configureDeviceModal.Ports = DatabaseService.GetPortsInSystem();
