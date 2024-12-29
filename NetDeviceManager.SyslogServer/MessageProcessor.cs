@@ -14,9 +14,9 @@ namespace NetDeviceManager.SyslogServer;
 public class MessageProcessor
 {
     private readonly ServerCache _cache;
-    private readonly IDatabaseService _database;
     private readonly IDeviceService _deviceService;
     private readonly IPortService _portService;
+    private readonly ISyslogService _syslogService;
     // private readonly SettingsService _settingsService;
 
     public delegate void CrashDelegate(string m);
@@ -31,9 +31,9 @@ public class MessageProcessor
             .Options;
 
         var context = new ApplicationDbContext(options);
-        _database = new DatabaseService(context);
         _portService = new PortService(context);
-        _deviceService = new DeviceService(_database, context, new FileStorageService(_database), _portService);
+        _deviceService = new DeviceService(context, _portService);
+        _syslogService = new SyslogService(context);
         // _settingsService = new SettingsService(_database);
     }
 
@@ -57,7 +57,7 @@ public class MessageProcessor
                         Console.WriteLine($"Processing message.... ({message.Ip}) : {message.Message}");
                         var record = ParseRecord(message);
 
-                        _database.AddSyslogRecord(record);
+                        _syslogService.AddSyslogRecord(record);
                     }
 
                     _cache.MessagesQueue = new List<CacheMessageModel>();

@@ -70,9 +70,7 @@
 </style>
 
 @code{
-    [Inject] IDeviceService DeviceService { get; set; }
-    [Inject] ISnmpService SnmpService { get; set; }
-    [Inject] IDatabaseService DatabaseService { get; set; }
+    [Inject] ISyslogService SyslogService { get; set; }
 
     [SupplyParameterFromForm] private SyslogRecordFilterModel Filter { get; set; } = new();
 
@@ -93,12 +91,12 @@
 
     private IEnumerable<SyslogRecord> GetRecords()
     {
-        return DatabaseService.GetLastSyslogRecords(100);
+        return SyslogService.GetLastSyslogRecords(100);
     }
 
     private async void FilterRecords()
     {
-        _records = DatabaseService.GetSyslogRecordsWithFilter(Filter, 100);
+        _records = SyslogService.GetSyslogRecordsWithFilter(Filter, 100);
         await grid.RefreshDataAsync();
     }
 

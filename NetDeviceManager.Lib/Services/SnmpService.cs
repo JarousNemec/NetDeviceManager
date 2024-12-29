@@ -3,12 +3,16 @@ using System.Text.Json;
 using Lextm.SharpSnmpLib;
 using Lextm.SharpSnmpLib.Messaging;
 using Lextm.SharpSnmpLib.Security;
+using Microsoft.EntityFrameworkCore;
+using NetDeviceManager.Database;
+using NetDeviceManager.Database.Models;
 using NetDeviceManager.Database.Tables;
 using NetDeviceManager.Lib.GlobalConstantsAndEnums;
 using NetDeviceManager.Lib.Helpers;
 using NetDeviceManager.Lib.Interfaces;
 using NetDeviceManager.Lib.Model;
 using NetDeviceManager.Lib.Snmp.Models;
+using NetDeviceManager.Lib.Utils;
 
 namespace NetDeviceManager.Lib.Services;
 
@@ -16,16 +20,19 @@ public class SnmpService : ISnmpService
 {
     private const int MESSANGER_GET_TIMEOUT = 10000;
     private readonly IDatabaseService _database;
+    private readonly ApplicationDbContext _dbContext;
     private readonly SettingsService _settingsService;
     private const int DEFAULT_PORT = 161;
 
     private readonly IDeviceService _deviceService;
 
-    public SnmpService(IDeviceService deviceService, IDatabaseService database, SettingsService settingsService)
+    public SnmpService(IDeviceService deviceService, IDatabaseService database, SettingsService settingsService,
+        ApplicationDbContext dbContext)
     {
         _deviceService = deviceService;
         _database = database;
         _settingsService = settingsService;
+        _dbContext = dbContext;
     }
 
     public OperationResult UpsertSnmpSensor(SnmpSensor model, out Guid id)
@@ -33,11 +40,11 @@ public class SnmpService : ISnmpService
         if (model.Id != new Guid())
         {
             id = model.Id;
-            _database.UpdateSnmpSensor(model);
+            UpdateSnmpSensor(model);
             return new OperationResult();
         }
 
-        id = _database.AddSnmpSensor(model);
+        id = AddSnmpSensor(model);
         return new OperationResult();
     }
 
@@ -122,24 +129,9 @@ public class SnmpService : ISnmpService
         return _devicesSnmpAlerts.All(x => x.Device.Id != deviceId && x.Sensor.Id != sensorId);
     }
 
-    public List<SnmpSensor> GetSensorsInDevice(Guid deviceId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public SnmpSensor GetSensor(Guid id)
-    {
-        throw new NotImplementedException();
-    }
-
     public List<SnmpAlertModel> GetAlerts()
     {
         return _devicesSnmpAlerts;
-    }
-
-    public OperationResult UpdateSnmpSensor(SnmpSensor model)
-    {
-        throw new NotImplementedException();
     }
 
     public void RemoveAlert(Guid id)
@@ -174,11 +166,110 @@ public class SnmpService : ISnmpService
         return new OperationResult();
     }
 
+    public Guid AddSnmpRecord(SnmpSensorRecord record)
+    {
+        var id = DatabaseUtil.GenerateId();
+        record.Id = id;
+        _dbContext.SnmpSensorRecords.Add(record);
+        _dbContext.SaveChanges();
+        return id;
+    }
+
+    public void UpdateSnmpSensor(SnmpSensor model)
+    {
+        if (_dbContext.SnmpSensors.Any(x => x.Id == model.Id))
+        {
+            _dbContext.SnmpSensors.Update(model);
+            _dbContext.SaveChanges();
+        }
+    }
+
+    public Guid AddSnmpSensor(SnmpSensor sensor)
+    {
+        var id = DatabaseUtil.GenerateId();
+        sensor.Id = id;
+        _dbContext.SnmpSensors.Add(sensor);
+        _dbContext.SaveChanges();
+        return id;
+    }
+
+    public List<SnmpSensorRecord> GetLastSnmpRecords(int count)
+    {
+        return _dbContext.SnmpSensorRecords.AsNoTracking().Include(x => x.PhysicalDevice).Include(x => x.Sensor)
+            .OrderByDescending(x => x.CapturedTime).Take(count).ToList();
+    }
+
+    public SnmpSensorRecord? GetLastDeviceRecord(Guid id)
+    {
+        return _dbContext.SnmpSensorRecords.AsNoTracking().Where(x => x.PhysicalDeviceId == id)
+            .OrderByDescending(x => x.CapturedTime)
+            .FirstOrDefault();
+    }
+
+    public List<SnmpSensorRecord> GetSnmpRecordsWithFilter(SnmpRecordFilterModel model, int count = -1)
+    {
+        IQueryable<SnmpSensorRecord> query = _dbContext.SnmpSensorRecords.AsNoTracking().Include(x => x.PhysicalDevice)
+            .Include(x => x.Sensor);
+        if (!string.IsNullOrEmpty(model.DeviceName))
+        {
+            query = query.Where(x => x.PhysicalDevice.Name == model.DeviceName);
+        }
+
+        if (!string.IsNullOrEmpty(model.Oid))
+        {
+            query = query.Where(x => x.Sensor.Oid == model.Oid);
+        }
+
+        if (!string.IsNullOrEmpty(model.SensorName))
+        {
+            query = query.Where(x => x.Sensor.Name == model.SensorName);
+        }
+
+        if (count == -1)
+            return query.OrderByDescending(x => x.CapturedTime).ToList();
+        return query.OrderByDescending(x => x.CapturedTime).Take(count).ToList();
+    }
+
+    public List<SnmpSensor> GetAllSensors()
+    {
+        return _dbContext.SnmpSensors.AsNoTracking().ToList();
+    }
+
+    public int GetSensorUsagesCount(Guid id)
+    {
+        return _dbContext.SnmpSensorsInPhysicalDevices.AsNoTracking().Count(x => x.SnmpSensorId == id);
+    }
+
+    public OperationResult DeleteSnmpSensor(Guid id)
+    {
+        var sensor = _dbContext.SnmpSensors.FirstOrDefault(x => x.Id == id);
+        if (sensor == null)
+        {
+            return new OperationResult() { IsSuccessful = false, Message = "Unknown Id" };
+        }
+
+        var records = _dbContext.SnmpSensorRecords.Where(x => x.SensorId == id);
+        _dbContext.SnmpSensorRecords.RemoveRange(records);
+
+        var relationShips = _dbContext.SnmpSensorsInPhysicalDevices.Where(x => x.SnmpSensorId == id);
+        _dbContext.SnmpSensorsInPhysicalDevices.RemoveRange(relationShips);
+
+        _dbContext.SnmpSensors.Remove(sensor);
+        _dbContext.SaveChanges();
+
+        return new OperationResult();
+    }
+
+    public bool IsAnySensorInDevice(Guid id)
+    {
+        return _dbContext.SnmpSensorsInPhysicalDevices.AsNoTracking().Any(x => x.PhysicalDeviceId == id);
+    }
+
     private void CheckTimelinessOfData()
     {
         if ((DateTime.Now.Ticks - _lastUpdate.Ticks) > (TimeSpan.TicksPerMinute * 5))
         {
-            SnmpServiceHelper.CalculateSnmpAlerts(_deviceService, _database, _devicesSnmpAlerts);
+            SnmpServiceHelper.CalculateSnmpAlerts(this,_deviceService, _devicesSnmpAlerts);
             _lastUpdate = DateTime.Now;
         }
     }

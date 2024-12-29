@@ -14,12 +14,10 @@ public class ReadDeviceSensorsJob : IJob
     private List<LoginProfile> _logins;
     private PhysicalDevice _device;
     private string? _id;
-    private readonly IDatabaseService _databaseService;
     private readonly ISnmpService _snmpService;
 
-    public ReadDeviceSensorsJob(IDatabaseService databaseService, ISnmpService snmpService)
+    public ReadDeviceSensorsJob(ISnmpService snmpService)
     {
-        _databaseService = databaseService;
         _snmpService = snmpService;
     }
 
@@ -37,7 +35,7 @@ public class ReadDeviceSensorsJob : IJob
                 PhysicalDeviceId = _device.Id,
                 SensorId = sensor.Id
             };
-            _databaseService.AddSnmpRecord(record);
+            _snmpService.AddSnmpRecord(record);
         }
 
         return Task.CompletedTask;

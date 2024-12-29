@@ -60,9 +60,7 @@
 </style>
 
 @code{
-    [Inject]  IDeviceService DeviceService { get; set; }
     [Inject]  ISnmpService SnmpService { get; set; }
-    [Inject]  IDatabaseService DatabaseService { get; set; }
 
     [SupplyParameterFromForm] private SnmpRecordFilterModel Filter { get; set; } = new();
 
@@ -83,12 +81,12 @@
 
     private IEnumerable<SnmpSensorRecord> GetRecords()
     {
-        return DatabaseService.GetLastSnmpRecords(100);
+        return SnmpService.GetLastSnmpRecords(100);
     }
 
     private async void FilterRecords()
     {
-        _records = DatabaseService.GetSnmpRecordsWithFilter(Filter, 100);
+        _records = SnmpService.GetSnmpRecordsWithFilter(Filter, 100);
         await grid.RefreshDataAsync();
     }
 

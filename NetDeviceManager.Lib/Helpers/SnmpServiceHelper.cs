@@ -8,13 +8,13 @@ namespace NetDeviceManager.Lib.Helpers;
 
 public static class SnmpServiceHelper
 {
-    public static void CalculateSnmpAlerts(IDeviceService deviceService,IDatabaseService database, List<SnmpAlertModel> snmpProblemDevice)
+    public static void CalculateSnmpAlerts(ISnmpService snmpService,IDeviceService deviceService, List<SnmpAlertModel> snmpProblemDevice)
     {
         snmpProblemDevice.Clear();
         var patterns = deviceService.GetPhysicalDevicesPatterns();
         foreach (var pattern in patterns)
         {
-            var lastRecord = database.GetLastDeviceRecord(pattern.PhysicalDeviceId);
+            var lastRecord = snmpService.GetLastDeviceRecord(pattern.PhysicalDeviceId);
             if (lastRecord == null)
                 continue;
             string[] patternData = JsonSerializer.Deserialize<string[]>(pattern.Data);

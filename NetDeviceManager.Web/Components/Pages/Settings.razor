@@ -145,16 +145,11 @@
 
 
 @code{
-    [Inject] IDeviceService DeviceService { get; set; }
-    [Inject] ISnmpService SnmpService { get; set; }
     [Inject] IDatabaseService DatabaseService { get; set; }
     [Inject] ILoginProfileService LoginProfileService { get; set; }
     [Inject] IPortService PortService { get; set; }
-    [Inject] NavigationManager NavigationManager { get; set; }
     [Inject] UserManager<ApplicationUser> UserManager { get; set; }
     [Inject] IUserStore<ApplicationUser> UserStore { get; set; }
-    [Inject] SignInManager<ApplicationUser> SignInManager { get; set; }
-    [Inject] IdentityRedirectManager RedirectManager { get; set; }
     [Inject] SettingsService SettingsService { get; set; }
 
     public SettingsUpdateModel SettingsModel { get; set; } = new ();

@@ -35,7 +35,7 @@
                 @context.Oid
             </GridColumn>
             <GridColumn TItem="SnmpSensor" HeaderText="Usages" PropertyName="Warnings">
-                @DatabaseService.GetSensorUsagesCount(context.Id)
+                @SnmpService.GetSensorUsagesCount(context.Id)
             </GridColumn>
             <GridColumn TItem="SnmpSensor" HeaderText="Warnings" PropertyName="Data">
                 @SnmpService.GetSensorSnmpAlertsCount(context.Id)
@@ -60,7 +60,7 @@
         </div>
         @foreach (var device in Devices)
         {
-            @if (DatabaseService.IsAnySensorInDevice(device.Id))
+            @if (SnmpService.IsAnySensorInDevice(device.Id))
             {
                 <DeviceSensorAssignmentsComponent Device="device" Rows="DeviceService.GetSensorsOfPhysicalDevice(device.Id)" ConfigureSensorOfDevice="OnConfigureSensorOfDevice" RemoveSensorFromDevice="OnRemoveSensorFromDevice"/>
             }
@@ -132,7 +132,7 @@
     private void UpdateCurrentData()
     {
         Devices = DeviceService.GetAllPhysicalDevices();
-        Sensors = DatabaseService.GetSensors();
+        Sensors = SnmpService.GetAllSensors();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -166,7 +166,7 @@
     private async void DeleteSensor(Guid sensorId)
     {
         if (await ShowConfirmationAsync())
-            DatabaseService.DeleteSnmpSensor(sensorId);
+            SnmpService.DeleteSnmpSensor(sensorId);
         NavigationManager.NavigateTo(NavigationManager.Uri, true);
     }
 

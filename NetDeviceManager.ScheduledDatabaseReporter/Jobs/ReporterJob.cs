@@ -15,14 +15,14 @@ public class ReporterJob : IJob
 {
     private string _id = string.Empty;
     private string _path = string.Empty;
-    private readonly IDatabaseService _databaseService;
     private readonly IDeviceService _deviceService;
+    private readonly ISyslogService _syslogService;
     private const string SYSLOG_REPORT_FILENAME = "syslogs.log";
 
-    public ReporterJob(IDeviceService deviceService, IDatabaseService databaseService)
+    public ReporterJob(ISyslogService syslogService,IDeviceService deviceService)
     {
-        _databaseService = databaseService;
         _deviceService = deviceService;
+        _syslogService = syslogService;
     }
 
     public async Task Execute(IJobExecutionContext context)
@@ -56,7 +56,7 @@ public class ReporterJob : IJob
     {
         var ipAddresses = _deviceService.GetPhysicalDeviceIpAddresses(device.Id);
         var syslogs =
-            _databaseService.GetSyslogRecordsWithFilter(
+            _syslogService.GetSyslogRecordsWithFilter(
                 new SyslogRecordFilterModel() { IpAddresses = String.Join(";", ipAddresses) });
 
         if (!syslogs.Any())
@@ -71,7 +71,7 @@ public class ReporterJob : IJob
     private async Task ReportSyslogsWithUnknownSources(string currentdatepath)
     {
         var syslogs =
-            _databaseService.GetSyslogRecordsWithUnknownSource();
+            _syslogService.GetSyslogRecordsWithUnknownSource();
 
         if (syslogs.Count == 0)
             return;

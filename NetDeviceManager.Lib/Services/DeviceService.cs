@@ -12,21 +12,16 @@ namespace NetDeviceManager.Lib.Services;
 public class DeviceService : IDeviceService
 {
     private readonly ApplicationDbContext _database;
-    private readonly IFileStorageService _fileStorageService;
     private readonly IPortService _portService;
-    private readonly IDatabaseService _databaseService;
 
     private readonly List<PhysicalDevice> _onlineDevices = new List<PhysicalDevice>();
     private readonly List<PhysicalDevice> _offlineDevices = new List<PhysicalDevice>();
     private DateTime _lastUpdate = new DateTime(2006, 8, 1, 20, 20, 20);
 
-    public DeviceService(IDatabaseService databaseService, ApplicationDbContext database,
-        IFileStorageService fileStorageService, IPortService portService)
+    public DeviceService(ApplicationDbContext database, IPortService portService)
     {
         _database = database;
-        _fileStorageService = fileStorageService;
         _portService = portService;
-        _databaseService = databaseService;
     }
 
     public OperationResult UpsertPhysicalDevice(PhysicalDevice model, out Guid id)
@@ -94,28 +89,31 @@ public class DeviceService : IDeviceService
 
     public void CalculateOnlineOfflineDevices(List<PhysicalDevice> online, List<PhysicalDevice> offline)
     {
-        var devices = GetAllPhysicalDevices();
+        // var devices = GetAllPhysicalDevices();
         online.Clear();
         offline.Clear();
-        var maxAge = TimeSpan.TicksPerMinute * 15;
-        foreach (var device in devices)
-        {
-            var lastRecord = _databaseService.GetLastDeviceRecord(device.Id);
-            if (lastRecord == null)
-            {
-                offline.Add(device);
-                continue;
-            }
-
-            if ((DateTime.Now - lastRecord.CapturedTime).Ticks > maxAge)
-            {
-                offline.Add(device);
-            }
-            else
-            {
-                online.Add(device);
-            }
-        }
+        // var maxAge = TimeSpan.TicksPerMinute * 15;
+        // foreach (var device in devices)
+        // {
+        //     var lastRecord = _snmpService.GetLastDeviceRecord(device.Id);
+        //     if (lastRecord == null)
+        //     {
+        //         offline.Add(device);
+        //         continue;
+        //     }
+        //
+        //     if ((DateTime.Now - lastRecord.CapturedTime).Ticks > maxAge)
+        //     {
+        //         offline.Add(device);
+        //     }
+        //     else
+        //     {
+        //         online.Add(device);
+        //     }
+        // }
+        
+        //todo: move to device manager service
+        //change method to pinging device to see if they are online
     }
 
     public Guid AddPhysicalDevice(PhysicalDevice physicalDevice)

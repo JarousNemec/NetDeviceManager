@@ -52,8 +52,6 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddDefaultTokenProviders();
 builder.Services.AddBlazorBootstrap();
 builder.Services.AddScoped<IDatabaseService, DatabaseService>();
-builder.Services.AddScoped<ISnmpService, SnmpService>();
-builder.Services.AddScoped<ISyslogService, SyslogService>();
 builder.Services.AddSingleton<NavbarHelper>();
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<SettingsService>();
@@ -67,6 +65,15 @@ builder.Services.AddScoped<PortService>();
 
 builder.Services.AddScoped<IDeviceService, DeviceServiceFacade>();
 builder.Services.AddScoped<DeviceService>();
+
+builder.Services.AddScoped<ISnmpService, SnmpServiceFacade>();
+builder.Services.AddScoped<SnmpService>();
+
+builder.Services.AddScoped<ISnmpService, SnmpServiceFacade>();
+builder.Services.AddScoped<SnmpService>();
+
+builder.Services.AddScoped<ISyslogService, SyslogServiceFacade>();
+builder.Services.AddScoped<SyslogService>();
 
 builder.Services.AddScoped<IIpAddressesService, IpAddressService>();
 var app = builder.Build();
