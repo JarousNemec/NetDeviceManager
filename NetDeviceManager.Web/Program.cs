@@ -54,7 +54,10 @@ builder.Services.AddBlazorBootstrap();
 builder.Services.AddScoped<IDatabaseService, DatabaseService>();
 builder.Services.AddSingleton<NavbarHelper>();
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+
+builder.Services.AddScoped<ISettingsService,SettingsServiceFacade>();
 builder.Services.AddScoped<SettingsService>();
+
 builder.Services.AddScoped<HttpClient>();
 
 builder.Services.AddScoped<ILoginProfileService, LoginProfileServiceFacade>();
@@ -69,13 +72,9 @@ builder.Services.AddScoped<DeviceService>();
 builder.Services.AddScoped<ISnmpService, SnmpServiceFacade>();
 builder.Services.AddScoped<SnmpService>();
 
-builder.Services.AddScoped<ISnmpService, SnmpServiceFacade>();
-builder.Services.AddScoped<SnmpService>();
-
 builder.Services.AddScoped<ISyslogService, SyslogServiceFacade>();
 builder.Services.AddScoped<SyslogService>();
 
-builder.Services.AddScoped<IIpAddressesService, IpAddressService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

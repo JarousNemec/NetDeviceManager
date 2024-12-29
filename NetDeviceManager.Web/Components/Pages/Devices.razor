@@ -58,7 +58,6 @@
     [Inject] NavigationManager NavigationManager { get; set; } = null!;
     [Inject] IPortService PortService { get; set; } = null!;
     [Inject] ILoginProfileService LoginProfileService { get; set; } = null!;
-    [Inject] IIpAddressesService IpAddressService { get; set; } = null!;
 
     private Grid<PhysicalDevice> _grid = null!;
     private IEnumerable<PhysicalDevice> _records = null!;
@@ -124,7 +123,7 @@
         var deviceResult = DeviceService.UpsertPhysicalDevice(device, out Guid deviceId);
         var portsResult = PortService.UpdatePortsAndDeviceRelations(ports, deviceId);
         var profilesResult = LoginProfileService.UpdateLoginProfilesAndDeviceRelations(profiles, deviceId);
-        var ipAddressesResult = IpAddressService.UpdateIpAddressesAndDeviceRelations(ipAddresses, deviceId);
+        var ipAddressesResult = DeviceService.UpdateIpAddressesAndDeviceRelations(ipAddresses, deviceId);
         await _configureDeviceModal.HideModalAsync();
         await _grid.RefreshDataAsync();
         NavigationManager.NavigateTo(NavigationManager.Uri, true);

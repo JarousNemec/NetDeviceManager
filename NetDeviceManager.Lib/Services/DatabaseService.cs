@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using Microsoft.EntityFrameworkCore;
 using NetDeviceManager.Database;
-using NetDeviceManager.Database.Identity;
 using NetDeviceManager.Database.Models;
 using NetDeviceManager.Database.Tables;
 using NetDeviceManager.Lib.GlobalConstantsAndEnums;

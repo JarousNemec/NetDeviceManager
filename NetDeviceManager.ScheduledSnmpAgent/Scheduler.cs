@@ -3,6 +3,7 @@ using System.Timers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NetDeviceManager.Database.Tables;
+using NetDeviceManager.Lib.Facades;
 using NetDeviceManager.Lib.GlobalConstantsAndEnums;
 using NetDeviceManager.Lib.Helpers;
 using NetDeviceManager.Lib.Interfaces;
@@ -52,9 +53,10 @@ public class Scheduler
     {
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddScoped<ReadDeviceSensorsJob>();
-        serviceCollection.AddScoped<ISnmpService, SnmpService>();
+        serviceCollection.AddScoped<ISnmpService, SnmpServiceFacade>();
+        serviceCollection.AddScoped<SnmpService>();
         serviceCollection.AddScoped<IDatabaseService, DatabaseService>();
-        serviceCollection.AddScoped<SettingsService>();
+        serviceCollection.AddScoped<ISettingsService>();
         serviceCollection.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(connectionString));
         var serviceProvider = serviceCollection.BuildServiceProvider();

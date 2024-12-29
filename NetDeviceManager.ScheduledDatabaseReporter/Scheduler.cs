@@ -23,9 +23,9 @@ public class Scheduler
     private IScheduler _scheduler;
     private const string _jobId = "myReportJob";
     private string _actualCron = string.Empty;
-    private readonly SettingsService _settingsService;
+    private readonly ISettingsService _settingsService;
     private readonly IHostEnvironment _environment;
-    public Scheduler(IDatabaseService databaseService, Timer timer, SettingsService settingsService, IHostEnvironment environment)
+    public Scheduler(IDatabaseService databaseService, Timer timer, ISettingsService settingsService, IHostEnvironment environment)
     {
         _environment = environment;
         _databaseService = databaseService;
@@ -48,7 +48,7 @@ public class Scheduler
     {
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddScoped<IDatabaseService, DatabaseService>();
-        serviceCollection.AddScoped<SettingsService>();
+        serviceCollection.AddScoped<ISettingsService>();
         serviceCollection.AddScoped<ReporterJob>();
         serviceCollection.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(connectionString));

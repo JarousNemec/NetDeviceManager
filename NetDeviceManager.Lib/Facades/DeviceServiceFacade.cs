@@ -8,6 +8,13 @@ namespace NetDeviceManager.Lib.Facades;
 
 public class DeviceServiceFacade(DeviceService deviceService, ILogger<DeviceService> logger) : IDeviceService
 {
+    public OperationResult UpdateIpAddressesAndDeviceRelations(List<string> ipAddresses, Guid deviceId)
+    {
+        var result = new OperationResult();
+        logger.LogInformation($"Updated list of IP addresses assigned to device with id: {deviceId}");
+        return result;
+    }
+
     public OperationResult UpsertPhysicalDevice(PhysicalDevice model, out Guid id)
     {
         var result = deviceService.UpsertPhysicalDevice(model, out id);
@@ -18,21 +25,21 @@ public class DeviceServiceFacade(DeviceService deviceService, ILogger<DeviceServ
     public int GetOnlineDevicesCount()
     {
         var result = deviceService.GetOnlineDevicesCount();
-        logger.LogInformation($"Got count {result} of online devices");
+        logger.LogInformation($"Retrieved count {result} of online devices");
         return result;
     }
 
     public List<PhysicalDevice> GetOnlineDevices()
     {
         var result = deviceService.GetOnlineDevices();
-        logger.LogInformation($"Got {result.Count} online devices");
+        logger.LogInformation($"Retrieved {result.Count} online devices");
         return result;
     }
 
     public int GetOfflineDevicesCount()
     {
         var result = deviceService.GetOfflineDevicesCount();
-        logger.LogInformation($"Got count {result} of offline devices");
+        logger.LogInformation($"Retrieved count {result} of offline devices");
         return result;
     }
 
@@ -68,14 +75,14 @@ public class DeviceServiceFacade(DeviceService deviceService, ILogger<DeviceServ
     public SchedulerJob? GetPhysicalDeviceSchedulerJob(Guid id)
     {
         var result = deviceService.GetPhysicalDeviceSchedulerJob(id);
-        logger.LogInformation($"{(result == null ? "Got" : "Cannot get")} scheduler job with id: {id}");
+        logger.LogInformation($"{(result == null ? "Retrieved" : "Cannot retrieve")} scheduler job with id: {id}");
         return result;
     }
 
     public List<SnmpSensorInPhysicalDevice> GetSensorsOfPhysicalDevice(Guid physicalDeviceId)
     {
         var result = deviceService.GetSensorsOfPhysicalDevice(physicalDeviceId);
-        logger.LogInformation($"Got {result.Count} sensors for device with id: {physicalDeviceId}");
+        logger.LogInformation($"Retrieved {result.Count} sensors for device with id: {physicalDeviceId}");
         return result;
     }
 
@@ -83,42 +90,42 @@ public class DeviceServiceFacade(DeviceService deviceService, ILogger<DeviceServ
     {
         var result = deviceService.GetPhysicalDeviceByIp(ip);
         logger.LogInformation(
-            $"{(result == null ? "Cannot get device" : $"Got device with id: {result.Id}")} by ip: {ip}");
+            $"{(result == null ? "Cannot retrieve device" : $"Retrived device with id: {result.Id}")} by ip: {ip}");
         return result;
     }
 
     public List<PhysicalDevice> GetAllPhysicalDevices()
     {
         var result = deviceService.GetAllPhysicalDevices();
-        logger.LogInformation($"Got {result.Count} physical devices from system");
+        logger.LogInformation($"Retrieved {result.Count} physical devices from system");
         return result;
     }
 
     public List<PhysicalDevice> GetPhysicalDevicesWithIpAddresses()
     {
         var result = deviceService.GetPhysicalDevicesWithIpAddresses();
-        logger.LogInformation($"Got {result.Count} physical devices with included ip addresses from system");
+        logger.LogInformation($"Retrieved {result.Count} physical devices with included ip addresses from system");
         return result;
     }
 
     public List<PhysicalDeviceHasIpAddress> GetPhysicalDeviceIpAddressesRelations(Guid deviceId)
     {
         var result = deviceService.GetPhysicalDeviceIpAddressesRelations(deviceId);
-        logger.LogInformation($"Got {result.Count} physical devices relation with ip addresses from system");
+        logger.LogInformation($"Retrieved {result.Count} physical devices relation with ip addresses from system");
         return result;
     }
 
     public List<CorrectDataPattern> GetPhysicalDevicesPatterns()
     {
         var result = deviceService.GetPhysicalDevicesPatterns();
-        logger.LogInformation($"Got {result.Count} physical devices patterns");
+        logger.LogInformation($"Retrieved {result.Count} physical devices patterns");
         return result;
     }
 
     public List<string> GetPhysicalDeviceIpAddresses(Guid deviceId)
     {
         var result = deviceService.GetPhysicalDeviceIpAddresses(deviceId);
-        logger.LogInformation($"Got {result.Count} ip addresses for device with id: {deviceId}");
+        logger.LogInformation($"Retrieved {result.Count} ip addresses for device with id: {deviceId}");
         return result;
     }
 
@@ -157,7 +164,7 @@ public class DeviceServiceFacade(DeviceService deviceService, ILogger<DeviceServ
     public int GetPhysicalDeviceSensorsCount(Guid id)
     {
         var result = deviceService.GetPhysicalDeviceSensorsCount(id);
-        logger.LogInformation($"Got {result} sensors for device with id: {id}");
+        logger.LogInformation($"Retrieved sum {result} of sensors for device with id: {id}");
         return result;
     }
 }

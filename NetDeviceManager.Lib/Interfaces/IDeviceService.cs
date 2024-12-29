@@ -5,6 +5,7 @@ namespace NetDeviceManager.Lib.Interfaces;
 
 public interface IDeviceService
 {
+    OperationResult UpdateIpAddressesAndDeviceRelations(List<string> ipAddresses, Guid deviceId);
     OperationResult UpsertPhysicalDevice(PhysicalDevice model, out Guid id);
     //Read
     int GetOnlineDevicesCount();

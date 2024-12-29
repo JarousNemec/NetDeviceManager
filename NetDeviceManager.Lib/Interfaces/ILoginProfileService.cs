@@ -5,7 +5,7 @@ namespace NetDeviceManager.Lib.Interfaces;
 
 public interface ILoginProfileService
 {
-    OperationResult UpdateLoginProfilesAndDeviceRelations(List<LoginProfile> profiles, Guid deviceId);
+    
     Guid AddLoginProfile(LoginProfile profile);
 
     Guid UpsertLoginProfile(LoginProfile profile);
@@ -19,6 +19,8 @@ public interface ILoginProfileService
     Guid AssignLoginProfileToPhysicalDevice(LoginProfileToPhysicalDevice profile);
 
     OperationResult RemoveLoginProfileFromPhysicalDevice(Guid relationId);
+    
+    OperationResult UpdateLoginProfilesAndDeviceRelations(List<LoginProfile> profiles, Guid deviceId);
 
     OperationResult RemoveLoginProfile(Guid id);
 }

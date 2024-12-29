@@ -150,7 +150,7 @@
     [Inject] IPortService PortService { get; set; }
     [Inject] UserManager<ApplicationUser> UserManager { get; set; }
     [Inject] IUserStore<ApplicationUser> UserStore { get; set; }
-    [Inject] SettingsService SettingsService { get; set; }
+    [Inject] ISettingsService SettingsService { get; set; }
 
     public SettingsUpdateModel SettingsModel { get; set; } = new ();
     private ConfirmDialog _confirmDialog = null!;

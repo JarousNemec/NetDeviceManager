@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NetDeviceManager.Database;
+using NetDeviceManager.Lib.Facades;
 using NetDeviceManager.Lib.GlobalConstantsAndEnums;
 using NetDeviceManager.Lib.Interfaces;
 using NetDeviceManager.Lib.Helpers;
@@ -23,9 +24,15 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddSingleton<Scheduler>();
 builder.Services.AddSingleton<Timer>();
-builder.Services.AddScoped<ISnmpService, SnmpService>();
+
+builder.Services.AddScoped<ISnmpService, SnmpServiceFacade>();
+builder.Services.AddScoped<SnmpService>();
+
 builder.Services.AddScoped<IDatabaseService, DatabaseService>();
+
+builder.Services.AddScoped<ISettingsService, SettingsServiceFacade>();
 builder.Services.AddScoped<SettingsService>();
+
 builder.Logging.SetMinimumLevel(GlobalSettings.MinimalLoggingLevel);
 
 Console.WriteLine("Initialized!");

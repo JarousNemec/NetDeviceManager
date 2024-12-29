@@ -11,11 +11,7 @@ public interface IDatabaseService
     Guid AddSchedulerJob(SchedulerJob job);
 
     Guid? UpsertCorrectDataPattern(CorrectDataPattern pattern);
-
-    void SetConfigValue(string key, string value);
     List<SchedulerJob> GetSchedulerJobs();
-    
-    string? GetConfigValue(string key);
 
     CorrectDataPattern? GetSpecificPattern(Guid deviceId, Guid sensorId);
     OperationResult DeleteCorrectDataPattern(Guid id);

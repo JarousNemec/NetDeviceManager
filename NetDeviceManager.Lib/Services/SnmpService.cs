@@ -21,12 +21,12 @@ public class SnmpService : ISnmpService
     private const int MESSANGER_GET_TIMEOUT = 10000;
     private readonly IDatabaseService _database;
     private readonly ApplicationDbContext _dbContext;
-    private readonly SettingsService _settingsService;
+    private readonly ISettingsService _settingsService;
     private const int DEFAULT_PORT = 161;
 
     private readonly IDeviceService _deviceService;
 
-    public SnmpService(IDeviceService deviceService, IDatabaseService database, SettingsService settingsService,
+    public SnmpService(IDeviceService deviceService, IDatabaseService database, ISettingsService settingsService,
         ApplicationDbContext dbContext)
     {
         _deviceService = deviceService;

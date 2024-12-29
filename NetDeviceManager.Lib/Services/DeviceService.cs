@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Diagnostics;
+using System.Net;
+using Microsoft.EntityFrameworkCore;
 using NetDeviceManager.Database;
 using NetDeviceManager.Database.Tables;
-using NetDeviceManager.Lib.GlobalConstantsAndEnums;
-using NetDeviceManager.Lib.Helpers;
 using NetDeviceManager.Lib.Interfaces;
 using NetDeviceManager.Lib.Model;
 using NetDeviceManager.Lib.Utils;
@@ -14,14 +14,63 @@ public class DeviceService : IDeviceService
     private readonly ApplicationDbContext _database;
     private readonly IPortService _portService;
 
-    private readonly List<PhysicalDevice> _onlineDevices = new List<PhysicalDevice>();
-    private readonly List<PhysicalDevice> _offlineDevices = new List<PhysicalDevice>();
+    private readonly List<PhysicalDevice> _onlineDevices = [];
+    private readonly List<PhysicalDevice> _offlineDevices = [];
     private DateTime _lastUpdate = new DateTime(2006, 8, 1, 20, 20, 20);
 
     public DeviceService(ApplicationDbContext database, IPortService portService)
     {
         _database = database;
         _portService = portService;
+    }
+
+    public OperationResult UpdateIpAddressesAndDeviceRelations(List<string> ipAddresses, Guid deviceId)
+    {
+        var currentRelations = GetPhysicalDeviceIpAddressesRelations(deviceId);
+        var toAdd = new List<PhysicalDeviceHasIpAddress>();
+        var toRemove = new List<PhysicalDeviceHasIpAddress>();
+
+        foreach (var ipAddress in ipAddresses.Select(v => v.Trim()))
+        {
+            if (currentRelations.All(x => x.IpAddress != ipAddress))
+            {
+                if (IPAddress.TryParse(ipAddress, out IPAddress? ip))
+                    toAdd.Add(new PhysicalDeviceHasIpAddress()
+                    {
+                        IpAddress = ip.ToString(),
+                        PhysicalDeviceId = deviceId
+                    });
+            }
+        }
+
+        foreach (var relation in currentRelations)
+        {
+            if (!ipAddresses.Contains(relation.IpAddress))
+            {
+                toRemove.Add(relation);
+            }
+        }
+
+        try
+        {
+            foreach (var relation in toAdd)
+            {
+                AddPhysicalDeviceHasIpAddress(relation);
+            }
+
+            foreach (var relation in toRemove)
+            {
+                DeletePhysicalDeviceHasIpAddress(relation.Id);
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine(e);
+            return new OperationResult() { IsSuccessful = false, Message = e.Message };
+        }
+
+
+        return new OperationResult();
     }
 
     public OperationResult UpsertPhysicalDevice(PhysicalDevice model, out Guid id)
@@ -111,7 +160,7 @@ public class DeviceService : IDeviceService
         //         online.Add(device);
         //     }
         // }
-        
+
         //todo: move to device manager service
         //change method to pinging device to see if they are online
     }

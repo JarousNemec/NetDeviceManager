@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.Extensions.Hosting;
 using NetDeviceManager.Lib.Interfaces;
 using NetDeviceManager.Lib.Model;
 
@@ -8,12 +7,6 @@ namespace NetDeviceManager.Lib.Services;
 public class FileStorageService : IFileStorageService
 {
     private const string WEB_STORAGE_PATH = "webdata";
-    private readonly IDatabaseService _database;
-
-    public FileStorageService(IDatabaseService database)
-    {
-        _database = database;
-    }
 
     public async Task<OperationResult> SaveIconFile(Guid iconId, IBrowserFile file)
     {
