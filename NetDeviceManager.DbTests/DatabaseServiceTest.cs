@@ -83,7 +83,7 @@ public class DatabaseServiceTest
 
         if (!deviceResult.IsSuccessful || !sensorResult.IsSuccessful)
             Assert.Fail();
-        
+
         // Act
         var relation = new SnmpSensorInPhysicalDevice()
         {
