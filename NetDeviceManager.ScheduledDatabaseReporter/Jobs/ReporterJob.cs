@@ -18,8 +18,9 @@ public class ReporterJob : IJob
     private readonly IDeviceService _deviceService;
     private readonly ISyslogService _syslogService;
     private const string SYSLOG_REPORT_FILENAME = "syslogs.log";
+    private const int SYSLOG_OLDER_THAN_DAYS = 30;
 
-    public ReporterJob(ISyslogService syslogService,IDeviceService deviceService)
+    public ReporterJob(ISyslogService syslogService, IDeviceService deviceService)
     {
         _deviceService = deviceService;
         _syslogService = syslogService;
@@ -48,6 +49,7 @@ public class ReporterJob : IJob
         {
             await ReportSyslogsOfDevice(device, currentdatepath);
         }
+
         await ReportSyslogsWithUnknownSources(currentdatepath);
     }
 
@@ -59,11 +61,14 @@ public class ReporterJob : IJob
             _syslogService.GetSyslogRecordsWithFilter(
                 new SyslogRecordFilterModel() { IpAddresses = String.Join(";", ipAddresses) });
 
-        if (!syslogs.Any())
+        if (syslogs.Count == 0)
+            return;
+        var oldSyslogs = SyslogUtil.FilterOlderSyslogs(syslogs, DateTime.Now, SYSLOG_OLDER_THAN_DAYS);
+        if (oldSyslogs.Count == 0)
             return;
 
         var filepath = FileUtil.PrepareReportEnvironment(device.Name, currentdatepath, SYSLOG_REPORT_FILENAME);
-        await FileUtil.WriteSyslogsToFile(filepath, (List<SyslogRecord>)syslogs);
+        await FileUtil.WriteSyslogsToFile(filepath, oldSyslogs);
 
         _deviceService.DeleteSyslogsOfDevice(device.Id);
     }
@@ -75,9 +80,12 @@ public class ReporterJob : IJob
 
         if (syslogs.Count == 0)
             return;
+        var oldSyslogs = SyslogUtil.FilterOlderSyslogs(syslogs, DateTime.Now, SYSLOG_OLDER_THAN_DAYS);
+        if (oldSyslogs.Count == 0)
+            return;
 
         var filepath = FileUtil.PrepareReportEnvironment("UnknownSource", currentdatepath, SYSLOG_REPORT_FILENAME);
-        await FileUtil.WriteSyslogsToFile(filepath, syslogs, true);
+        await FileUtil.WriteSyslogsToFile(filepath, oldSyslogs, true);
 
         _deviceService.DeleteSyslogsOfDevice(null);
     }

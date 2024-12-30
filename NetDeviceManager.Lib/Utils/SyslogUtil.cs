@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Text.RegularExpressions;
+using NetDeviceManager.Database.Tables;
 using NetDeviceManager.Lib.GlobalConstantsAndEnums;
 
 namespace NetDeviceManager.Lib.Utils;
@@ -64,5 +65,10 @@ public static class SyslogUtil
             return result;
         }
         return DateTime.MinValue;
+    }
+    
+    public static List<SyslogRecord> FilterOlderSyslogs(List<SyslogRecord> syslogs, DateTime sinceDate, int days)
+    {
+        return syslogs.Where(x => x.ProcessedDate.Ticks < sinceDate.AddDays(-days).Ticks).ToList();
     }
 }
