@@ -218,13 +218,13 @@
 
     private void OnRemoveSensorFromDevice(SnmpSensorInPhysicalDevice relationship)
     {
-        SnmpService.RemoveSensorFromDevice(relationship);
+        DeviceService.RemoveSensorFromDevice(relationship);
         NavigationManager.NavigateTo(NavigationManager.Uri, true);
     }
 
     private async void OnApplySensorAssignment(CorrectDataPattern obj)
     {
-        SnmpService.AssignSensorToDevice(obj);
+        DeviceService.AssignSensorToDevice(obj);
         await _assignSensorModal.HideModalAsync();
         NavigationManager.NavigateTo(NavigationManager.Uri, true);
     }

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using NetDeviceManager.Database;
 using NetDeviceManager.Database.Tables;
+using NetDeviceManager.Lib.Helpers;
 using NetDeviceManager.Lib.Interfaces;
 using NetDeviceManager.Lib.Model;
 using NetDeviceManager.Lib.Utils;
@@ -16,12 +17,13 @@ public class LoginProfileService(ApplicationDbContext database) : ILoginProfileS
         var currentRelations = GetPhysicalDeviceLoginProfileRelationships(deviceId);
         var toAdd = new List<LoginProfileToPhysicalDevice>();
         var toRemove = new List<LoginProfileToPhysicalDevice>();
-        
+
         foreach (var profile in profiles)
         {
             if (currentRelations.All(x => x.LoginProfileId != profile.Id && x.PhysicalDeviceId != deviceId))
             {
-                toAdd.Add(new LoginProfileToPhysicalDevice(){LoginProfileId = profile.Id, PhysicalDeviceId = deviceId});
+                toAdd.Add(new LoginProfileToPhysicalDevice()
+                    { LoginProfileId = profile.Id, PhysicalDeviceId = deviceId });
             }
         }
 
@@ -48,10 +50,10 @@ public class LoginProfileService(ApplicationDbContext database) : ILoginProfileS
         catch (Exception e)
         {
             Debug.WriteLine(e);
-            return new OperationResult(){IsSuccessful = false, Message = e.Message };
+            return new OperationResult() { IsSuccessful = false, Message = e.Message };
         }
-        
-        
+
+
         return new OperationResult();
     }
 
@@ -59,7 +61,8 @@ public class LoginProfileService(ApplicationDbContext database) : ILoginProfileS
     {
         var id = DatabaseUtil.GenerateId();
         profile.Id = id;
-        database.LoginProfiles.Add(profile);
+        var obfuscated = ObfuscationHelper.ObfuscateLoginProfile(profile);
+        database.LoginProfiles.Add(obfuscated);
         database.SaveChanges();
         return id;
     }
@@ -68,27 +71,26 @@ public class LoginProfileService(ApplicationDbContext database) : ILoginProfileS
     {
         if (database.LoginProfiles.Any(x => x.Id == profile.Id))
         {
-            database.Attach(profile);
-            database.LoginProfiles.Update(profile);
+            var obfuscated = ObfuscationHelper.ObfuscateLoginProfile(profile);
+            database.Attach(obfuscated);
+            database.LoginProfiles.Update(obfuscated);
             database.SaveChanges();
-            return profile.Id;
+            return obfuscated.Id;
         }
-        
-        var id = DatabaseUtil.GenerateId();
-        profile.Id = id;
-        database.LoginProfiles.Add(profile);
-        database.SaveChanges();
-        return id;
+
+        return AddLoginProfile(profile);
     }
 
     public List<LoginProfile> GetAllLoginProfiles()
     {
-        return database.LoginProfiles.AsNoTracking().ToList();
+        var profiles = database.LoginProfiles.AsNoTracking().ToList();
+        return profiles.Select(ObfuscationHelper.DeobfuscateLoginProfile).ToList();
     }
 
     public LoginProfile? GetLoginProfile(Guid id)
     {
-        return database.LoginProfiles.AsNoTracking().FirstOrDefault(x => x.Id == id);
+        var result = database.LoginProfiles.AsNoTracking().FirstOrDefault(x => x.Id == id);
+        return result != null ? ObfuscationHelper.DeobfuscateLoginProfile(result) : null;
     }
 
     public List<LoginProfile> GetPhysicalDeviceLoginProfiles(Guid deviceId)
@@ -99,14 +101,25 @@ public class LoginProfileService(ApplicationDbContext database) : ILoginProfileS
 
     public List<LoginProfileToPhysicalDevice> GetPhysicalDeviceLoginProfileRelationships(Guid deviceId)
     {
-        return database.LoginProfilesToPhysicalDevices.AsNoTracking().Where(x => x.PhysicalDeviceId == deviceId)
+        var profiles = database.LoginProfilesToPhysicalDevices.AsNoTracking().Where(x => x.PhysicalDeviceId == deviceId)
             .Include(x => x.LoginProfile).ToList();
+        var deobfuscated = new List<LoginProfileToPhysicalDevice>();
+        foreach (var profile in profiles)
+        {
+            if (profile.LoginProfile == null) continue;
+            profile.LoginProfile = ObfuscationHelper.DeobfuscateLoginProfile(profile.LoginProfile);
+            deobfuscated.Add(profile);
+        }
+
+        return deobfuscated;
     }
 
     public Guid AssignLoginProfileToPhysicalDevice(LoginProfileToPhysicalDevice profile)
     {
         var id = DatabaseUtil.GenerateId();
         profile.Id = id;
+        if (profile.LoginProfile != null)
+            profile.LoginProfile = ObfuscationHelper.ObfuscateLoginProfile(profile.LoginProfile);
         database.LoginProfilesToPhysicalDevices.Add(profile);
         database.SaveChanges();
         return id;

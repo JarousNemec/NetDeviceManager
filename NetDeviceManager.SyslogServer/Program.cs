@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NetDeviceManager.Database;
+using NetDeviceManager.Lib.Facades;
 using NetDeviceManager.Lib.GlobalConstantsAndEnums;
 using NetDeviceManager.Lib.Helpers;
 using NetDeviceManager.Lib.Interfaces;
@@ -23,7 +24,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 );
 builder.Services.AddSingleton<ServerCache>();
 builder.Services.AddScoped<Server>();
-builder.Services.AddScoped<IDatabaseService, DatabaseService>();
+builder.Services.AddScoped<IDatabaseService, DatabaseServiceFacade>();
+builder.Services.AddScoped<DatabaseService>();
 builder.Logging.SetMinimumLevel(GlobalSettings.MinimalLoggingLevel);
 Console.WriteLine("Initialized!");
 

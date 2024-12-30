@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NetDeviceManager.Database;
+using NetDeviceManager.Lib.Facades;
 using NetDeviceManager.Lib.Helpers;
 using NetDeviceManager.Lib.Interfaces;
 using NetDeviceManager.Lib.Services;
@@ -47,7 +48,8 @@ public class Scheduler
     private ServiceProvider SetupServiceCollection(string? connectionString)
     {
         var serviceCollection = new ServiceCollection();
-        serviceCollection.AddScoped<IDatabaseService, DatabaseService>();
+        serviceCollection.AddScoped<IDatabaseService, DatabaseServiceFacade>();
+        serviceCollection.AddScoped<DatabaseService>();
         serviceCollection.AddScoped<ISettingsService>();
         serviceCollection.AddScoped<ReporterJob>();
         serviceCollection.AddDbContext<ApplicationDbContext>(options =>

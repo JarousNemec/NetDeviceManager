@@ -16,13 +16,7 @@ public class SnmpServiceFacade(SnmpService snmpService, ILogger<SnmpService> log
         return result;
     }
 
-    public OperationResult AssignSensorToDevice(CorrectDataPattern model)
-    {
-        var result = snmpService.AssignSensorToDevice(model);
-        logger.LogInformation(
-            $"Assignned sensor id: {model.SensorId} to device id: {model.PhysicalDeviceId} with toleration: {model.Toleration} and data: {model.Data}");
-        return result;
-    }
+    
 
     public string? GetSensorValue(SnmpSensor sensor, List<LoginProfile> profiles, PhysicalDevice device, Port? port)
     {
@@ -79,12 +73,7 @@ public class SnmpServiceFacade(SnmpService snmpService, ILogger<SnmpService> log
         logger.LogInformation($"Removed alert with id: {id}");
     }
 
-    public OperationResult RemoveSensorFromDevice(SnmpSensorInPhysicalDevice model)
-    {
-        var result = snmpService.RemoveSensorFromDevice(model);
-        logger.LogInformation($"Removed sensor device relation with id: {model.Id}");
-        return result;
-    }
+    
 
     public Guid AddSnmpRecord(SnmpSensorRecord record)
     {

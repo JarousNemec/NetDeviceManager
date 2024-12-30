@@ -5,6 +5,8 @@ namespace NetDeviceManager.Lib.Interfaces;
 
 public interface IDeviceService
 {
+    OperationResult AssignSensorToDevice(CorrectDataPattern model);
+    OperationResult RemoveSensorFromDevice(SnmpSensorInPhysicalDevice model);
     OperationResult UpdateIpAddressesAndDeviceRelations(List<string> ipAddresses, Guid deviceId);
     OperationResult UpsertPhysicalDevice(PhysicalDevice model, out Guid id);
     //Read

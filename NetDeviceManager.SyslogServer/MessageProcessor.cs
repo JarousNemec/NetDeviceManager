@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using NetDeviceManager.Database;
 using NetDeviceManager.Database.Tables;
 using NetDeviceManager.Lib.GlobalConstantsAndEnums;
@@ -15,8 +16,9 @@ public class MessageProcessor
 {
     private readonly ServerCache _cache;
     private readonly IDeviceService _deviceService;
-    private readonly IPortService _portService;
     private readonly ISyslogService _syslogService;
+    private readonly IDatabaseService _databaseService;
+    private readonly ISettingsService _settingsService;
     // private readonly SettingsService _settingsService;
 
     public delegate void CrashDelegate(string m);
@@ -31,8 +33,9 @@ public class MessageProcessor
             .Options;
 
         var context = new ApplicationDbContext(options);
-        _portService = new PortService(context);
-        _deviceService = new DeviceService(context, _portService);
+        _settingsService = new SettingsService(context);
+        _databaseService = new DatabaseService(context);
+        _deviceService = new DeviceService(context, _databaseService, _settingsService);
         _syslogService = new SyslogService(context);
         // _settingsService = new SettingsService(_database);
     }

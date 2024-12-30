@@ -19,19 +19,11 @@ namespace NetDeviceManager.Lib.Services;
 public class SnmpService : ISnmpService
 {
     private const int MESSANGER_GET_TIMEOUT = 10000;
-    private readonly IDatabaseService _database;
     private readonly ApplicationDbContext _dbContext;
-    private readonly ISettingsService _settingsService;
     private const int DEFAULT_PORT = 161;
 
-    private readonly IDeviceService _deviceService;
-
-    public SnmpService(IDeviceService deviceService, IDatabaseService database, ISettingsService settingsService,
-        ApplicationDbContext dbContext)
+    public SnmpService(ApplicationDbContext dbContext)
     {
-        _deviceService = deviceService;
-        _database = database;
-        _settingsService = settingsService;
         _dbContext = dbContext;
     }
 
@@ -48,27 +40,6 @@ public class SnmpService : ISnmpService
         return new OperationResult();
     }
 
-    public OperationResult AssignSensorToDevice(CorrectDataPattern model)
-    {
-        _database.UpsertCorrectDataPattern(model);
-        var relationship = new SnmpSensorInPhysicalDevice()
-        {
-            PhysicalDeviceId = model.PhysicalDeviceId,
-            SnmpSensorId = model.SensorId
-        };
-        _deviceService.AddSnmpSensorToPhysicalDevice(relationship);
-
-        var job = _deviceService.GetPhysicalDeviceSchedulerJob(model.PhysicalDeviceId);
-        if (job != null) return new OperationResult() { IsSuccessful = false, Message = "Cannot create job!!!" };
-
-        var newJob = new SchedulerJob();
-        newJob.PhysicalDeviceId = model.PhysicalDeviceId;
-        newJob.Type = SchedulerJobType.SNMPGET;
-        newJob.Cron = _settingsService.GetSettings().ReportSensorInterval;
-        _database.AddSchedulerJob(newJob);
-
-        return new OperationResult();
-    }
 
     public string? GetSensorValue(SnmpSensor sensor, List<LoginProfile> profiles, PhysicalDevice device, Port? port)
     {
@@ -141,30 +112,6 @@ public class SnmpService : ISnmpService
             _devicesSnmpAlerts.Remove(alert);
     }
 
-    public OperationResult RemoveSensorFromDevice(SnmpSensorInPhysicalDevice relationShip)
-    {
-        var res = _deviceService.DeleteSnmpSensorInPhysicalDevice(relationShip.Id);
-        if (!res.IsSuccessful)
-        {
-            return new OperationResult() { IsSuccessful = false, Message = "Bad id" };
-        }
-
-        var pattern = _database.GetSpecificPattern(relationShip.PhysicalDeviceId, relationShip.SnmpSensorId);
-        if (pattern == null)
-        {
-            return new OperationResult() { IsSuccessful = false, Message = "Bad pattern" };
-        }
-
-        _database.DeleteCorrectDataPattern(pattern.Id);
-
-
-        if (_deviceService.GetPhysicalDeviceSensorsCount(relationShip.PhysicalDeviceId) == 0)
-        {
-            _database.DeleteDeviceSchedulerJob(relationShip.PhysicalDeviceId);
-        }
-
-        return new OperationResult();
-    }
 
     public Guid AddSnmpRecord(SnmpSensorRecord record)
     {
@@ -269,9 +216,11 @@ public class SnmpService : ISnmpService
     {
         if ((DateTime.Now.Ticks - _lastUpdate.Ticks) > (TimeSpan.TicksPerMinute * 5))
         {
-            SnmpServiceHelper.CalculateSnmpAlerts(this,_deviceService, _devicesSnmpAlerts);
-            _lastUpdate = DateTime.Now;
+            // SnmpServiceHelper.CalculateSnmpAlerts(this, _deviceService, _devicesSnmpAlerts);
+            // _lastUpdate = DateTime.Now;
+            //todo: fix a presun do managera
         }
+        
     }
 
 

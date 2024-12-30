@@ -3,7 +3,7 @@
 using System.Configuration;
 using System.Reflection;
 
-namespace NetDeviceManager.ScheduledSnmpAgent.Helpers;
+namespace NetDeviceManager.DbTests.Helpers;
 
 public static class ConfigurationHelper
 {

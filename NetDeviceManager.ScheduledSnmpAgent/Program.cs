@@ -30,7 +30,8 @@ builder.Services.AddSingleton<Timer>();
 builder.Services.AddScoped<ISnmpService, SnmpServiceFacade>();
 builder.Services.AddScoped<SnmpService>();
 
-builder.Services.AddScoped<IDatabaseService, DatabaseService>();
+builder.Services.AddScoped<IDatabaseService, DatabaseServiceFacade>();
+builder.Services.AddScoped<DatabaseService>();
 builder.Logging.SetMinimumLevel(GlobalSettings.MinimalLoggingLevel);
 Console.WriteLine("Initialized!");
 

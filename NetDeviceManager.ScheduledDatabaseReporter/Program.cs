@@ -28,7 +28,8 @@ builder.Services.AddSingleton<Timer>();
 builder.Services.AddScoped<ISnmpService, SnmpServiceFacade>();
 builder.Services.AddScoped<SnmpService>();
 
-builder.Services.AddScoped<IDatabaseService, DatabaseService>();
+builder.Services.AddScoped<IDatabaseService, DatabaseServiceFacade>();
+builder.Services.AddScoped<DatabaseService>();
 
 builder.Services.AddScoped<ISettingsService, SettingsServiceFacade>();
 builder.Services.AddScoped<SettingsService>();

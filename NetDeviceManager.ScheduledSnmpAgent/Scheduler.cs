@@ -55,7 +55,8 @@ public class Scheduler
         serviceCollection.AddScoped<ReadDeviceSensorsJob>();
         serviceCollection.AddScoped<ISnmpService, SnmpServiceFacade>();
         serviceCollection.AddScoped<SnmpService>();
-        serviceCollection.AddScoped<IDatabaseService, DatabaseService>();
+        serviceCollection.AddScoped<IDatabaseService, DatabaseServiceFacade>();
+        serviceCollection.AddScoped<DatabaseService>();
         serviceCollection.AddScoped<ISettingsService>();
         serviceCollection.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(connectionString));

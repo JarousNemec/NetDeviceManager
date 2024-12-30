@@ -8,6 +8,19 @@ namespace NetDeviceManager.Lib.Facades;
 
 public class DeviceServiceFacade(DeviceService deviceService, ILogger<DeviceService> logger) : IDeviceService
 {
+    public OperationResult AssignSensorToDevice(CorrectDataPattern model)
+    {
+        var result = deviceService.AssignSensorToDevice(model);
+        logger.LogInformation(
+            $"Assignned sensor id: {model.SensorId} to device id: {model.PhysicalDeviceId} with toleration: {model.Toleration} and data: {model.Data}");
+        return result;
+    }
+    public OperationResult RemoveSensorFromDevice(SnmpSensorInPhysicalDevice model)
+    {
+        var result = deviceService.RemoveSensorFromDevice(model);
+        logger.LogInformation($"Removed sensor device relation with id: {model.Id}");
+        return result;
+    }
     public OperationResult UpdateIpAddressesAndDeviceRelations(List<string> ipAddresses, Guid deviceId)
     {
         var result = new OperationResult();

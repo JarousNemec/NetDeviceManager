@@ -9,7 +9,7 @@ public interface ISnmpService
 {
 
      OperationResult UpsertSnmpSensor(SnmpSensor model, out Guid id);
-     OperationResult AssignSensorToDevice(CorrectDataPattern model);
+     
 
     string? GetSensorValue(SnmpSensor sensor, List<LoginProfile> profiles, PhysicalDevice device, Port? port);
      int GetSnmpAlertsCount();
@@ -22,7 +22,7 @@ public interface ISnmpService
     List<SnmpAlertModel> GetAlerts();
 
     void RemoveAlert(Guid id);
-     OperationResult RemoveSensorFromDevice(SnmpSensorInPhysicalDevice model);
+     
      
      Guid AddSnmpRecord(SnmpSensorRecord record);
 

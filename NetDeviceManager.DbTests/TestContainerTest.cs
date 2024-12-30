@@ -1,52 +1,44 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NetDeviceManager.Database;
-using NetDeviceManager.ScheduledSnmpAgent.Helpers;
+using NetDeviceManager.DbTests.Helpers;
+using NetDeviceManager.DbTests.Models;
 using Npgsql;
 using Testcontainers.PostgreSql;
-using NUnit.Framework;
 
 namespace NetDeviceManager.DbTests;
-
-[TestFixture]
 public class PostgresTests
 {
-    private PostgreSqlContainer _postgresContainer;
-    private DbContextOptions<ApplicationDbContext> _options;
-
+    private DatabaseTestToolbox _toolbox;
 
     [SetUp]
     public async Task SetUp()
     {
-        _postgresContainer = new PostgreSqlBuilder()
-            .WithImage("postgres:15-alpine")
-            .WithHostname("127.0.0.1")
-            .WithDatabase("ManagerData")
-            .WithUsername("manager")
-            .WithPassword("Heslo1234.")
-            .Build();
-
-        await _postgresContainer.StartAsync();
+        _toolbox = await TestEnvironmentHelper.SetUpDatabaseToolBox(false);
     }
 
     [TearDown]
     public async Task TearDown()
     {
-        _postgresContainer.StopAsync();
-        _postgresContainer.DisposeAsync();
+        await _toolbox.DisposeAsync();
+    }
+    
+    [Test]
+    public void DbConnection()
+    {
+        var connectionString = _toolbox.PostgreSqlContainer.GetConnectionString();
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseNpgsql(connectionString)
+            .Options;
+        ApplicationDbContext database = new ApplicationDbContext(options);
+        bool canConnect = database.Database.CanConnect();
+        Assert.That(canConnect);
     }
 
     [Test]
     public async Task CreateSchemaAndCheckAmountOfTablesTest ()
     {
         // given
-        var connectionString = _postgresContainer.GetConnectionString();
-        _options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseNpgsql(connectionString)
-            .Options;
-        ApplicationDbContext database = new ApplicationDbContext(_options);
-        bool canConnect = database.Database.CanConnect();
-        Assert.That(canConnect);
-
+        var connectionString = _toolbox.PostgreSqlContainer.GetConnectionString();
         using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync();
 
@@ -67,18 +59,16 @@ public class PostgresTests
 
 
         // then 
-        using (var command = new NpgsqlCommand(query, connection))
-        {
-            // Set the parameter value
-            command.Parameters.AddWithValue("@SchemaName", schemaName);
+        await using var command = new NpgsqlCommand(query, connection);
+        // Set the parameter value
+        command.Parameters.AddWithValue("@SchemaName", schemaName);
 
-            // Execute the query and get the result
-            var tableCount = await command.ExecuteScalarAsync();
+        // Execute the query and get the result
+        var tableCount = await command.ExecuteScalarAsync();
             
-            Assert.That(tableCount, Is.EqualTo(25));
+        Assert.That(tableCount, Is.EqualTo(25));
             
-            Console.WriteLine($"Number of tables in schema '{schemaName}': {tableCount}");
-        }
+        Console.WriteLine($"Number of tables in schema '{schemaName}': {tableCount}");
     }
 }
 

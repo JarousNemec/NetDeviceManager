@@ -3,6 +3,7 @@ using System.Net;
 using Microsoft.EntityFrameworkCore;
 using NetDeviceManager.Database;
 using NetDeviceManager.Database.Tables;
+using NetDeviceManager.Lib.GlobalConstantsAndEnums;
 using NetDeviceManager.Lib.Interfaces;
 using NetDeviceManager.Lib.Model;
 using NetDeviceManager.Lib.Utils;
@@ -12,16 +13,65 @@ namespace NetDeviceManager.Lib.Services;
 public class DeviceService : IDeviceService
 {
     private readonly ApplicationDbContext _database;
-    private readonly IPortService _portService;
+    private readonly IDatabaseService _databaseService;
+    private readonly ISettingsService _settingsService;
 
     private readonly List<PhysicalDevice> _onlineDevices = [];
     private readonly List<PhysicalDevice> _offlineDevices = [];
     private DateTime _lastUpdate = new DateTime(2006, 8, 1, 20, 20, 20);
 
-    public DeviceService(ApplicationDbContext database, IPortService portService)
+    public DeviceService(ApplicationDbContext database, IDatabaseService databaseService, ISettingsService settingsService)
     {
         _database = database;
-        _portService = portService;
+        _databaseService = databaseService;
+        _settingsService = settingsService;
+    }
+    
+    public OperationResult AssignSensorToDevice(CorrectDataPattern model)
+    {
+        _databaseService.UpsertCorrectDataPattern(model);
+        var relationship = new SnmpSensorInPhysicalDevice()
+        {
+            PhysicalDeviceId = model.PhysicalDeviceId,
+            SnmpSensorId = model.SensorId
+        };
+        AddSnmpSensorToPhysicalDevice(relationship);
+
+        var job = GetPhysicalDeviceSchedulerJob(model.PhysicalDeviceId);
+        if (job != null) return new OperationResult() { IsSuccessful = false, Message = "Cannot create job!!!" };
+
+        var newJob = new SchedulerJob();
+        newJob.PhysicalDeviceId = model.PhysicalDeviceId;
+        newJob.Type = SchedulerJobType.SNMPGET;
+        newJob.Cron = _settingsService.GetSettings().ReportSensorInterval;
+        _databaseService.AddSchedulerJob(newJob);
+
+        return new OperationResult();
+    }
+    
+    public OperationResult RemoveSensorFromDevice(SnmpSensorInPhysicalDevice relationShip)
+    {
+        var res = DeleteSnmpSensorInPhysicalDevice(relationShip.Id);
+        if (!res.IsSuccessful)
+        {
+            return new OperationResult() { IsSuccessful = false, Message = "Bad id" };
+        }
+
+        var pattern = _databaseService.GetSpecificPattern(relationShip.PhysicalDeviceId, relationShip.SnmpSensorId);
+        if (pattern == null)
+        {
+            return new OperationResult() { IsSuccessful = false, Message = "Bad pattern" };
+        }
+
+        _databaseService.DeleteCorrectDataPattern(pattern.Id);
+
+
+        if (GetPhysicalDeviceSensorsCount(relationShip.PhysicalDeviceId) == 0)
+        {
+            _databaseService.DeleteDeviceSchedulerJob(relationShip.PhysicalDeviceId);
+        }
+
+        return new OperationResult();
     }
 
     public OperationResult UpdateIpAddressesAndDeviceRelations(List<string> ipAddresses, Guid deviceId)
@@ -85,24 +135,6 @@ public class DeviceService : IDeviceService
         id = AddPhysicalDevice(model);
         return new OperationResult();
     }
-
-    public OperationResult AddPortToDevice(Port model, Guid deviceId)
-    {
-        var portId = _portService.UpsertPort(model);
-
-        if (!_portService.PortAndDeviceRelationExists(portId, deviceId))
-        {
-            var relationship = new PhysicalDeviceHasPort()
-            {
-                DeviceId = deviceId,
-                PortId = portId
-            };
-            _portService.AddPortToPhysicalDevice(relationship);
-        }
-
-        return new OperationResult();
-    }
-
     public int GetOnlineDevicesCount()
     {
         CheckTimelinessOfData();

@@ -3,10 +3,7 @@ using Lextm.SharpSnmpLib;
 using Microsoft.EntityFrameworkCore;
 using NetDeviceManager.Database;
 using NetDeviceManager.Database.Tables;
-using NetDeviceManager.Lib.Services;
-using NetDeviceManager.ScheduledSnmpAgent.Helpers;
 using Testcontainers.PostgreSql;
-
 
 namespace NetDeviceManager.DbTests;
 
@@ -36,17 +33,7 @@ public class Tests
         _postgresContainer.DisposeAsync();
     }
 
-    [Test]
-    public void DbConnection()
-    {
-        var connectionString = _postgresContainer.GetConnectionString();
-        _options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseNpgsql(connectionString)
-            .Options;
-        ApplicationDbContext database = new ApplicationDbContext(_options);
-        bool canConnect = database.Database.CanConnect();
-        Assert.That(canConnect);
-    }
+    
 
     // [Test]
     // public void AddSnmpRecords()
